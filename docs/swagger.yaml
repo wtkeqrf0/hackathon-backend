@@ -1,0 +1,134 @@
+basePath: /api
+consumes:
+- application/json
+definitions:
+  dto.EmailWithPassword:
+    properties:
+      email:
+        example: myemail@gmail.com
+        type: string
+      password:
+        example: onkr3451
+        maxLength: 20
+        minLength: 4
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  ent.User:
+    properties:
+      biography:
+        description: Biography holds the value of the "biography" field.
+        example: I'd like to relax
+        type: string
+      create_time:
+        description: CreateTime holds the value of the "create_time" field.
+        type: string
+      email:
+        description: Email holds the value of the "email" field.
+        example: myemail@gmail.com
+        type: string
+      firstName:
+        description: FirstName holds the value of the "first_name" field.
+        example: Tele
+        type: string
+      lastName:
+        description: LastName holds the value of the "last_name" field.
+        example: phone
+        type: string
+      name:
+        description: Name holds the value of the "name" field.
+        example: user94
+        type: string
+      role:
+        description: Role holds the value of the "role" field.
+        example: USER
+        type: string
+      update_time:
+        description: UpdateTime holds the value of the "update_time" field.
+        type: string
+    type: object
+  errs.MyError:
+    description: All native errors must be this type
+    properties:
+      advice:
+        example: Try to send request later
+        type: string
+      message:
+        example: Exception was occurred
+        type: string
+    type: object
+host: localhost:3000
+info:
+  contact: {}
+  description: It's an API interacting with You Together using Golang
+  title: You Together API
+  version: "1.0"
+paths:
+  /auth:
+    get:
+      description: Returns detail information about me (jwt required)
+      parameters:
+      - description: User's session
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Info about jwt user
+          schema:
+            $ref: '#/definitions/ent.User'
+        "401":
+          description: User isn't logged in
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "404":
+          description: User doesn't exist
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+      summary: Get detail data about the user by jwt
+      tags:
+      - User Get
+  /auth/sign-in:
+    post:
+      description: Compare the user's password with an existing user's password. If
+        it matches, create session of the user. If the user does not exist, create
+        new user
+      parameters:
+      - description: User's email, password
+        in: body
+        name: EmailWithPassword
+        required: true
+        schema:
+          $ref: '#/definitions/dto.EmailWithPassword'
+      responses:
+        "200":
+          description: user's session
+          schema:
+            type: header
+        "400":
+          description: Data is not valid
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "404":
+          description: Password is not registered for this account
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+      summary: Sign in by password
+      tags:
+      - Authorization
+produces:
+- application/json
+schemes:
+- http
+swagger: "2.0"

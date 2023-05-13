@@ -1,0 +1,190 @@
+{
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "schemes": [
+        "http"
+    ],
+    "swagger": "2.0",
+    "info": {
+        "description": "It's an API interacting with You Together using Golang",
+        "title": "You Together API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:3000",
+    "basePath": "/api",
+    "paths": {
+        "/auth": {
+            "get": {
+                "description": "Returns detail information about me (jwt required)",
+                "tags": [
+                    "User Get"
+                ],
+                "summary": "Get detail data about the user by jwt",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User's session",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Info about jwt user",
+                        "schema": {
+                            "$ref": "#/definitions/ent.User"
+                        }
+                    },
+                    "401": {
+                        "description": "User isn't logged in",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    },
+                    "404": {
+                        "description": "User doesn't exist",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/sign-in": {
+            "post": {
+                "description": "Compare the user's password with an existing user's password. If it matches, create session of the user. If the user does not exist, create new user",
+                "tags": [
+                    "Authorization"
+                ],
+                "summary": "Sign in by password",
+                "parameters": [
+                    {
+                        "description": "User's email, password",
+                        "name": "EmailWithPassword",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.EmailWithPassword"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "user's session",
+                        "schema": {
+                            "type": "header"
+                        }
+                    },
+                    "400": {
+                        "description": "Data is not valid",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    },
+                    "404": {
+                        "description": "Password is not registered for this account",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "dto.EmailWithPassword": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "myemail@gmail.com"
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "minLength": 4,
+                    "example": "onkr3451"
+                }
+            }
+        },
+        "ent.User": {
+            "type": "object",
+            "properties": {
+                "biography": {
+                    "description": "Biography holds the value of the \"biography\" field.",
+                    "type": "string",
+                    "example": "I'd like to relax"
+                },
+                "create_time": {
+                    "description": "CreateTime holds the value of the \"create_time\" field.",
+                    "type": "string"
+                },
+                "email": {
+                    "description": "Email holds the value of the \"email\" field.",
+                    "type": "string",
+                    "example": "myemail@gmail.com"
+                },
+                "firstName": {
+                    "description": "FirstName holds the value of the \"first_name\" field.",
+                    "type": "string",
+                    "example": "Tele"
+                },
+                "lastName": {
+                    "description": "LastName holds the value of the \"last_name\" field.",
+                    "type": "string",
+                    "example": "phone"
+                },
+                "name": {
+                    "description": "Name holds the value of the \"name\" field.",
+                    "type": "string",
+                    "example": "user94"
+                },
+                "role": {
+                    "description": "Role holds the value of the \"role\" field.",
+                    "type": "string",
+                    "example": "USER"
+                },
+                "update_time": {
+                    "description": "UpdateTime holds the value of the \"update_time\" field.",
+                    "type": "string"
+                }
+            }
+        },
+        "errs.MyError": {
+            "description": "All native errors must be this type",
+            "type": "object",
+            "properties": {
+                "advice": {
+                    "type": "string",
+                    "example": "Try to send request later"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Exception was occurred"
+                }
+            }
+        }
+    }
+}

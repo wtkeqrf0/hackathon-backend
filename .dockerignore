@@ -1,0 +1,6 @@
+# swagger files
+docs/swagger.json
+docs/swagger.yaml
+
+# git
+.github
