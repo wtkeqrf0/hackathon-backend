@@ -15,7 +15,7 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "localhost:3000",
+    "host": ":3000",
     "basePath": "/api",
     "paths": {
         "/auth": {
@@ -84,7 +84,7 @@
                     "200": {
                         "description": "user's session",
                         "schema": {
-                            "type": "header"
+                            "type": "string"
                         }
                     },
                     "400": {

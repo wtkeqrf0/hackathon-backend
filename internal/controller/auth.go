@@ -14,7 +14,7 @@ import (
 // @Description Compare the user's password with an existing user's password. If it matches, create session of the user. If the user does not exist, create new user
 // @Param EmailWithPassword body dto.EmailWithPassword true "User's email, password"
 // @Tags Authorization
-// @Success 200 {header} string "user's session"
+// @Success 200 {string} string "user's session"
 // @Failure 400 {object} errs.MyError "Data is not valid"
 // @Failure 404 {object} errs.MyError "Password is not registered for this account"
 // @Failure 500 {object} errs.MyError
