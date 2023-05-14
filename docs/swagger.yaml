@@ -59,7 +59,7 @@ definitions:
         example: Exception was occurred
         type: string
     type: object
-host: :3000
+host: 68.183.76.225:3000
 info:
   contact: {}
   description: It's an API interacting with You Together using Golang

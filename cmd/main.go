@@ -50,12 +50,12 @@ func init() {
 // @produce application/json
 // @schemes http
 
-// @host :3000
 // @BasePath /api
 
 // @sessions.docs.description Authorization, registration and authentication
 func main() {
 	cfg := conf.GetConfig()
+	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%d", cfg.Listen.Host, cfg.Listen.Port)
 
 	out := getLogsOut(cfg.LogsPath)
 
@@ -100,7 +100,6 @@ func Run(port string, r *gin.Engine, pClient *ent.Client, l *logrus.Logger) {
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
 	}
-	docs.SwaggerInfo.Host = port
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)

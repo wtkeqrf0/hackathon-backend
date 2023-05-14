@@ -15,7 +15,7 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": ":3000",
+    "host": "68.183.76.225:3000",
     "basePath": "/api",
     "paths": {
         "/auth": {

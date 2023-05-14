@@ -4,6 +4,8 @@ services:
   backend:
     platform: linux/amd64
     image: wtkeqrf0/while.act-backend:main
+    env_file:
+      - .env
     ports:
       - "3000:3000"
     depends_on:
