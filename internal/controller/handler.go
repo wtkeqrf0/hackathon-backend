@@ -6,12 +6,7 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/wtkeqrf0/while.act/ent"
 	"github.com/wtkeqrf0/while.act/internal/controller/dto"
-	"github.com/wtkeqrf0/while.act/pkg/conf"
-	"github.com/wtkeqrf0/while.act/pkg/middleware/errs"
-	"github.com/wtkeqrf0/while.act/pkg/middleware/logger"
 )
-
-var cfg = conf.GetConfig()
 
 // UserService interacts with the users table
 type UserService interface {
@@ -30,18 +25,28 @@ type AuthMiddleware interface {
 	RequireAuth(c *gin.Context)
 }
 
+type ErrHandler interface {
+	HandleErrors(c *gin.Context)
+}
+
+type QueryHandler interface {
+	HandleQueries(c *gin.Context)
+}
+
 type Handler struct {
 	users UserService
 	jwt   AuthMiddleware
 	auth  AuthService
+	erh   ErrHandler
+	qh    QueryHandler
 }
 
-func NewHandler(users UserService, jwt AuthMiddleware, auth AuthService) *Handler {
-	return &Handler{users: users, jwt: jwt, auth: auth}
+func NewHandler(users UserService, jwt AuthMiddleware, auth AuthService, erh ErrHandler, qh QueryHandler) *Handler {
+	return &Handler{users: users, jwt: jwt, auth: auth, erh: erh, qh: qh}
 }
 
 func (h Handler) InitRoutes(r *gin.Engine) {
-	r.Use(logger.QueryLogging, gin.Recovery(), errs.ErrorHandler)
+	r.Use(h.qh.HandleQueries, gin.Recovery(), h.erh.HandleErrors)
 	api := r.Group("/api")
 
 	docs := api.Group("/docs")

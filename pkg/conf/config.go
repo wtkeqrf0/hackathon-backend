@@ -13,6 +13,9 @@ type Config struct {
 	// can be specified by environment variable
 	Prod int `yaml:"prod" env:"PROD" env-default:"0"`
 
+	// specify the path where will the logs output be stored
+	LogsPath string `yaml:"logs_path" env:"LOGS_PATH" env-default:"cons"`
+
 	Token struct {
 		Secret         string        `yaml:"secret" env:"SECRET" env-default:"1234"`
 		AccessDuration time.Duration `yaml:"access_duration" env:"ACCESS_DURATION" env-default:"12h"`
@@ -20,8 +23,7 @@ type Config struct {
 	} `yaml:"token"`
 
 	Listen struct {
-		Host string `yaml:"host" env:"HOST" env-default:"127.0.0.1"`
-		Port int    `yaml:"port" env:"PORT" env-required:"true"`
+		Port int `yaml:"port" env:"PORT" env-default:"3000"`
 	} `yaml:"listen"`
 
 	DB struct {
@@ -31,13 +33,13 @@ type Config struct {
 			Password string `yaml:"password" env:"POSTGRES_PASSWORD" env-default:"postgres"`
 			// if prod=1, host will always be "postgres" (docker constant)
 			Host string `yaml:"host" env:"POSTGRES_HOST" env-default:"127.0.0.1"`
-			Port int    `yaml:"port" env:"POSTGRES_PORT" env-required:"true"`
+			Port int    `yaml:"port" env:"POSTGRES_PORT" env-default:"5432"`
 		} `yaml:"postgres"`
 	} `yaml:"db"`
 }
 
 var (
-	inst = Config{}
+	inst Config
 	once sync.Once
 )
 

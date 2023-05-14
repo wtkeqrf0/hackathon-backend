@@ -5,8 +5,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
+	"io"
 	"net/http"
-	"os"
 )
 
 // Sign-in errors
@@ -34,22 +34,27 @@ var (
 	ServerError = newError(http.StatusInternalServerError, "Server exception was occurred", "Try to restart the page")
 )
 
-var logger = logrus.Logger{
-	Level:        logrus.ErrorLevel,
-	Out:          os.Stderr,
-	ReportCaller: true,
-	Formatter: &logrus.JSONFormatter{
+type ErrHandler struct {
+	log *logrus.Logger
+}
+
+func NewErrHandler(log *logrus.Logger, out io.Writer) *ErrHandler {
+	log.SetLevel(logrus.ErrorLevel)
+	log.SetReportCaller(true)
+	log.SetFormatter(&logrus.JSONFormatter{
 		TimestampFormat: "2006/01/02 15:32:05",
 		FieldMap: logrus.FieldMap{
 			logrus.FieldKeyLevel: "status",
 			logrus.FieldKeyFunc:  "caller",
 			logrus.FieldKeyMsg:   "message",
 		},
-	},
+	})
+	log.SetOutput(out)
+
+	return &ErrHandler{log: log}
 }
 
-// ErrorHandler used for error handling. Handles only MyError type errors
-func ErrorHandler(c *gin.Context) {
+func (e ErrHandler) HandleErrors(c *gin.Context) {
 	c.Next()
 
 	errs := c.Errors
@@ -60,7 +65,7 @@ func ErrorHandler(c *gin.Context) {
 
 	for i, err := range errs {
 		if my, ok := err.Err.(MyError); ok {
-			logger.WithError(my.Err).Errorf("%02d# %s", i+1, my.Msg)
+			e.log.WithError(my.Err).Errorf("%02d# %s", i+1, my.Msg)
 			res := gin.H{"error": my.Msg, "advice": my.Advice}
 
 			if vErrs, ok := my.Err.(validator.ValidationErrors); ok {
@@ -92,12 +97,10 @@ func ErrorHandler(c *gin.Context) {
 						fields[field] = fmt.Sprintf("%s can contain only /:@-._~!?$&'()*+,;= and any english letters", field)
 					case "required_without_all":
 						fields[field] = fmt.Sprintf("%s should not be empty", field)
-						break
 					case "name":
 						fields[field] = fmt.Sprintf("name is not valid")
 					case "jwt":
 						fields[field] = fmt.Sprintf("%s is not jwt format", field)
-
 					}
 				}
 				res["fields"] = fields
@@ -107,7 +110,7 @@ func ErrorHandler(c *gin.Context) {
 				c.JSON(my.Status, res)
 			}
 		} else {
-			logger.WithError(err.Err).Error("UNEXPECTED ERROR")
+			e.log.WithError(err.Err).Error("UNEXPECTED ERROR")
 			if i == 0 {
 				c.JSON(ServerError.Status, ServerError.Msg)
 			}

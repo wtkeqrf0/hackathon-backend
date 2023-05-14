@@ -1,6 +1,2 @@
-listen:
-  port: 3000
-
-db:
-  postgres:
-    port: 5432
+token:
+  access_name: "Authorization"

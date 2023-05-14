@@ -1,12 +1,14 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
+	"github.com/wtkeqrf0/while.act/docs"
 	_ "github.com/wtkeqrf0/while.act/docs"
 	"github.com/wtkeqrf0/while.act/ent"
 	"github.com/wtkeqrf0/while.act/internal/controller"
@@ -15,15 +17,16 @@ import (
 	"github.com/wtkeqrf0/while.act/pkg/bind"
 	"github.com/wtkeqrf0/while.act/pkg/client/postgresql"
 	"github.com/wtkeqrf0/while.act/pkg/conf"
+	"github.com/wtkeqrf0/while.act/pkg/middleware/errs"
 	"github.com/wtkeqrf0/while.act/pkg/middleware/jwts"
+	"github.com/wtkeqrf0/while.act/pkg/middleware/logger"
+	"io"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 	"time"
 )
-
-//TODO import docs file
 
 func init() {
 	logrus.SetFormatter(&logrus.JSONFormatter{
@@ -47,12 +50,14 @@ func init() {
 // @produce application/json
 // @schemes http
 
-// @host localhost:3000
+// @host :3000
 // @BasePath /api
 
 // @sessions.docs.description Authorization, registration and authentication
 func main() {
 	cfg := conf.GetConfig()
+
+	out := getLogsOut(cfg.LogsPath)
 
 	pClient := postgresql.Open(cfg.DB.Postgres.Username, cfg.DB.Postgres.Password,
 		cfg.DB.Postgres.Host, cfg.DB.Postgres.Port, cfg.DB.Postgres.DBName)
@@ -64,48 +69,76 @@ func main() {
 		service.NewUserService(pConn),
 		jwts.NewAuth(auth),
 		auth,
+		errs.NewErrHandler(logrus.New(), out),
+		logger.NewQueryHandler(logrus.New(), out),
 	)
 
 	r := gin.New()
 	h.InitRoutes(r)
 
-	Run(cfg.Listen.Port, r, pClient)
+	Run(fmt.Sprintf(":%d", cfg.Listen.Port), r, pClient, logrus.New())
 }
 
 // Run the Server with graceful shutdown
-func Run(port int, r *gin.Engine, pClient *ent.Client) {
+func Run(port string, r *gin.Engine, pClient *ent.Client, l *logrus.Logger) {
+	l.SetOutput(os.Stdout)
+	l.SetLevel(logrus.InfoLevel)
+	l.SetFormatter(&logrus.JSONFormatter{
+		TimestampFormat: "2006/01/02 15:32:05",
+		FieldMap: logrus.FieldMap{
+			logrus.FieldKeyLevel: "status",
+			logrus.FieldKeyFunc:  "caller",
+			logrus.FieldKeyMsg:   "message",
+		},
+	})
+	l.SetReportCaller(true)
+
 	srv := &http.Server{
-		Addr:           fmt.Sprintf(":%d", port),
+		Addr:           port,
 		Handler:        r,
 		MaxHeaderBytes: 1 << 20, // 1 MB
 		ReadTimeout:    10 * time.Second,
 		WriteTimeout:   10 * time.Second,
 	}
+	docs.SwaggerInfo.Host = port
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			logrus.WithError(err).Fatalf("error occurred while running http server")
+			l.WithError(err).Fatalf("error occurred while running http server")
 		}
 	}()
-	logrus.Infof("Server Started On Port %d", port)
+	l.Infof("Server Started On Port %s", port)
 
 	<-quit
 
-	logrus.Info("Server Shutting Down ...")
+	l.Info("Server Shutting Down ...")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	if err := srv.Shutdown(ctx); err != nil {
-		logrus.WithError(err).Fatal("Server Shutdown Failed")
+		l.WithError(err).Fatal("Server Shutdown Failed")
 	}
 
 	if err := pClient.Close(); err != nil {
-		logrus.WithError(err).Fatal("PostgreSQL Connection Shutdown Failed")
+		l.WithError(err).Fatal("PostgreSQL Connection Shutdown Failed")
 	}
 
-	logrus.Info("Server Exited Properly")
+	l.Info("Server Exited Properly")
+}
+
+func getLogsOut(s string) io.Writer {
+	if s != "cons" {
+		file, err := os.OpenFile(s, os.O_WRONLY|os.O_CREATE|os.O_APPEND, os.ModePerm)
+		if err != nil {
+			logrus.WithError(err).Fatalf("can't write logs to %s", s)
+		}
+		writer := bufio.NewWriter(file)
+		logrus.SetOutput(writer)
+		return writer
+	}
+	return os.Stdout
 }
