@@ -2,6 +2,7 @@ package bind
 
 import (
 	"github.com/go-playground/validator/v10"
+	"github.com/sirupsen/logrus"
 	"reflect"
 )
 
@@ -10,7 +11,9 @@ type Valid struct {
 }
 
 func NewValid(v *validator.Validate) *Valid {
-	v.RegisterValidation("name", validateName)
+	if err := v.RegisterValidation("name", validateName); err != nil {
+		logrus.WithError(err).Warn("can't validate name")
+	}
 	return &Valid{v: v}
 }
 
