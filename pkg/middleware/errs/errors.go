@@ -11,22 +11,23 @@ import (
 
 // Sign-in errors
 var (
-	NoSuchUser       = newError(http.StatusNotFound, "There is no such user", "But you can still find another existing user!")
-	PasswordError    = newError(http.StatusBadRequest, "Wrong password", "You can still sign in by your email!")
-	PasswordNotFound = newError(http.StatusNotFound, "You have not registered a password for you account", "Try change the password in your profile")
+	PasswordError = newError(http.StatusBadRequest, "Wrong password", "You can still sign in by your email!")
 )
 
 // Auth errors
 var (
-	PermissionError = newError(http.StatusForbidden, "You don't have this permission", "Try to ask the owner about it")
-	UnAuthorized    = newError(http.StatusUnauthorized, "You are not logged in", "Click on the button below to sign in!")
+	NoSuchUser   = newError(http.StatusNotFound, "There is no such user", "But you can still find another existing user!")
+	UnAuthorized = newError(http.StatusUnauthorized, "You are not logged in", "Click on the button below to sign in!")
 )
 
 // Input errors
 var (
-	ValidError   = newError(http.StatusBadRequest, "Validation error", "Try to enter the correct data")
-	DataError    = newError(http.StatusBadRequest, "Insufficient data", "Try to enter the remaining data")
-	AlreadyExist = newError(http.StatusBadRequest, "Already exist", "Try to enter another data")
+	ValidError = newError(http.StatusBadRequest, "Validation error", "Try to enter the correct data")
+)
+
+// Enity errors
+var (
+	NoSuchCompany = newError(http.StatusBadRequest, "There is no such company inn", "But you can still find another existing company!")
 )
 
 // ServerError errors
@@ -101,6 +102,12 @@ func (e ErrHandler) HandleErrors(c *gin.Context) {
 						fields[field] = fmt.Sprintf("name is not valid")
 					case "jwt":
 						fields[field] = fmt.Sprintf("%s is not jwt format", field)
+					case "title":
+						fields[field] = fmt.Sprintf("%s is not a title", field)
+					case "inn":
+						fields[field] = fmt.Sprintf("%s is not an INN", field)
+					case "link":
+						fields[field] = fmt.Sprintf("%s is not a link", field)
 					}
 				}
 				res["fields"] = fields
