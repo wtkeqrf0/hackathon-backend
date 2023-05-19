@@ -11,6 +11,7 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/wtkeqrf0/while.act/ent/company"
 	"github.com/wtkeqrf0/while.act/ent/predicate"
 	"github.com/wtkeqrf0/while.act/ent/user"
 )
@@ -34,15 +35,23 @@ func (uu *UserUpdate) SetUpdateTime(t time.Time) *UserUpdate {
 	return uu
 }
 
-// SetName sets the "name" field.
-func (uu *UserUpdate) SetName(s string) *UserUpdate {
-	uu.mutation.SetName(s)
+// SetRole sets the "role" field.
+func (uu *UserUpdate) SetRole(s string) *UserUpdate {
+	uu.mutation.SetRole(s)
 	return uu
 }
 
-// SetEmail sets the "email" field.
-func (uu *UserUpdate) SetEmail(s string) *UserUpdate {
-	uu.mutation.SetEmail(s)
+// SetNillableRole sets the "role" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableRole(s *string) *UserUpdate {
+	if s != nil {
+		uu.SetRole(*s)
+	}
+	return uu
+}
+
+// SetName sets the "name" field.
+func (uu *UserUpdate) SetName(s string) *UserUpdate {
+	uu.mutation.SetName(s)
 	return uu
 }
 
@@ -52,9 +61,107 @@ func (uu *UserUpdate) SetPasswordHash(b []byte) *UserUpdate {
 	return uu
 }
 
-// ClearPasswordHash clears the value of the "password_hash" field.
-func (uu *UserUpdate) ClearPasswordHash() *UserUpdate {
-	uu.mutation.ClearPasswordHash()
+// SetEmail sets the "email" field.
+func (uu *UserUpdate) SetEmail(s string) *UserUpdate {
+	uu.mutation.SetEmail(s)
+	return uu
+}
+
+// SetFirstName sets the "first_name" field.
+func (uu *UserUpdate) SetFirstName(s string) *UserUpdate {
+	uu.mutation.SetFirstName(s)
+	return uu
+}
+
+// SetLastName sets the "last_name" field.
+func (uu *UserUpdate) SetLastName(s string) *UserUpdate {
+	uu.mutation.SetLastName(s)
+	return uu
+}
+
+// SetCompanyInn sets the "company_inn" field.
+func (uu *UserUpdate) SetCompanyInn(s string) *UserUpdate {
+	uu.mutation.SetCompanyInn(s)
+	return uu
+}
+
+// SetFatherName sets the "father_name" field.
+func (uu *UserUpdate) SetFatherName(s string) *UserUpdate {
+	uu.mutation.SetFatherName(s)
+	return uu
+}
+
+// SetNillableFatherName sets the "father_name" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableFatherName(s *string) *UserUpdate {
+	if s != nil {
+		uu.SetFatherName(*s)
+	}
+	return uu
+}
+
+// ClearFatherName clears the value of the "father_name" field.
+func (uu *UserUpdate) ClearFatherName() *UserUpdate {
+	uu.mutation.ClearFatherName()
+	return uu
+}
+
+// SetPosition sets the "position" field.
+func (uu *UserUpdate) SetPosition(s string) *UserUpdate {
+	uu.mutation.SetPosition(s)
+	return uu
+}
+
+// SetNillablePosition sets the "position" field if the given value is not nil.
+func (uu *UserUpdate) SetNillablePosition(s *string) *UserUpdate {
+	if s != nil {
+		uu.SetPosition(*s)
+	}
+	return uu
+}
+
+// ClearPosition clears the value of the "position" field.
+func (uu *UserUpdate) ClearPosition() *UserUpdate {
+	uu.mutation.ClearPosition()
+	return uu
+}
+
+// SetCountry sets the "country" field.
+func (uu *UserUpdate) SetCountry(s string) *UserUpdate {
+	uu.mutation.SetCountry(s)
+	return uu
+}
+
+// SetNillableCountry sets the "country" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableCountry(s *string) *UserUpdate {
+	if s != nil {
+		uu.SetCountry(*s)
+	}
+	return uu
+}
+
+// ClearCountry clears the value of the "country" field.
+func (uu *UserUpdate) ClearCountry() *UserUpdate {
+	uu.mutation.ClearCountry()
+	return uu
+}
+
+// SetCity sets the "city" field.
+func (uu *UserUpdate) SetCity(s string) *UserUpdate {
+	uu.mutation.SetCity(s)
+	return uu
+}
+
+// SetNillableCity sets the "city" field if the given value is not nil.
+func (uu *UserUpdate) SetNillableCity(s *string) *UserUpdate {
+	if s != nil {
+		uu.SetCity(*s)
+	}
+	return uu
+}
+
+// ClearCity clears the value of the "city" field.
+func (uu *UserUpdate) ClearCity() *UserUpdate {
+	uu.mutation.ClearCity()
 	return uu
 }
 
@@ -78,63 +185,26 @@ func (uu *UserUpdate) ClearBiography() *UserUpdate {
 	return uu
 }
 
-// SetRole sets the "role" field.
-func (uu *UserUpdate) SetRole(s string) *UserUpdate {
-	uu.mutation.SetRole(s)
+// SetCompanyID sets the "company" edge to the Company entity by ID.
+func (uu *UserUpdate) SetCompanyID(id string) *UserUpdate {
+	uu.mutation.SetCompanyID(id)
 	return uu
 }
 
-// SetNillableRole sets the "role" field if the given value is not nil.
-func (uu *UserUpdate) SetNillableRole(s *string) *UserUpdate {
-	if s != nil {
-		uu.SetRole(*s)
-	}
-	return uu
-}
-
-// SetFirstName sets the "first_name" field.
-func (uu *UserUpdate) SetFirstName(s string) *UserUpdate {
-	uu.mutation.SetFirstName(s)
-	return uu
-}
-
-// SetNillableFirstName sets the "first_name" field if the given value is not nil.
-func (uu *UserUpdate) SetNillableFirstName(s *string) *UserUpdate {
-	if s != nil {
-		uu.SetFirstName(*s)
-	}
-	return uu
-}
-
-// ClearFirstName clears the value of the "first_name" field.
-func (uu *UserUpdate) ClearFirstName() *UserUpdate {
-	uu.mutation.ClearFirstName()
-	return uu
-}
-
-// SetLastName sets the "last_name" field.
-func (uu *UserUpdate) SetLastName(s string) *UserUpdate {
-	uu.mutation.SetLastName(s)
-	return uu
-}
-
-// SetNillableLastName sets the "last_name" field if the given value is not nil.
-func (uu *UserUpdate) SetNillableLastName(s *string) *UserUpdate {
-	if s != nil {
-		uu.SetLastName(*s)
-	}
-	return uu
-}
-
-// ClearLastName clears the value of the "last_name" field.
-func (uu *UserUpdate) ClearLastName() *UserUpdate {
-	uu.mutation.ClearLastName()
-	return uu
+// SetCompany sets the "company" edge to the Company entity.
+func (uu *UserUpdate) SetCompany(c *Company) *UserUpdate {
+	return uu.SetCompanyID(c.ID)
 }
 
 // Mutation returns the UserMutation object of the builder.
 func (uu *UserUpdate) Mutation() *UserMutation {
 	return uu.mutation
+}
+
+// ClearCompany clears the "company" edge to the Company entity.
+func (uu *UserUpdate) ClearCompany() *UserUpdate {
+	uu.mutation.ClearCompany()
+	return uu
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -191,11 +261,6 @@ func (uu *UserUpdate) check() error {
 			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "User.email": %w`, err)}
 		}
 	}
-	if v, ok := uu.mutation.Biography(); ok {
-		if err := user.BiographyValidator(v); err != nil {
-			return &ValidationError{Name: "biography", err: fmt.Errorf(`ent: validator failed for field "User.biography": %w`, err)}
-		}
-	}
 	if v, ok := uu.mutation.FirstName(); ok {
 		if err := user.FirstNameValidator(v); err != nil {
 			return &ValidationError{Name: "first_name", err: fmt.Errorf(`ent: validator failed for field "User.first_name": %w`, err)}
@@ -205,6 +270,39 @@ func (uu *UserUpdate) check() error {
 		if err := user.LastNameValidator(v); err != nil {
 			return &ValidationError{Name: "last_name", err: fmt.Errorf(`ent: validator failed for field "User.last_name": %w`, err)}
 		}
+	}
+	if v, ok := uu.mutation.CompanyInn(); ok {
+		if err := user.CompanyInnValidator(v); err != nil {
+			return &ValidationError{Name: "company_inn", err: fmt.Errorf(`ent: validator failed for field "User.company_inn": %w`, err)}
+		}
+	}
+	if v, ok := uu.mutation.FatherName(); ok {
+		if err := user.FatherNameValidator(v); err != nil {
+			return &ValidationError{Name: "father_name", err: fmt.Errorf(`ent: validator failed for field "User.father_name": %w`, err)}
+		}
+	}
+	if v, ok := uu.mutation.Position(); ok {
+		if err := user.PositionValidator(v); err != nil {
+			return &ValidationError{Name: "position", err: fmt.Errorf(`ent: validator failed for field "User.position": %w`, err)}
+		}
+	}
+	if v, ok := uu.mutation.Country(); ok {
+		if err := user.CountryValidator(v); err != nil {
+			return &ValidationError{Name: "country", err: fmt.Errorf(`ent: validator failed for field "User.country": %w`, err)}
+		}
+	}
+	if v, ok := uu.mutation.City(); ok {
+		if err := user.CityValidator(v); err != nil {
+			return &ValidationError{Name: "city", err: fmt.Errorf(`ent: validator failed for field "User.city": %w`, err)}
+		}
+	}
+	if v, ok := uu.mutation.Biography(); ok {
+		if err := user.BiographyValidator(v); err != nil {
+			return &ValidationError{Name: "biography", err: fmt.Errorf(`ent: validator failed for field "User.biography": %w`, err)}
+		}
+	}
+	if _, ok := uu.mutation.CompanyID(); uu.mutation.CompanyCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "User.company"`)
 	}
 	return nil
 }
@@ -224,17 +322,47 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := uu.mutation.UpdateTime(); ok {
 		_spec.SetField(user.FieldUpdateTime, field.TypeTime, value)
 	}
+	if value, ok := uu.mutation.Role(); ok {
+		_spec.SetField(user.FieldRole, field.TypeString, value)
+	}
 	if value, ok := uu.mutation.Name(); ok {
 		_spec.SetField(user.FieldName, field.TypeString, value)
-	}
-	if value, ok := uu.mutation.Email(); ok {
-		_spec.SetField(user.FieldEmail, field.TypeString, value)
 	}
 	if value, ok := uu.mutation.PasswordHash(); ok {
 		_spec.SetField(user.FieldPasswordHash, field.TypeBytes, value)
 	}
-	if uu.mutation.PasswordHashCleared() {
-		_spec.ClearField(user.FieldPasswordHash, field.TypeBytes)
+	if value, ok := uu.mutation.Email(); ok {
+		_spec.SetField(user.FieldEmail, field.TypeString, value)
+	}
+	if value, ok := uu.mutation.FirstName(); ok {
+		_spec.SetField(user.FieldFirstName, field.TypeString, value)
+	}
+	if value, ok := uu.mutation.LastName(); ok {
+		_spec.SetField(user.FieldLastName, field.TypeString, value)
+	}
+	if value, ok := uu.mutation.FatherName(); ok {
+		_spec.SetField(user.FieldFatherName, field.TypeString, value)
+	}
+	if uu.mutation.FatherNameCleared() {
+		_spec.ClearField(user.FieldFatherName, field.TypeString)
+	}
+	if value, ok := uu.mutation.Position(); ok {
+		_spec.SetField(user.FieldPosition, field.TypeString, value)
+	}
+	if uu.mutation.PositionCleared() {
+		_spec.ClearField(user.FieldPosition, field.TypeString)
+	}
+	if value, ok := uu.mutation.Country(); ok {
+		_spec.SetField(user.FieldCountry, field.TypeString, value)
+	}
+	if uu.mutation.CountryCleared() {
+		_spec.ClearField(user.FieldCountry, field.TypeString)
+	}
+	if value, ok := uu.mutation.City(); ok {
+		_spec.SetField(user.FieldCity, field.TypeString, value)
+	}
+	if uu.mutation.CityCleared() {
+		_spec.ClearField(user.FieldCity, field.TypeString)
 	}
 	if value, ok := uu.mutation.Biography(); ok {
 		_spec.SetField(user.FieldBiography, field.TypeString, value)
@@ -242,20 +370,34 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if uu.mutation.BiographyCleared() {
 		_spec.ClearField(user.FieldBiography, field.TypeString)
 	}
-	if value, ok := uu.mutation.Role(); ok {
-		_spec.SetField(user.FieldRole, field.TypeString, value)
+	if uu.mutation.CompanyCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   user.CompanyTable,
+			Columns: []string{user.CompanyColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(company.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if value, ok := uu.mutation.FirstName(); ok {
-		_spec.SetField(user.FieldFirstName, field.TypeString, value)
-	}
-	if uu.mutation.FirstNameCleared() {
-		_spec.ClearField(user.FieldFirstName, field.TypeString)
-	}
-	if value, ok := uu.mutation.LastName(); ok {
-		_spec.SetField(user.FieldLastName, field.TypeString, value)
-	}
-	if uu.mutation.LastNameCleared() {
-		_spec.ClearField(user.FieldLastName, field.TypeString)
+	if nodes := uu.mutation.CompanyIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   user.CompanyTable,
+			Columns: []string{user.CompanyColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(company.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, uu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -283,15 +425,23 @@ func (uuo *UserUpdateOne) SetUpdateTime(t time.Time) *UserUpdateOne {
 	return uuo
 }
 
-// SetName sets the "name" field.
-func (uuo *UserUpdateOne) SetName(s string) *UserUpdateOne {
-	uuo.mutation.SetName(s)
+// SetRole sets the "role" field.
+func (uuo *UserUpdateOne) SetRole(s string) *UserUpdateOne {
+	uuo.mutation.SetRole(s)
 	return uuo
 }
 
-// SetEmail sets the "email" field.
-func (uuo *UserUpdateOne) SetEmail(s string) *UserUpdateOne {
-	uuo.mutation.SetEmail(s)
+// SetNillableRole sets the "role" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableRole(s *string) *UserUpdateOne {
+	if s != nil {
+		uuo.SetRole(*s)
+	}
+	return uuo
+}
+
+// SetName sets the "name" field.
+func (uuo *UserUpdateOne) SetName(s string) *UserUpdateOne {
+	uuo.mutation.SetName(s)
 	return uuo
 }
 
@@ -301,9 +451,107 @@ func (uuo *UserUpdateOne) SetPasswordHash(b []byte) *UserUpdateOne {
 	return uuo
 }
 
-// ClearPasswordHash clears the value of the "password_hash" field.
-func (uuo *UserUpdateOne) ClearPasswordHash() *UserUpdateOne {
-	uuo.mutation.ClearPasswordHash()
+// SetEmail sets the "email" field.
+func (uuo *UserUpdateOne) SetEmail(s string) *UserUpdateOne {
+	uuo.mutation.SetEmail(s)
+	return uuo
+}
+
+// SetFirstName sets the "first_name" field.
+func (uuo *UserUpdateOne) SetFirstName(s string) *UserUpdateOne {
+	uuo.mutation.SetFirstName(s)
+	return uuo
+}
+
+// SetLastName sets the "last_name" field.
+func (uuo *UserUpdateOne) SetLastName(s string) *UserUpdateOne {
+	uuo.mutation.SetLastName(s)
+	return uuo
+}
+
+// SetCompanyInn sets the "company_inn" field.
+func (uuo *UserUpdateOne) SetCompanyInn(s string) *UserUpdateOne {
+	uuo.mutation.SetCompanyInn(s)
+	return uuo
+}
+
+// SetFatherName sets the "father_name" field.
+func (uuo *UserUpdateOne) SetFatherName(s string) *UserUpdateOne {
+	uuo.mutation.SetFatherName(s)
+	return uuo
+}
+
+// SetNillableFatherName sets the "father_name" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableFatherName(s *string) *UserUpdateOne {
+	if s != nil {
+		uuo.SetFatherName(*s)
+	}
+	return uuo
+}
+
+// ClearFatherName clears the value of the "father_name" field.
+func (uuo *UserUpdateOne) ClearFatherName() *UserUpdateOne {
+	uuo.mutation.ClearFatherName()
+	return uuo
+}
+
+// SetPosition sets the "position" field.
+func (uuo *UserUpdateOne) SetPosition(s string) *UserUpdateOne {
+	uuo.mutation.SetPosition(s)
+	return uuo
+}
+
+// SetNillablePosition sets the "position" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillablePosition(s *string) *UserUpdateOne {
+	if s != nil {
+		uuo.SetPosition(*s)
+	}
+	return uuo
+}
+
+// ClearPosition clears the value of the "position" field.
+func (uuo *UserUpdateOne) ClearPosition() *UserUpdateOne {
+	uuo.mutation.ClearPosition()
+	return uuo
+}
+
+// SetCountry sets the "country" field.
+func (uuo *UserUpdateOne) SetCountry(s string) *UserUpdateOne {
+	uuo.mutation.SetCountry(s)
+	return uuo
+}
+
+// SetNillableCountry sets the "country" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableCountry(s *string) *UserUpdateOne {
+	if s != nil {
+		uuo.SetCountry(*s)
+	}
+	return uuo
+}
+
+// ClearCountry clears the value of the "country" field.
+func (uuo *UserUpdateOne) ClearCountry() *UserUpdateOne {
+	uuo.mutation.ClearCountry()
+	return uuo
+}
+
+// SetCity sets the "city" field.
+func (uuo *UserUpdateOne) SetCity(s string) *UserUpdateOne {
+	uuo.mutation.SetCity(s)
+	return uuo
+}
+
+// SetNillableCity sets the "city" field if the given value is not nil.
+func (uuo *UserUpdateOne) SetNillableCity(s *string) *UserUpdateOne {
+	if s != nil {
+		uuo.SetCity(*s)
+	}
+	return uuo
+}
+
+// ClearCity clears the value of the "city" field.
+func (uuo *UserUpdateOne) ClearCity() *UserUpdateOne {
+	uuo.mutation.ClearCity()
 	return uuo
 }
 
@@ -327,63 +575,26 @@ func (uuo *UserUpdateOne) ClearBiography() *UserUpdateOne {
 	return uuo
 }
 
-// SetRole sets the "role" field.
-func (uuo *UserUpdateOne) SetRole(s string) *UserUpdateOne {
-	uuo.mutation.SetRole(s)
+// SetCompanyID sets the "company" edge to the Company entity by ID.
+func (uuo *UserUpdateOne) SetCompanyID(id string) *UserUpdateOne {
+	uuo.mutation.SetCompanyID(id)
 	return uuo
 }
 
-// SetNillableRole sets the "role" field if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableRole(s *string) *UserUpdateOne {
-	if s != nil {
-		uuo.SetRole(*s)
-	}
-	return uuo
-}
-
-// SetFirstName sets the "first_name" field.
-func (uuo *UserUpdateOne) SetFirstName(s string) *UserUpdateOne {
-	uuo.mutation.SetFirstName(s)
-	return uuo
-}
-
-// SetNillableFirstName sets the "first_name" field if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableFirstName(s *string) *UserUpdateOne {
-	if s != nil {
-		uuo.SetFirstName(*s)
-	}
-	return uuo
-}
-
-// ClearFirstName clears the value of the "first_name" field.
-func (uuo *UserUpdateOne) ClearFirstName() *UserUpdateOne {
-	uuo.mutation.ClearFirstName()
-	return uuo
-}
-
-// SetLastName sets the "last_name" field.
-func (uuo *UserUpdateOne) SetLastName(s string) *UserUpdateOne {
-	uuo.mutation.SetLastName(s)
-	return uuo
-}
-
-// SetNillableLastName sets the "last_name" field if the given value is not nil.
-func (uuo *UserUpdateOne) SetNillableLastName(s *string) *UserUpdateOne {
-	if s != nil {
-		uuo.SetLastName(*s)
-	}
-	return uuo
-}
-
-// ClearLastName clears the value of the "last_name" field.
-func (uuo *UserUpdateOne) ClearLastName() *UserUpdateOne {
-	uuo.mutation.ClearLastName()
-	return uuo
+// SetCompany sets the "company" edge to the Company entity.
+func (uuo *UserUpdateOne) SetCompany(c *Company) *UserUpdateOne {
+	return uuo.SetCompanyID(c.ID)
 }
 
 // Mutation returns the UserMutation object of the builder.
 func (uuo *UserUpdateOne) Mutation() *UserMutation {
 	return uuo.mutation
+}
+
+// ClearCompany clears the "company" edge to the Company entity.
+func (uuo *UserUpdateOne) ClearCompany() *UserUpdateOne {
+	uuo.mutation.ClearCompany()
+	return uuo
 }
 
 // Where appends a list predicates to the UserUpdate builder.
@@ -453,11 +664,6 @@ func (uuo *UserUpdateOne) check() error {
 			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "User.email": %w`, err)}
 		}
 	}
-	if v, ok := uuo.mutation.Biography(); ok {
-		if err := user.BiographyValidator(v); err != nil {
-			return &ValidationError{Name: "biography", err: fmt.Errorf(`ent: validator failed for field "User.biography": %w`, err)}
-		}
-	}
 	if v, ok := uuo.mutation.FirstName(); ok {
 		if err := user.FirstNameValidator(v); err != nil {
 			return &ValidationError{Name: "first_name", err: fmt.Errorf(`ent: validator failed for field "User.first_name": %w`, err)}
@@ -467,6 +673,39 @@ func (uuo *UserUpdateOne) check() error {
 		if err := user.LastNameValidator(v); err != nil {
 			return &ValidationError{Name: "last_name", err: fmt.Errorf(`ent: validator failed for field "User.last_name": %w`, err)}
 		}
+	}
+	if v, ok := uuo.mutation.CompanyInn(); ok {
+		if err := user.CompanyInnValidator(v); err != nil {
+			return &ValidationError{Name: "company_inn", err: fmt.Errorf(`ent: validator failed for field "User.company_inn": %w`, err)}
+		}
+	}
+	if v, ok := uuo.mutation.FatherName(); ok {
+		if err := user.FatherNameValidator(v); err != nil {
+			return &ValidationError{Name: "father_name", err: fmt.Errorf(`ent: validator failed for field "User.father_name": %w`, err)}
+		}
+	}
+	if v, ok := uuo.mutation.Position(); ok {
+		if err := user.PositionValidator(v); err != nil {
+			return &ValidationError{Name: "position", err: fmt.Errorf(`ent: validator failed for field "User.position": %w`, err)}
+		}
+	}
+	if v, ok := uuo.mutation.Country(); ok {
+		if err := user.CountryValidator(v); err != nil {
+			return &ValidationError{Name: "country", err: fmt.Errorf(`ent: validator failed for field "User.country": %w`, err)}
+		}
+	}
+	if v, ok := uuo.mutation.City(); ok {
+		if err := user.CityValidator(v); err != nil {
+			return &ValidationError{Name: "city", err: fmt.Errorf(`ent: validator failed for field "User.city": %w`, err)}
+		}
+	}
+	if v, ok := uuo.mutation.Biography(); ok {
+		if err := user.BiographyValidator(v); err != nil {
+			return &ValidationError{Name: "biography", err: fmt.Errorf(`ent: validator failed for field "User.biography": %w`, err)}
+		}
+	}
+	if _, ok := uuo.mutation.CompanyID(); uuo.mutation.CompanyCleared() && !ok {
+		return errors.New(`ent: clearing a required unique edge "User.company"`)
 	}
 	return nil
 }
@@ -503,17 +742,47 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	if value, ok := uuo.mutation.UpdateTime(); ok {
 		_spec.SetField(user.FieldUpdateTime, field.TypeTime, value)
 	}
+	if value, ok := uuo.mutation.Role(); ok {
+		_spec.SetField(user.FieldRole, field.TypeString, value)
+	}
 	if value, ok := uuo.mutation.Name(); ok {
 		_spec.SetField(user.FieldName, field.TypeString, value)
-	}
-	if value, ok := uuo.mutation.Email(); ok {
-		_spec.SetField(user.FieldEmail, field.TypeString, value)
 	}
 	if value, ok := uuo.mutation.PasswordHash(); ok {
 		_spec.SetField(user.FieldPasswordHash, field.TypeBytes, value)
 	}
-	if uuo.mutation.PasswordHashCleared() {
-		_spec.ClearField(user.FieldPasswordHash, field.TypeBytes)
+	if value, ok := uuo.mutation.Email(); ok {
+		_spec.SetField(user.FieldEmail, field.TypeString, value)
+	}
+	if value, ok := uuo.mutation.FirstName(); ok {
+		_spec.SetField(user.FieldFirstName, field.TypeString, value)
+	}
+	if value, ok := uuo.mutation.LastName(); ok {
+		_spec.SetField(user.FieldLastName, field.TypeString, value)
+	}
+	if value, ok := uuo.mutation.FatherName(); ok {
+		_spec.SetField(user.FieldFatherName, field.TypeString, value)
+	}
+	if uuo.mutation.FatherNameCleared() {
+		_spec.ClearField(user.FieldFatherName, field.TypeString)
+	}
+	if value, ok := uuo.mutation.Position(); ok {
+		_spec.SetField(user.FieldPosition, field.TypeString, value)
+	}
+	if uuo.mutation.PositionCleared() {
+		_spec.ClearField(user.FieldPosition, field.TypeString)
+	}
+	if value, ok := uuo.mutation.Country(); ok {
+		_spec.SetField(user.FieldCountry, field.TypeString, value)
+	}
+	if uuo.mutation.CountryCleared() {
+		_spec.ClearField(user.FieldCountry, field.TypeString)
+	}
+	if value, ok := uuo.mutation.City(); ok {
+		_spec.SetField(user.FieldCity, field.TypeString, value)
+	}
+	if uuo.mutation.CityCleared() {
+		_spec.ClearField(user.FieldCity, field.TypeString)
 	}
 	if value, ok := uuo.mutation.Biography(); ok {
 		_spec.SetField(user.FieldBiography, field.TypeString, value)
@@ -521,20 +790,34 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 	if uuo.mutation.BiographyCleared() {
 		_spec.ClearField(user.FieldBiography, field.TypeString)
 	}
-	if value, ok := uuo.mutation.Role(); ok {
-		_spec.SetField(user.FieldRole, field.TypeString, value)
+	if uuo.mutation.CompanyCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   user.CompanyTable,
+			Columns: []string{user.CompanyColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(company.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
 	}
-	if value, ok := uuo.mutation.FirstName(); ok {
-		_spec.SetField(user.FieldFirstName, field.TypeString, value)
-	}
-	if uuo.mutation.FirstNameCleared() {
-		_spec.ClearField(user.FieldFirstName, field.TypeString)
-	}
-	if value, ok := uuo.mutation.LastName(); ok {
-		_spec.SetField(user.FieldLastName, field.TypeString, value)
-	}
-	if uuo.mutation.LastNameCleared() {
-		_spec.ClearField(user.FieldLastName, field.TypeString)
+	if nodes := uuo.mutation.CompanyIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   user.CompanyTable,
+			Columns: []string{user.CompanyColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(company.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &User{config: uuo.config}
 	_spec.Assign = _node.assignValues

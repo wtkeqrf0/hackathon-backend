@@ -9,6 +9,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/wtkeqrf0/while.act/ent/company"
 	"github.com/wtkeqrf0/while.act/ent/user"
 )
 
@@ -21,21 +22,56 @@ type User struct {
 	CreateTime time.Time `json:"create_time,omitempty"`
 	// UpdateTime holds the value of the "update_time" field.
 	UpdateTime time.Time `json:"update_time,omitempty"`
-	// Name holds the value of the "name" field.
-	Name string `json:"name,omitempty" example:"user94"`
-	// Email holds the value of the "email" field.
-	Email string `json:"email,omitempty" example:"myemail@gmail.com"`
-	// PasswordHash holds the value of the "password_hash" field.
-	PasswordHash *[]byte `example:"-" json:"-"`
-	// Biography holds the value of the "biography" field.
-	Biography *string `json:"biography,omitempty" example:"I'd like to relax"`
 	// Role holds the value of the "role" field.
 	Role string `json:"role,omitempty" example:"USER"`
+	// Name holds the value of the "name" field.
+	Name string `json:"username,omitempty" example:"user94"`
+	// PasswordHash holds the value of the "password_hash" field.
+	PasswordHash []byte `example:"-" json:"-"`
+	// Email holds the value of the "email" field.
+	Email string `json:"email,omitempty" example:"myemail@gmail.com"`
 	// FirstName holds the value of the "first_name" field.
-	FirstName *string `json:"firstName,omitempty" example:"Tele"`
+	FirstName string `json:"firstName,omitempty" example:"Ivan"`
 	// LastName holds the value of the "last_name" field.
-	LastName     *string `json:"lastName,omitempty" example:"phone"`
+	LastName string `json:"lastName,omitempty" example:"Ivanov"`
+	// CompanyInn holds the value of the "company_inn" field.
+	CompanyInn string `json:"inn,omitempty" example:"7707083893"`
+	// FatherName holds the value of the "father_name" field.
+	FatherName string `json:"fatherName,omitempty" example:"Ivanovich"`
+	// Position holds the value of the "position" field.
+	Position string `json:"positionName,omitempty" example:"Director"`
+	// Country holds the value of the "country" field.
+	Country string `json:"country,omitempty" example:"Россия"`
+	// City holds the value of the "city" field.
+	City string `json:"city,omitempty" example:"Москва"`
+	// Biography holds the value of the "biography" field.
+	Biography *string `json:"biography,omitempty" example:"I'd like to relax"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the UserQuery when eager-loading is set.
+	Edges        UserEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// UserEdges holds the relations/edges for other nodes in the graph.
+type UserEdges struct {
+	// Company holds the value of the company edge.
+	Company *Company `json:"company,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// CompanyOrErr returns the Company value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e UserEdges) CompanyOrErr() (*Company, error) {
+	if e.loadedTypes[0] {
+		if e.Company == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: company.Label}
+		}
+		return e.Company, nil
+	}
+	return nil, &NotLoadedError{edge: "company"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -47,7 +83,7 @@ func (*User) scanValues(columns []string) ([]any, error) {
 			values[i] = new([]byte)
 		case user.FieldID:
 			values[i] = new(sql.NullInt64)
-		case user.FieldName, user.FieldEmail, user.FieldBiography, user.FieldRole, user.FieldFirstName, user.FieldLastName:
+		case user.FieldRole, user.FieldName, user.FieldEmail, user.FieldFirstName, user.FieldLastName, user.FieldCompanyInn, user.FieldFatherName, user.FieldPosition, user.FieldCountry, user.FieldCity, user.FieldBiography:
 			values[i] = new(sql.NullString)
 		case user.FieldCreateTime, user.FieldUpdateTime:
 			values[i] = new(sql.NullTime)
@@ -84,11 +120,23 @@ func (u *User) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				u.UpdateTime = value.Time
 			}
+		case user.FieldRole:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field role", values[i])
+			} else if value.Valid {
+				u.Role = value.String
+			}
 		case user.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
 				u.Name = value.String
+			}
+		case user.FieldPasswordHash:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field password_hash", values[i])
+			} else if value != nil {
+				u.PasswordHash = *value
 			}
 		case user.FieldEmail:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -96,11 +144,47 @@ func (u *User) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				u.Email = value.String
 			}
-		case user.FieldPasswordHash:
-			if value, ok := values[i].(*[]byte); !ok {
-				return fmt.Errorf("unexpected type %T for field password_hash", values[i])
-			} else if value != nil {
-				u.PasswordHash = value
+		case user.FieldFirstName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field first_name", values[i])
+			} else if value.Valid {
+				u.FirstName = value.String
+			}
+		case user.FieldLastName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field last_name", values[i])
+			} else if value.Valid {
+				u.LastName = value.String
+			}
+		case user.FieldCompanyInn:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field company_inn", values[i])
+			} else if value.Valid {
+				u.CompanyInn = value.String
+			}
+		case user.FieldFatherName:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field father_name", values[i])
+			} else if value.Valid {
+				u.FatherName = value.String
+			}
+		case user.FieldPosition:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field position", values[i])
+			} else if value.Valid {
+				u.Position = value.String
+			}
+		case user.FieldCountry:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field country", values[i])
+			} else if value.Valid {
+				u.Country = value.String
+			}
+		case user.FieldCity:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field city", values[i])
+			} else if value.Valid {
+				u.City = value.String
 			}
 		case user.FieldBiography:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -108,26 +192,6 @@ func (u *User) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				u.Biography = new(string)
 				*u.Biography = value.String
-			}
-		case user.FieldRole:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field role", values[i])
-			} else if value.Valid {
-				u.Role = value.String
-			}
-		case user.FieldFirstName:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field first_name", values[i])
-			} else if value.Valid {
-				u.FirstName = new(string)
-				*u.FirstName = value.String
-			}
-		case user.FieldLastName:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field last_name", values[i])
-			} else if value.Valid {
-				u.LastName = new(string)
-				*u.LastName = value.String
 			}
 		default:
 			u.selectValues.Set(columns[i], values[i])
@@ -140,6 +204,11 @@ func (u *User) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (u *User) Value(name string) (ent.Value, error) {
 	return u.selectValues.Get(name)
+}
+
+// QueryCompany queries the "company" edge of the User entity.
+func (u *User) QueryCompany() *CompanyQuery {
+	return NewUserClient(u.config).QueryCompany(u)
 }
 
 // Update returns a builder for updating this User.
@@ -171,29 +240,40 @@ func (u *User) String() string {
 	builder.WriteString("update_time=")
 	builder.WriteString(u.UpdateTime.Format(time.ANSIC))
 	builder.WriteString(", ")
+	builder.WriteString("role=")
+	builder.WriteString(u.Role)
+	builder.WriteString(", ")
 	builder.WriteString("name=")
 	builder.WriteString(u.Name)
+	builder.WriteString(", ")
+	builder.WriteString("password_hash=<sensitive>")
 	builder.WriteString(", ")
 	builder.WriteString("email=")
 	builder.WriteString(u.Email)
 	builder.WriteString(", ")
-	builder.WriteString("password_hash=<sensitive>")
+	builder.WriteString("first_name=")
+	builder.WriteString(u.FirstName)
+	builder.WriteString(", ")
+	builder.WriteString("last_name=")
+	builder.WriteString(u.LastName)
+	builder.WriteString(", ")
+	builder.WriteString("company_inn=")
+	builder.WriteString(u.CompanyInn)
+	builder.WriteString(", ")
+	builder.WriteString("father_name=")
+	builder.WriteString(u.FatherName)
+	builder.WriteString(", ")
+	builder.WriteString("position=")
+	builder.WriteString(u.Position)
+	builder.WriteString(", ")
+	builder.WriteString("country=")
+	builder.WriteString(u.Country)
+	builder.WriteString(", ")
+	builder.WriteString("city=")
+	builder.WriteString(u.City)
 	builder.WriteString(", ")
 	if v := u.Biography; v != nil {
 		builder.WriteString("biography=")
-		builder.WriteString(*v)
-	}
-	builder.WriteString(", ")
-	builder.WriteString("role=")
-	builder.WriteString(u.Role)
-	builder.WriteString(", ")
-	if v := u.FirstName; v != nil {
-		builder.WriteString("first_name=")
-		builder.WriteString(*v)
-	}
-	builder.WriteString(", ")
-	if v := u.LastName; v != nil {
-		builder.WriteString("last_name=")
 		builder.WriteString(*v)
 	}
 	builder.WriteByte(')')

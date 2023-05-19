@@ -6,5 +6,11 @@ import (
 	"entgo.io/ent/dialect/sql"
 )
 
+// Company is the predicate function for company builders.
+type Company func(*sql.Selector)
+
+// EconomicActivity is the predicate function for economicactivity builders.
+type EconomicActivity func(*sql.Selector)
+
 // User is the predicate function for user builders.
 type User func(*sql.Selector)

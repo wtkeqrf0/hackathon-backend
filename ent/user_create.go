@@ -10,6 +10,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/wtkeqrf0/while.act/ent/company"
 	"github.com/wtkeqrf0/while.act/ent/user"
 )
 
@@ -48,9 +49,29 @@ func (uc *UserCreate) SetNillableUpdateTime(t *time.Time) *UserCreate {
 	return uc
 }
 
+// SetRole sets the "role" field.
+func (uc *UserCreate) SetRole(s string) *UserCreate {
+	uc.mutation.SetRole(s)
+	return uc
+}
+
+// SetNillableRole sets the "role" field if the given value is not nil.
+func (uc *UserCreate) SetNillableRole(s *string) *UserCreate {
+	if s != nil {
+		uc.SetRole(*s)
+	}
+	return uc
+}
+
 // SetName sets the "name" field.
 func (uc *UserCreate) SetName(s string) *UserCreate {
 	uc.mutation.SetName(s)
+	return uc
+}
+
+// SetPasswordHash sets the "password_hash" field.
+func (uc *UserCreate) SetPasswordHash(b []byte) *UserCreate {
+	uc.mutation.SetPasswordHash(b)
 	return uc
 }
 
@@ -60,9 +81,77 @@ func (uc *UserCreate) SetEmail(s string) *UserCreate {
 	return uc
 }
 
-// SetPasswordHash sets the "password_hash" field.
-func (uc *UserCreate) SetPasswordHash(b []byte) *UserCreate {
-	uc.mutation.SetPasswordHash(b)
+// SetFirstName sets the "first_name" field.
+func (uc *UserCreate) SetFirstName(s string) *UserCreate {
+	uc.mutation.SetFirstName(s)
+	return uc
+}
+
+// SetLastName sets the "last_name" field.
+func (uc *UserCreate) SetLastName(s string) *UserCreate {
+	uc.mutation.SetLastName(s)
+	return uc
+}
+
+// SetCompanyInn sets the "company_inn" field.
+func (uc *UserCreate) SetCompanyInn(s string) *UserCreate {
+	uc.mutation.SetCompanyInn(s)
+	return uc
+}
+
+// SetFatherName sets the "father_name" field.
+func (uc *UserCreate) SetFatherName(s string) *UserCreate {
+	uc.mutation.SetFatherName(s)
+	return uc
+}
+
+// SetNillableFatherName sets the "father_name" field if the given value is not nil.
+func (uc *UserCreate) SetNillableFatherName(s *string) *UserCreate {
+	if s != nil {
+		uc.SetFatherName(*s)
+	}
+	return uc
+}
+
+// SetPosition sets the "position" field.
+func (uc *UserCreate) SetPosition(s string) *UserCreate {
+	uc.mutation.SetPosition(s)
+	return uc
+}
+
+// SetNillablePosition sets the "position" field if the given value is not nil.
+func (uc *UserCreate) SetNillablePosition(s *string) *UserCreate {
+	if s != nil {
+		uc.SetPosition(*s)
+	}
+	return uc
+}
+
+// SetCountry sets the "country" field.
+func (uc *UserCreate) SetCountry(s string) *UserCreate {
+	uc.mutation.SetCountry(s)
+	return uc
+}
+
+// SetNillableCountry sets the "country" field if the given value is not nil.
+func (uc *UserCreate) SetNillableCountry(s *string) *UserCreate {
+	if s != nil {
+		uc.SetCountry(*s)
+	}
+	return uc
+}
+
+// SetCity sets the "city" field.
+func (uc *UserCreate) SetCity(s string) *UserCreate {
+	uc.mutation.SetCity(s)
+	return uc
+}
+
+// SetNillableCity sets the "city" field if the given value is not nil.
+func (uc *UserCreate) SetNillableCity(s *string) *UserCreate {
+	if s != nil {
+		uc.SetCity(*s)
+	}
 	return uc
 }
 
@@ -80,52 +169,21 @@ func (uc *UserCreate) SetNillableBiography(s *string) *UserCreate {
 	return uc
 }
 
-// SetRole sets the "role" field.
-func (uc *UserCreate) SetRole(s string) *UserCreate {
-	uc.mutation.SetRole(s)
-	return uc
-}
-
-// SetNillableRole sets the "role" field if the given value is not nil.
-func (uc *UserCreate) SetNillableRole(s *string) *UserCreate {
-	if s != nil {
-		uc.SetRole(*s)
-	}
-	return uc
-}
-
-// SetFirstName sets the "first_name" field.
-func (uc *UserCreate) SetFirstName(s string) *UserCreate {
-	uc.mutation.SetFirstName(s)
-	return uc
-}
-
-// SetNillableFirstName sets the "first_name" field if the given value is not nil.
-func (uc *UserCreate) SetNillableFirstName(s *string) *UserCreate {
-	if s != nil {
-		uc.SetFirstName(*s)
-	}
-	return uc
-}
-
-// SetLastName sets the "last_name" field.
-func (uc *UserCreate) SetLastName(s string) *UserCreate {
-	uc.mutation.SetLastName(s)
-	return uc
-}
-
-// SetNillableLastName sets the "last_name" field if the given value is not nil.
-func (uc *UserCreate) SetNillableLastName(s *string) *UserCreate {
-	if s != nil {
-		uc.SetLastName(*s)
-	}
-	return uc
-}
-
 // SetID sets the "id" field.
 func (uc *UserCreate) SetID(i int) *UserCreate {
 	uc.mutation.SetID(i)
 	return uc
+}
+
+// SetCompanyID sets the "company" edge to the Company entity by ID.
+func (uc *UserCreate) SetCompanyID(id string) *UserCreate {
+	uc.mutation.SetCompanyID(id)
+	return uc
+}
+
+// SetCompany sets the "company" edge to the Company entity.
+func (uc *UserCreate) SetCompany(c *Company) *UserCreate {
+	return uc.SetCompanyID(c.ID)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -194,10 +252,16 @@ func (uc *UserCreate) check() error {
 	if _, ok := uc.mutation.UpdateTime(); !ok {
 		return &ValidationError{Name: "update_time", err: errors.New(`ent: missing required field "User.update_time"`)}
 	}
+	if _, ok := uc.mutation.Role(); !ok {
+		return &ValidationError{Name: "role", err: errors.New(`ent: missing required field "User.role"`)}
+	}
 	if v, ok := uc.mutation.Name(); ok {
 		if err := user.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "User.name": %w`, err)}
 		}
+	}
+	if _, ok := uc.mutation.PasswordHash(); !ok {
+		return &ValidationError{Name: "password_hash", err: errors.New(`ent: missing required field "User.password_hash"`)}
 	}
 	if _, ok := uc.mutation.Email(); !ok {
 		return &ValidationError{Name: "email", err: errors.New(`ent: missing required field "User.email"`)}
@@ -207,23 +271,57 @@ func (uc *UserCreate) check() error {
 			return &ValidationError{Name: "email", err: fmt.Errorf(`ent: validator failed for field "User.email": %w`, err)}
 		}
 	}
-	if v, ok := uc.mutation.Biography(); ok {
-		if err := user.BiographyValidator(v); err != nil {
-			return &ValidationError{Name: "biography", err: fmt.Errorf(`ent: validator failed for field "User.biography": %w`, err)}
-		}
-	}
-	if _, ok := uc.mutation.Role(); !ok {
-		return &ValidationError{Name: "role", err: errors.New(`ent: missing required field "User.role"`)}
+	if _, ok := uc.mutation.FirstName(); !ok {
+		return &ValidationError{Name: "first_name", err: errors.New(`ent: missing required field "User.first_name"`)}
 	}
 	if v, ok := uc.mutation.FirstName(); ok {
 		if err := user.FirstNameValidator(v); err != nil {
 			return &ValidationError{Name: "first_name", err: fmt.Errorf(`ent: validator failed for field "User.first_name": %w`, err)}
 		}
 	}
+	if _, ok := uc.mutation.LastName(); !ok {
+		return &ValidationError{Name: "last_name", err: errors.New(`ent: missing required field "User.last_name"`)}
+	}
 	if v, ok := uc.mutation.LastName(); ok {
 		if err := user.LastNameValidator(v); err != nil {
 			return &ValidationError{Name: "last_name", err: fmt.Errorf(`ent: validator failed for field "User.last_name": %w`, err)}
 		}
+	}
+	if _, ok := uc.mutation.CompanyInn(); !ok {
+		return &ValidationError{Name: "company_inn", err: errors.New(`ent: missing required field "User.company_inn"`)}
+	}
+	if v, ok := uc.mutation.CompanyInn(); ok {
+		if err := user.CompanyInnValidator(v); err != nil {
+			return &ValidationError{Name: "company_inn", err: fmt.Errorf(`ent: validator failed for field "User.company_inn": %w`, err)}
+		}
+	}
+	if v, ok := uc.mutation.FatherName(); ok {
+		if err := user.FatherNameValidator(v); err != nil {
+			return &ValidationError{Name: "father_name", err: fmt.Errorf(`ent: validator failed for field "User.father_name": %w`, err)}
+		}
+	}
+	if v, ok := uc.mutation.Position(); ok {
+		if err := user.PositionValidator(v); err != nil {
+			return &ValidationError{Name: "position", err: fmt.Errorf(`ent: validator failed for field "User.position": %w`, err)}
+		}
+	}
+	if v, ok := uc.mutation.Country(); ok {
+		if err := user.CountryValidator(v); err != nil {
+			return &ValidationError{Name: "country", err: fmt.Errorf(`ent: validator failed for field "User.country": %w`, err)}
+		}
+	}
+	if v, ok := uc.mutation.City(); ok {
+		if err := user.CityValidator(v); err != nil {
+			return &ValidationError{Name: "city", err: fmt.Errorf(`ent: validator failed for field "User.city": %w`, err)}
+		}
+	}
+	if v, ok := uc.mutation.Biography(); ok {
+		if err := user.BiographyValidator(v); err != nil {
+			return &ValidationError{Name: "biography", err: fmt.Errorf(`ent: validator failed for field "User.biography": %w`, err)}
+		}
+	}
+	if _, ok := uc.mutation.CompanyID(); !ok {
+		return &ValidationError{Name: "company", err: errors.New(`ent: missing required edge "User.company"`)}
 	}
 	return nil
 }
@@ -265,33 +363,66 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 		_spec.SetField(user.FieldUpdateTime, field.TypeTime, value)
 		_node.UpdateTime = value
 	}
+	if value, ok := uc.mutation.Role(); ok {
+		_spec.SetField(user.FieldRole, field.TypeString, value)
+		_node.Role = value
+	}
 	if value, ok := uc.mutation.Name(); ok {
 		_spec.SetField(user.FieldName, field.TypeString, value)
 		_node.Name = value
+	}
+	if value, ok := uc.mutation.PasswordHash(); ok {
+		_spec.SetField(user.FieldPasswordHash, field.TypeBytes, value)
+		_node.PasswordHash = value
 	}
 	if value, ok := uc.mutation.Email(); ok {
 		_spec.SetField(user.FieldEmail, field.TypeString, value)
 		_node.Email = value
 	}
-	if value, ok := uc.mutation.PasswordHash(); ok {
-		_spec.SetField(user.FieldPasswordHash, field.TypeBytes, value)
-		_node.PasswordHash = &value
+	if value, ok := uc.mutation.FirstName(); ok {
+		_spec.SetField(user.FieldFirstName, field.TypeString, value)
+		_node.FirstName = value
+	}
+	if value, ok := uc.mutation.LastName(); ok {
+		_spec.SetField(user.FieldLastName, field.TypeString, value)
+		_node.LastName = value
+	}
+	if value, ok := uc.mutation.FatherName(); ok {
+		_spec.SetField(user.FieldFatherName, field.TypeString, value)
+		_node.FatherName = value
+	}
+	if value, ok := uc.mutation.Position(); ok {
+		_spec.SetField(user.FieldPosition, field.TypeString, value)
+		_node.Position = value
+	}
+	if value, ok := uc.mutation.Country(); ok {
+		_spec.SetField(user.FieldCountry, field.TypeString, value)
+		_node.Country = value
+	}
+	if value, ok := uc.mutation.City(); ok {
+		_spec.SetField(user.FieldCity, field.TypeString, value)
+		_node.City = value
 	}
 	if value, ok := uc.mutation.Biography(); ok {
 		_spec.SetField(user.FieldBiography, field.TypeString, value)
 		_node.Biography = &value
 	}
-	if value, ok := uc.mutation.Role(); ok {
-		_spec.SetField(user.FieldRole, field.TypeString, value)
-		_node.Role = value
-	}
-	if value, ok := uc.mutation.FirstName(); ok {
-		_spec.SetField(user.FieldFirstName, field.TypeString, value)
-		_node.FirstName = &value
-	}
-	if value, ok := uc.mutation.LastName(); ok {
-		_spec.SetField(user.FieldLastName, field.TypeString, value)
-		_node.LastName = &value
+	if nodes := uc.mutation.CompanyIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2O,
+			Inverse: true,
+			Table:   user.CompanyTable,
+			Columns: []string{user.CompanyColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(company.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.CompanyInn = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }

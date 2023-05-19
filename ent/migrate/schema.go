@@ -8,30 +8,70 @@ import (
 )
 
 var (
+	// CompaniesColumns holds the columns for the "companies" table.
+	CompaniesColumns = []*schema.Column{
+		{Name: "inn", Type: field.TypeString, Unique: true},
+		{Name: "name", Type: field.TypeString, Unique: true, Nullable: true, Size: 150},
+		{Name: "website", Type: field.TypeString, Nullable: true},
+		{Name: "economic_activity_branch", Type: field.TypeString, Nullable: true, Size: 50},
+	}
+	// CompaniesTable holds the schema information for the "companies" table.
+	CompaniesTable = &schema.Table{
+		Name:       "companies",
+		Columns:    CompaniesColumns,
+		PrimaryKey: []*schema.Column{CompaniesColumns[0]},
+	}
+	// EconomicActivitiesColumns holds the columns for the "economic_activities" table.
+	EconomicActivitiesColumns = []*schema.Column{
+		{Name: "main", Type: field.TypeString, Unique: true, Size: 100},
+		{Name: "subs", Type: field.TypeString, Unique: true, Nullable: true, Size: 100},
+	}
+	// EconomicActivitiesTable holds the schema information for the "economic_activities" table.
+	EconomicActivitiesTable = &schema.Table{
+		Name:       "economic_activities",
+		Columns:    EconomicActivitiesColumns,
+		PrimaryKey: []*schema.Column{EconomicActivitiesColumns[0]},
+	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "create_time", Type: field.TypeTime},
 		{Name: "update_time", Type: field.TypeTime},
-		{Name: "name", Type: field.TypeString, Unique: true, Default: schema.Expr("'user' || setval(pg_get_serial_sequence('users','id'),nextval(pg_get_serial_sequence('users','id'))-1)")},
-		{Name: "email", Type: field.TypeString, Unique: true},
-		{Name: "password_hash", Type: field.TypeBytes, Nullable: true},
-		{Name: "biography", Type: field.TypeString, Nullable: true, Size: 512},
 		{Name: "role", Type: field.TypeString, Default: "USER"},
-		{Name: "first_name", Type: field.TypeString, Nullable: true, Size: 30},
-		{Name: "last_name", Type: field.TypeString, Nullable: true, Size: 30},
+		{Name: "name", Type: field.TypeString, Unique: true, Default: schema.Expr("'user' || setval(pg_get_serial_sequence('users','id'),nextval(pg_get_serial_sequence('users','id'))-1)")},
+		{Name: "password_hash", Type: field.TypeBytes},
+		{Name: "email", Type: field.TypeString, Unique: true},
+		{Name: "first_name", Type: field.TypeString, Size: 30},
+		{Name: "last_name", Type: field.TypeString, Size: 30},
+		{Name: "father_name", Type: field.TypeString, Nullable: true, Size: 30},
+		{Name: "position", Type: field.TypeString, Nullable: true, Size: 50},
+		{Name: "country", Type: field.TypeString, Nullable: true},
+		{Name: "city", Type: field.TypeString, Nullable: true},
+		{Name: "biography", Type: field.TypeString, Nullable: true, Size: 1024},
+		{Name: "company_inn", Type: field.TypeString, Unique: true},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{
 		Name:       "users",
 		Columns:    UsersColumns,
 		PrimaryKey: []*schema.Column{UsersColumns[0]},
+		ForeignKeys: []*schema.ForeignKey{
+			{
+				Symbol:     "users_companies_users",
+				Columns:    []*schema.Column{UsersColumns[14]},
+				RefColumns: []*schema.Column{CompaniesColumns[0]},
+				OnDelete:   schema.NoAction,
+			},
+		},
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		CompaniesTable,
+		EconomicActivitiesTable,
 		UsersTable,
 	}
 )
 
 func init() {
+	UsersTable.ForeignKeys[0].RefTable = CompaniesTable
 }

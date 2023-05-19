@@ -7,6 +7,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 const (
@@ -18,22 +19,43 @@ const (
 	FieldCreateTime = "create_time"
 	// FieldUpdateTime holds the string denoting the update_time field in the database.
 	FieldUpdateTime = "update_time"
-	// FieldName holds the string denoting the name field in the database.
-	FieldName = "name"
-	// FieldEmail holds the string denoting the email field in the database.
-	FieldEmail = "email"
-	// FieldPasswordHash holds the string denoting the password_hash field in the database.
-	FieldPasswordHash = "password_hash"
-	// FieldBiography holds the string denoting the biography field in the database.
-	FieldBiography = "biography"
 	// FieldRole holds the string denoting the role field in the database.
 	FieldRole = "role"
+	// FieldName holds the string denoting the name field in the database.
+	FieldName = "name"
+	// FieldPasswordHash holds the string denoting the password_hash field in the database.
+	FieldPasswordHash = "password_hash"
+	// FieldEmail holds the string denoting the email field in the database.
+	FieldEmail = "email"
 	// FieldFirstName holds the string denoting the first_name field in the database.
 	FieldFirstName = "first_name"
 	// FieldLastName holds the string denoting the last_name field in the database.
 	FieldLastName = "last_name"
+	// FieldCompanyInn holds the string denoting the company_inn field in the database.
+	FieldCompanyInn = "company_inn"
+	// FieldFatherName holds the string denoting the father_name field in the database.
+	FieldFatherName = "father_name"
+	// FieldPosition holds the string denoting the position field in the database.
+	FieldPosition = "position"
+	// FieldCountry holds the string denoting the country field in the database.
+	FieldCountry = "country"
+	// FieldCity holds the string denoting the city field in the database.
+	FieldCity = "city"
+	// FieldBiography holds the string denoting the biography field in the database.
+	FieldBiography = "biography"
+	// EdgeCompany holds the string denoting the company edge name in mutations.
+	EdgeCompany = "company"
+	// CompanyFieldID holds the string denoting the ID field of the Company.
+	CompanyFieldID = "inn"
 	// Table holds the table name of the user in the database.
 	Table = "users"
+	// CompanyTable is the table that holds the company relation/edge.
+	CompanyTable = "users"
+	// CompanyInverseTable is the table name for the Company entity.
+	// It exists in this package in order to avoid circular dependency with the "company" package.
+	CompanyInverseTable = "companies"
+	// CompanyColumn is the table column denoting the company relation/edge.
+	CompanyColumn = "company_inn"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -41,13 +63,18 @@ var Columns = []string{
 	FieldID,
 	FieldCreateTime,
 	FieldUpdateTime,
-	FieldName,
-	FieldEmail,
-	FieldPasswordHash,
-	FieldBiography,
 	FieldRole,
+	FieldName,
+	FieldPasswordHash,
+	FieldEmail,
 	FieldFirstName,
 	FieldLastName,
+	FieldCompanyInn,
+	FieldFatherName,
+	FieldPosition,
+	FieldCountry,
+	FieldCity,
+	FieldBiography,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -73,18 +100,28 @@ var (
 	DefaultUpdateTime func() time.Time
 	// UpdateDefaultUpdateTime holds the default value on update for the "update_time" field.
 	UpdateDefaultUpdateTime func() time.Time
+	// DefaultRole holds the default value on creation for the "role" field.
+	DefaultRole string
 	// NameValidator is a validator for the "name" field. It is called by the builders before save.
 	NameValidator func(string) error
 	// EmailValidator is a validator for the "email" field. It is called by the builders before save.
 	EmailValidator func(string) error
-	// BiographyValidator is a validator for the "biography" field. It is called by the builders before save.
-	BiographyValidator func(string) error
-	// DefaultRole holds the default value on creation for the "role" field.
-	DefaultRole string
 	// FirstNameValidator is a validator for the "first_name" field. It is called by the builders before save.
 	FirstNameValidator func(string) error
 	// LastNameValidator is a validator for the "last_name" field. It is called by the builders before save.
 	LastNameValidator func(string) error
+	// CompanyInnValidator is a validator for the "company_inn" field. It is called by the builders before save.
+	CompanyInnValidator func(string) error
+	// FatherNameValidator is a validator for the "father_name" field. It is called by the builders before save.
+	FatherNameValidator func(string) error
+	// PositionValidator is a validator for the "position" field. It is called by the builders before save.
+	PositionValidator func(string) error
+	// CountryValidator is a validator for the "country" field. It is called by the builders before save.
+	CountryValidator func(string) error
+	// CityValidator is a validator for the "city" field. It is called by the builders before save.
+	CityValidator func(string) error
+	// BiographyValidator is a validator for the "biography" field. It is called by the builders before save.
+	BiographyValidator func(string) error
 )
 
 // OrderOption defines the ordering options for the User queries.
@@ -105,6 +142,11 @@ func ByUpdateTime(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldUpdateTime, opts...).ToFunc()
 }
 
+// ByRole orders the results by the role field.
+func ByRole(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldRole, opts...).ToFunc()
+}
+
 // ByName orders the results by the name field.
 func ByName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldName, opts...).ToFunc()
@@ -115,16 +157,6 @@ func ByEmail(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldEmail, opts...).ToFunc()
 }
 
-// ByBiography orders the results by the biography field.
-func ByBiography(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldBiography, opts...).ToFunc()
-}
-
-// ByRole orders the results by the role field.
-func ByRole(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldRole, opts...).ToFunc()
-}
-
 // ByFirstName orders the results by the first_name field.
 func ByFirstName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldFirstName, opts...).ToFunc()
@@ -133,4 +165,48 @@ func ByFirstName(opts ...sql.OrderTermOption) OrderOption {
 // ByLastName orders the results by the last_name field.
 func ByLastName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldLastName, opts...).ToFunc()
+}
+
+// ByCompanyInn orders the results by the company_inn field.
+func ByCompanyInn(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCompanyInn, opts...).ToFunc()
+}
+
+// ByFatherName orders the results by the father_name field.
+func ByFatherName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldFatherName, opts...).ToFunc()
+}
+
+// ByPosition orders the results by the position field.
+func ByPosition(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPosition, opts...).ToFunc()
+}
+
+// ByCountry orders the results by the country field.
+func ByCountry(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCountry, opts...).ToFunc()
+}
+
+// ByCity orders the results by the city field.
+func ByCity(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCity, opts...).ToFunc()
+}
+
+// ByBiography orders the results by the biography field.
+func ByBiography(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldBiography, opts...).ToFunc()
+}
+
+// ByCompanyField orders the results by company field.
+func ByCompanyField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newCompanyStep(), sql.OrderByField(field, opts...))
+	}
+}
+func newCompanyStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(CompanyInverseTable, CompanyFieldID),
+		sqlgraph.Edge(sqlgraph.O2O, true, CompanyTable, CompanyColumn),
+	)
 }

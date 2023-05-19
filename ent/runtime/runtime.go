@@ -5,6 +5,8 @@ package runtime
 import (
 	"time"
 
+	"github.com/wtkeqrf0/while.act/ent/company"
+	"github.com/wtkeqrf0/while.act/ent/economicactivity"
 	"github.com/wtkeqrf0/while.act/ent/schema"
 	"github.com/wtkeqrf0/while.act/ent/user"
 )
@@ -13,6 +15,90 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	companyFields := schema.Company{}.Fields()
+	_ = companyFields
+	// companyDescName is the schema descriptor for name field.
+	companyDescName := companyFields[1].Descriptor()
+	// company.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	company.NameValidator = func() func(string) error {
+		validators := companyDescName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(name string) error {
+			for _, fn := range fns {
+				if err := fn(name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// companyDescWebsite is the schema descriptor for website field.
+	companyDescWebsite := companyFields[2].Descriptor()
+	// company.WebsiteValidator is a validator for the "website" field. It is called by the builders before save.
+	company.WebsiteValidator = companyDescWebsite.Validators[0].(func(string) error)
+	// companyDescEconomicActivityBranch is the schema descriptor for economic_activity_branch field.
+	companyDescEconomicActivityBranch := companyFields[3].Descriptor()
+	// company.EconomicActivityBranchValidator is a validator for the "economic_activity_branch" field. It is called by the builders before save.
+	company.EconomicActivityBranchValidator = func() func(string) error {
+		validators := companyDescEconomicActivityBranch.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(economic_activity_branch string) error {
+			for _, fn := range fns {
+				if err := fn(economic_activity_branch); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// companyDescID is the schema descriptor for id field.
+	companyDescID := companyFields[0].Descriptor()
+	// company.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	company.IDValidator = companyDescID.Validators[0].(func(string) error)
+	economicactivityFields := schema.EconomicActivity{}.Fields()
+	_ = economicactivityFields
+	// economicactivityDescSubs is the schema descriptor for subs field.
+	economicactivityDescSubs := economicactivityFields[1].Descriptor()
+	// economicactivity.SubsValidator is a validator for the "subs" field. It is called by the builders before save.
+	economicactivity.SubsValidator = func() func(string) error {
+		validators := economicactivityDescSubs.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(subs string) error {
+			for _, fn := range fns {
+				if err := fn(subs); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// economicactivityDescID is the schema descriptor for id field.
+	economicactivityDescID := economicactivityFields[0].Descriptor()
+	// economicactivity.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	economicactivity.IDValidator = func() func(string) error {
+		validators := economicactivityDescID.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(id string) error {
+			for _, fn := range fns {
+				if err := fn(id); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
 	userMixin := schema.User{}.Mixin()
 	userHooks := schema.User{}.Hooks()
 	user.Hooks[0] = userHooks[0]
@@ -30,24 +116,20 @@ func init() {
 	user.DefaultUpdateTime = userDescUpdateTime.Default.(func() time.Time)
 	// user.UpdateDefaultUpdateTime holds the default value on update for the update_time field.
 	user.UpdateDefaultUpdateTime = userDescUpdateTime.UpdateDefault.(func() time.Time)
+	// userDescRole is the schema descriptor for role field.
+	userDescRole := userFields[1].Descriptor()
+	// user.DefaultRole holds the default value on creation for the role field.
+	user.DefaultRole = userDescRole.Default.(string)
 	// userDescName is the schema descriptor for name field.
-	userDescName := userFields[1].Descriptor()
+	userDescName := userFields[2].Descriptor()
 	// user.NameValidator is a validator for the "name" field. It is called by the builders before save.
 	user.NameValidator = userDescName.Validators[0].(func(string) error)
 	// userDescEmail is the schema descriptor for email field.
-	userDescEmail := userFields[2].Descriptor()
+	userDescEmail := userFields[4].Descriptor()
 	// user.EmailValidator is a validator for the "email" field. It is called by the builders before save.
 	user.EmailValidator = userDescEmail.Validators[0].(func(string) error)
-	// userDescBiography is the schema descriptor for biography field.
-	userDescBiography := userFields[4].Descriptor()
-	// user.BiographyValidator is a validator for the "biography" field. It is called by the builders before save.
-	user.BiographyValidator = userDescBiography.Validators[0].(func(string) error)
-	// userDescRole is the schema descriptor for role field.
-	userDescRole := userFields[5].Descriptor()
-	// user.DefaultRole holds the default value on creation for the role field.
-	user.DefaultRole = userDescRole.Default.(string)
 	// userDescFirstName is the schema descriptor for first_name field.
-	userDescFirstName := userFields[6].Descriptor()
+	userDescFirstName := userFields[5].Descriptor()
 	// user.FirstNameValidator is a validator for the "first_name" field. It is called by the builders before save.
 	user.FirstNameValidator = func() func(string) error {
 		validators := userDescFirstName.Validators
@@ -65,7 +147,7 @@ func init() {
 		}
 	}()
 	// userDescLastName is the schema descriptor for last_name field.
-	userDescLastName := userFields[7].Descriptor()
+	userDescLastName := userFields[6].Descriptor()
 	// user.LastNameValidator is a validator for the "last_name" field. It is called by the builders before save.
 	user.LastNameValidator = func() func(string) error {
 		validators := userDescLastName.Validators
@@ -82,6 +164,58 @@ func init() {
 			return nil
 		}
 	}()
+	// userDescCompanyInn is the schema descriptor for company_inn field.
+	userDescCompanyInn := userFields[7].Descriptor()
+	// user.CompanyInnValidator is a validator for the "company_inn" field. It is called by the builders before save.
+	user.CompanyInnValidator = userDescCompanyInn.Validators[0].(func(string) error)
+	// userDescFatherName is the schema descriptor for father_name field.
+	userDescFatherName := userFields[8].Descriptor()
+	// user.FatherNameValidator is a validator for the "father_name" field. It is called by the builders before save.
+	user.FatherNameValidator = func() func(string) error {
+		validators := userDescFatherName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(father_name string) error {
+			for _, fn := range fns {
+				if err := fn(father_name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// userDescPosition is the schema descriptor for position field.
+	userDescPosition := userFields[9].Descriptor()
+	// user.PositionValidator is a validator for the "position" field. It is called by the builders before save.
+	user.PositionValidator = func() func(string) error {
+		validators := userDescPosition.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(position string) error {
+			for _, fn := range fns {
+				if err := fn(position); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	// userDescCountry is the schema descriptor for country field.
+	userDescCountry := userFields[10].Descriptor()
+	// user.CountryValidator is a validator for the "country" field. It is called by the builders before save.
+	user.CountryValidator = userDescCountry.Validators[0].(func(string) error)
+	// userDescCity is the schema descriptor for city field.
+	userDescCity := userFields[11].Descriptor()
+	// user.CityValidator is a validator for the "city" field. It is called by the builders before save.
+	user.CityValidator = userDescCity.Validators[0].(func(string) error)
+	// userDescBiography is the schema descriptor for biography field.
+	userDescBiography := userFields[12].Descriptor()
+	// user.BiographyValidator is a validator for the "biography" field. It is called by the builders before save.
+	user.BiographyValidator = userDescBiography.Validators[0].(func(string) error)
 }
 
 const (
