@@ -7,7 +7,13 @@ import (
 	"regexp"
 )
 
-var NameRegexp = regexp.MustCompile("^[a-zA-Z][a-zA-Z0-9_]{3,18}([a-zA-Z0-9])$")
+var (
+	NameRegexp  = regexp.MustCompile(`^[a-zA-Z][a-zA-Z0-9_]{3,18}([a-zA-Z0-9])$`)
+	InnRegexp   = regexp.MustCompile(`^(\d{10}|\d{12})$`)
+	LinkRegexp  = regexp.MustCompile(`^https?://(?:www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b[-a-zA-Z0-9()@:%_+.~#?&/=]*$`)
+	TitleRegexp = regexp.MustCompile(`^\p{L}+(?:([ \-']|(\. ))\p{L}+)*$`)
+	EmailRegexp = regexp.MustCompile(`^\S+@\S+\.\S+$`)
+)
 
 // FillStruct of given generic type by request JSON body
 func FillStruct[T any](c *gin.Context) (t T, ok bool) {
@@ -20,4 +26,20 @@ func FillStruct[T any](c *gin.Context) (t T, ok bool) {
 
 func validateName(fl validator.FieldLevel) bool {
 	return NameRegexp.MatchString(fl.Field().String())
+}
+
+func validateInn(fl validator.FieldLevel) bool {
+	return InnRegexp.MatchString(fl.Field().String())
+}
+
+func validateLink(fl validator.FieldLevel) bool {
+	return LinkRegexp.MatchString(fl.Field().String())
+}
+
+func validateTitle(fl validator.FieldLevel) bool {
+	return TitleRegexp.MatchString(fl.Field().String())
+}
+
+func validateEmail(fl validator.FieldLevel) bool {
+	return EmailRegexp.MatchString(fl.Field().String())
 }

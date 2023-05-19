@@ -14,6 +14,23 @@ func NewValid(v *validator.Validate) *Valid {
 	if err := v.RegisterValidation("name", validateName); err != nil {
 		logrus.WithError(err).Warn("can't validate name")
 	}
+
+	if err := v.RegisterValidation("inn", validateInn); err != nil {
+		logrus.WithError(err).Warn("can't validate inn")
+	}
+
+	if err := v.RegisterValidation("link", validateLink); err != nil {
+		logrus.WithError(err).Warn("can't validate link")
+	}
+
+	if err := v.RegisterValidation("title", validateTitle); err != nil {
+		logrus.WithError(err).Warn("can't validate title")
+	}
+
+	if err := v.RegisterValidation("email", validateEmail); err != nil {
+		logrus.WithError(err).Warn("can't validate email")
+	}
+
 	return &Valid{v: v}
 }
 
