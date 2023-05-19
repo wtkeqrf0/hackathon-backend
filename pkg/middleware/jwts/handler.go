@@ -13,7 +13,7 @@ var cfg = conf.GetConfig()
 func (a Auth) RequireAuth(c *gin.Context) {
 	t := new(dto.Token)
 	if err := c.ShouldBindHeader(t); err != nil {
-		c.Error(errs.ValidError.AddErr(err))
+		c.Error(errs.UnAuthorized.AddErr(err))
 		return
 	}
 
