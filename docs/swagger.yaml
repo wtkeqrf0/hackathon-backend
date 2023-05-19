@@ -2,13 +2,60 @@ basePath: /api
 consumes:
 - application/json
 definitions:
-  dto.EmailWithPassword:
+  dao.Company:
+    properties:
+      inn:
+        example: "7707083893"
+        type: string
+      name:
+        example: ООО 'Парк'
+        type: string
+      website:
+        example: https://www.rusprofile.ru
+        type: string
+    required:
+    - inn
+    type: object
+  dao.Me:
+    properties:
+      biography:
+        example: I'd like to relax
+        type: string
+      city:
+        example: Москва
+        type: string
+      country:
+        example: Россия
+        type: string
+      email:
+        example: myemail@gmail.com
+        type: string
+      fatherName:
+        example: Ivanovich
+        type: string
+      firstName:
+        example: Ivan
+        type: string
+      inn:
+        example: "7707083893"
+        type: string
+      lastName:
+        example: Ivanov
+        type: string
+      name:
+        example: user94
+        type: string
+      position:
+        example: Director
+        type: string
+    type: object
+  dto.SignIn:
     properties:
       email:
         example: myemail@gmail.com
         type: string
       password:
-        example: onkr3451
+        example: bob126
         maxLength: 20
         minLength: 4
         type: string
@@ -16,37 +63,65 @@ definitions:
     - email
     - password
     type: object
-  ent.User:
+  dto.SignUp:
     properties:
       biography:
-        description: Biography holds the value of the "biography" field.
         example: I'd like to relax
         type: string
-      create_time:
-        description: CreateTime holds the value of the "create_time" field.
+      city:
+        example: Москва
+        type: string
+      company:
+        $ref: '#/definitions/dao.Company'
+      country:
+        example: Россия
         type: string
       email:
-        description: Email holds the value of the "email" field.
         example: myemail@gmail.com
         type: string
+      fatherName:
+        example: Ivanovich
+        type: string
       firstName:
-        description: FirstName holds the value of the "first_name" field.
-        example: Tele
+        example: Ivan
+        maxLength: 30
+        minLength: 2
         type: string
       lastName:
-        description: LastName holds the value of the "last_name" field.
-        example: phone
+        example: Ivanov
+        maxLength: 30
+        minLength: 2
         type: string
-      name:
-        description: Name holds the value of the "name" field.
-        example: user94
+      password:
+        example: bob126
+        maxLength: 20
+        minLength: 4
         type: string
-      role:
-        description: Role holds the value of the "role" field.
-        example: USER
+      position:
+        example: Director
         type: string
-      update_time:
-        description: UpdateTime holds the value of the "update_time" field.
+    required:
+    - email
+    - firstName
+    - lastName
+    - password
+    type: object
+  dto.UpdateUser:
+    properties:
+      biography:
+        example: I'd like to relax
+        type: string
+      city:
+        example: Москва
+        type: string
+      country:
+        example: Россия
+        type: string
+      fatherName:
+        example: Ivanovich
+        type: string
+      position:
+        example: Director
         type: string
     type: object
   errs.MyError:
@@ -59,27 +134,23 @@ definitions:
         example: Exception was occurred
         type: string
     type: object
-host: 68.183.76.225:3000
 info:
-  contact: {}
-  description: It's an API interacting with You Together using Golang
-  title: You Together API
+  contact:
+    email: matvey-sizov@mail.ru
+    name: Contact us
+    url: https://github.com/while-act/hackathon-backend/issues/new/choose
+  description: It's an API interacting with While.act using Golang
+  title: While.act API
   version: "1.0"
 paths:
   /auth:
     get:
-      description: Returns detail information about me (jwt required)
-      parameters:
-      - description: User's session
-        in: header
-        name: Authorization
-        required: true
-        type: string
+      description: Returns detail information about me
       responses:
         "200":
-          description: Info about jwt user
+          description: Info about session
           schema:
-            $ref: '#/definitions/ent.User'
+            $ref: '#/definitions/dao.Me'
         "401":
           description: User isn't logged in
           schema:
@@ -92,9 +163,11 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/errs.MyError'
+      security:
+      - ApiKeyAuth: []
       summary: Get detail data about the user by jwt
       tags:
-      - User Get
+      - User
   /auth/sign-in:
     post:
       description: Compare the user's password with an existing user's password. If
@@ -103,10 +176,10 @@ paths:
       parameters:
       - description: User's email, password
         in: body
-        name: EmailWithPassword
+        name: SignIn
         required: true
         schema:
-          $ref: '#/definitions/dto.EmailWithPassword'
+          $ref: '#/definitions/dto.SignIn'
       responses:
         "200":
           description: user's session
@@ -116,8 +189,32 @@ paths:
           description: Data is not valid
           schema:
             $ref: '#/definitions/errs.MyError'
-        "404":
-          description: Password is not registered for this account
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+      summary: Sign in by password
+      tags:
+      - Authorization
+  /auth/sign-up:
+    post:
+      description: Compare the user's password with an existing user's password. If
+        it matches, create session of the user. If the user does not exist, create
+        new user
+      parameters:
+      - description: User's email, password, firstName, lastName, inn
+        in: body
+        name: SignUp
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SignUp'
+      responses:
+        "200":
+          description: user's session
+          schema:
+            type: string
+        "400":
+          description: Data is not valid
           schema:
             $ref: '#/definitions/errs.MyError'
         "500":
@@ -127,8 +224,89 @@ paths:
       summary: Sign in by password
       tags:
       - Authorization
+  /company:
+    get:
+      description: Returns information about company by jwt
+      responses:
+        "200":
+          description: Info about company
+          schema:
+            $ref: '#/definitions/dao.Company'
+        "404":
+          description: Company doesn't exist
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get data about company by jwt
+      tags:
+      - Company
+  /company/{inn}:
+    get:
+      description: Returns information about company by INN
+      parameters:
+      - description: company's inn
+        in: path
+        name: inn
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Info about company
+          schema:
+            $ref: '#/definitions/dao.Company'
+        "404":
+          description: Company doesn't exist
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+      summary: Get data about company inn
+      tags:
+      - Company
+  /user:
+    patch:
+      description: Updates user's not required info
+      parameters:
+      - description: Fields to update
+        in: body
+        name: updFields
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateUser'
+      responses:
+        "200":
+          description: Successfully Updated
+        "401":
+          description: User isn't logged in
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "404":
+          description: User doesn't exist
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+      security:
+      - ApiKeyAuth: []
+      summary: Update user's data
+      tags:
+      - User
 produces:
 - application/json
 schemes:
 - http
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"

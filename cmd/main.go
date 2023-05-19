@@ -43,14 +43,21 @@ func init() {
 	binding.Validator = bind.NewValid(validator.New())
 }
 
-// @title You Together API
+// @title While.act API
 // @version 1.0
-// @description It's an API interacting with You Together using Golang
+// @description It's an API interacting with While.act using Golang
 // @accept application/json
 // @produce application/json
 // @schemes http
-
 // @BasePath /api
+
+// @contact.name Contact us
+// @contact.url https://github.com/while-act/hackathon-backend/issues/new/choose
+// @contact.email  matvey-sizov@mail.ru
+
+// @securityDefinitions.apiKey  ApiKeyAuth
+// @in header
+// @name Authorization
 
 // @sessions.docs.description Authorization, registration and authentication
 func main() {
@@ -67,6 +74,7 @@ func main() {
 
 	h := controller.NewHandler(
 		service.NewUserService(pConn),
+		service.NewCompanyService(postgres.NewCompanyStorage(pClient.Company)),
 		jwts.NewAuth(auth),
 		auth,
 		errs.NewErrHandler(logrus.New(), out),

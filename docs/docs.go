@@ -16,7 +16,11 @@ const docTemplate = `{
     "info": {
         "description": "{{escape .Description}}",
         "title": "{{.Title}}",
-        "contact": {},
+        "contact": {
+            "name": "Contact us",
+            "url": "https://github.com/while-act/hackathon-backend/issues/new/choose",
+            "email": "matvey-sizov@mail.ru"
+        },
         "version": "{{.Version}}"
     },
     "host": "{{.Host}}",
@@ -24,25 +28,21 @@ const docTemplate = `{
     "paths": {
         "/auth": {
             "get": {
-                "description": "Returns detail information about me (jwt required)",
-                "tags": [
-                    "User Get"
-                ],
-                "summary": "Get detail data about the user by jwt",
-                "parameters": [
+                "security": [
                     {
-                        "type": "string",
-                        "description": "User's session",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
+                        "ApiKeyAuth": []
                     }
                 ],
+                "description": "Returns detail information about me",
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get detail data about the user by jwt",
                 "responses": {
                     "200": {
-                        "description": "Info about jwt user",
+                        "description": "Info about session",
                         "schema": {
-                            "$ref": "#/definitions/ent.User"
+                            "$ref": "#/definitions/dao.Me"
                         }
                     },
                     "401": {
@@ -76,11 +76,11 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "description": "User's email, password",
-                        "name": "EmailWithPassword",
+                        "name": "SignIn",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.EmailWithPassword"
+                            "$ref": "#/definitions/dto.SignIn"
                         }
                     }
                 ],
@@ -97,8 +97,162 @@ const docTemplate = `{
                             "$ref": "#/definitions/errs.MyError"
                         }
                     },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/sign-up": {
+            "post": {
+                "description": "Compare the user's password with an existing user's password. If it matches, create session of the user. If the user does not exist, create new user",
+                "tags": [
+                    "Authorization"
+                ],
+                "summary": "Sign in by password",
+                "parameters": [
+                    {
+                        "description": "User's email, password, firstName, lastName, inn",
+                        "name": "SignUp",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.SignUp"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "user's session",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Data is not valid",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    }
+                }
+            }
+        },
+        "/company": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Returns information about company by jwt",
+                "tags": [
+                    "Company"
+                ],
+                "summary": "Get data about company by jwt",
+                "responses": {
+                    "200": {
+                        "description": "Info about company",
+                        "schema": {
+                            "$ref": "#/definitions/dao.Company"
+                        }
+                    },
                     "404": {
-                        "description": "Password is not registered for this account",
+                        "description": "Company doesn't exist",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    }
+                }
+            }
+        },
+        "/company/{inn}": {
+            "get": {
+                "description": "Returns information about company by INN",
+                "tags": [
+                    "Company"
+                ],
+                "summary": "Get data about company inn",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "company's inn",
+                        "name": "inn",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Info about company",
+                        "schema": {
+                            "$ref": "#/definitions/dao.Company"
+                        }
+                    },
+                    "404": {
+                        "description": "Company doesn't exist",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    }
+                }
+            }
+        },
+        "/user": {
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Updates user's not required info",
+                "tags": [
+                    "User"
+                ],
+                "summary": "Update user's data",
+                "parameters": [
+                    {
+                        "description": "Fields to update",
+                        "name": "updFields",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateUser"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully Updated"
+                    },
+                    "401": {
+                        "description": "User isn't logged in",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    },
+                    "404": {
+                        "description": "User doesn't exist",
                         "schema": {
                             "$ref": "#/definitions/errs.MyError"
                         }
@@ -114,7 +268,72 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "dto.EmailWithPassword": {
+        "dao.Company": {
+            "type": "object",
+            "required": [
+                "inn"
+            ],
+            "properties": {
+                "inn": {
+                    "type": "string",
+                    "example": "7707083893"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "ООО 'Парк'"
+                },
+                "website": {
+                    "type": "string",
+                    "example": "https://www.rusprofile.ru"
+                }
+            }
+        },
+        "dao.Me": {
+            "type": "object",
+            "properties": {
+                "biography": {
+                    "type": "string",
+                    "example": "I'd like to relax"
+                },
+                "city": {
+                    "type": "string",
+                    "example": "Москва"
+                },
+                "country": {
+                    "type": "string",
+                    "example": "Россия"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "myemail@gmail.com"
+                },
+                "fatherName": {
+                    "type": "string",
+                    "example": "Ivanovich"
+                },
+                "firstName": {
+                    "type": "string",
+                    "example": "Ivan"
+                },
+                "inn": {
+                    "type": "string",
+                    "example": "7707083893"
+                },
+                "lastName": {
+                    "type": "string",
+                    "example": "Ivanov"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "user94"
+                },
+                "position": {
+                    "type": "string",
+                    "example": "Director"
+                }
+            }
+        },
+        "dto.SignIn": {
             "type": "object",
             "required": [
                 "email",
@@ -129,50 +348,88 @@ const docTemplate = `{
                     "type": "string",
                     "maxLength": 20,
                     "minLength": 4,
-                    "example": "onkr3451"
+                    "example": "bob126"
                 }
             }
         },
-        "ent.User": {
+        "dto.SignUp": {
             "type": "object",
+            "required": [
+                "email",
+                "firstName",
+                "lastName",
+                "password"
+            ],
             "properties": {
                 "biography": {
-                    "description": "Biography holds the value of the \"biography\" field.",
                     "type": "string",
                     "example": "I'd like to relax"
                 },
-                "create_time": {
-                    "description": "CreateTime holds the value of the \"create_time\" field.",
-                    "type": "string"
+                "city": {
+                    "type": "string",
+                    "example": "Москва"
+                },
+                "company": {
+                    "$ref": "#/definitions/dao.Company"
+                },
+                "country": {
+                    "type": "string",
+                    "example": "Россия"
                 },
                 "email": {
-                    "description": "Email holds the value of the \"email\" field.",
                     "type": "string",
                     "example": "myemail@gmail.com"
                 },
-                "firstName": {
-                    "description": "FirstName holds the value of the \"first_name\" field.",
+                "fatherName": {
                     "type": "string",
-                    "example": "Tele"
+                    "example": "Ivanovich"
+                },
+                "firstName": {
+                    "type": "string",
+                    "maxLength": 30,
+                    "minLength": 2,
+                    "example": "Ivan"
                 },
                 "lastName": {
-                    "description": "LastName holds the value of the \"last_name\" field.",
                     "type": "string",
-                    "example": "phone"
+                    "maxLength": 30,
+                    "minLength": 2,
+                    "example": "Ivanov"
                 },
-                "name": {
-                    "description": "Name holds the value of the \"name\" field.",
+                "password": {
                     "type": "string",
-                    "example": "user94"
+                    "maxLength": 20,
+                    "minLength": 4,
+                    "example": "bob126"
                 },
-                "role": {
-                    "description": "Role holds the value of the \"role\" field.",
+                "position": {
                     "type": "string",
-                    "example": "USER"
+                    "example": "Director"
+                }
+            }
+        },
+        "dto.UpdateUser": {
+            "type": "object",
+            "properties": {
+                "biography": {
+                    "type": "string",
+                    "example": "I'd like to relax"
                 },
-                "update_time": {
-                    "description": "UpdateTime holds the value of the \"update_time\" field.",
-                    "type": "string"
+                "city": {
+                    "type": "string",
+                    "example": "Москва"
+                },
+                "country": {
+                    "type": "string",
+                    "example": "Россия"
+                },
+                "fatherName": {
+                    "type": "string",
+                    "example": "Ivanovich"
+                },
+                "position": {
+                    "type": "string",
+                    "example": "Director"
                 }
             }
         },
@@ -190,17 +447,24 @@ const docTemplate = `{
                 }
             }
         }
+    },
+    "securityDefinitions": {
+        "ApiKeyAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
     }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "68.183.76.225:3000",
+	Host:             "",
 	BasePath:         "/api",
 	Schemes:          []string{"http"},
-	Title:            "You Together API",
-	Description:      "It's an API interacting with You Together using Golang",
+	Title:            "While.act API",
+	Description:      "It's an API interacting with While.act using Golang",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 }
