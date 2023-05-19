@@ -11,9 +11,18 @@ func (r *UserStorage) IDExist(ctx context.Context, id int) (bool, error) {
 	return r.userClient.Query().Where(user.ID(id)).Exist(ctx)
 }
 
-func (r *UserStorage) CreateUserWithPassword(ctx context.Context, auth dto.EmailWithPassword) (*ent.User, error) {
-	return r.userClient.Create().SetEmail(auth.Email).
-		SetPasswordHash([]byte(auth.Password)).Save(ctx)
+func (r *UserStorage) CreateUserWithPassword(ctx context.Context, auth dto.SignUp, company *ent.Company) (*ent.User, error) {
+	return r.userClient.Create().
+		SetNillableBiography(auth.Biography).
+		SetNillableCountry(auth.Country).
+		SetNillableCity(auth.City).
+		SetNillablePosition(auth.Position).
+		SetNillableFatherName(auth.FatherName).
+		SetCompany(company).
+		SetFirstName(auth.FirstName).
+		SetLastName(auth.LastName).
+		SetPasswordHash([]byte(auth.Password)).
+		SetEmail(auth.Email).Save(ctx)
 }
 
 func (r *UserStorage) AuthUserByEmail(ctx context.Context, email string) (*ent.User, error) {
