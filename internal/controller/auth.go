@@ -11,7 +11,7 @@ import (
 )
 
 // SignUp godoc
-// @Summary Sign in by password
+// @Summary Sign up by password
 // @Description Compare the user's password with an existing user's password. If it matches, create session of the user. If the user does not exist, create new user
 // @Param SignUp body dto.SignUp true "User's email, password, firstName, lastName, inn"
 // @Tags Authorization
@@ -70,7 +70,7 @@ func (h *Handler) signUp(c *gin.Context) {
 
 // SignIn godoc
 // @Summary Sign in by password
-// @Description Compare the user's password with an existing user's password. If it matches, create session of the user. If the user does not exist, create new user
+// @Description Compare the user's password with an existing user's password. If it matches, create session of this user
 // @Param SignIn body dto.SignIn true "User's email, password"
 // @Tags Authorization
 // @Success 200 {string} string "user's session"

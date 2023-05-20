@@ -18,7 +18,7 @@ import (
 // @Failure 401 {object} errs.MyError "User isn't logged in"
 // @Failure 404 {object} errs.MyError "User doesn't exist"
 // @Failure 500 {object} errs.MyError
-// @Router /auth [get]
+// @Router /auth/session [get]
 func (h *Handler) getMe(c *gin.Context) {
 	id, ok := h.jwt.GetUserId(c)
 	if !ok {

@@ -26,7 +26,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/auth": {
+        "/auth/session": {
             "get": {
                 "security": [
                     {
@@ -68,7 +68,7 @@ const docTemplate = `{
         },
         "/auth/sign-in": {
             "post": {
-                "description": "Compare the user's password with an existing user's password. If it matches, create session of the user. If the user does not exist, create new user",
+                "description": "Compare the user's password with an existing user's password. If it matches, create session of this user",
                 "tags": [
                     "Authorization"
                 ],
@@ -112,7 +112,7 @@ const docTemplate = `{
                 "tags": [
                     "Authorization"
                 ],
-                "summary": "Sign in by password",
+                "summary": "Sign up by password",
                 "parameters": [
                     {
                         "description": "User's email, password, firstName, lastName, inn",

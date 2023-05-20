@@ -143,7 +143,7 @@ info:
   title: While.act API
   version: "1.0"
 paths:
-  /auth:
+  /auth/session:
     get:
       description: Returns detail information about me
       responses:
@@ -171,8 +171,7 @@ paths:
   /auth/sign-in:
     post:
       description: Compare the user's password with an existing user's password. If
-        it matches, create session of the user. If the user does not exist, create
-        new user
+        it matches, create session of this user
       parameters:
       - description: User's email, password
         in: body
@@ -221,7 +220,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/errs.MyError'
-      summary: Sign in by password
+      summary: Sign up by password
       tags:
       - Authorization
   /company:
