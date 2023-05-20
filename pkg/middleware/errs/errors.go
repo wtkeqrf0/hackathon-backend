@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
+	"github.com/wtkeqrf0/while.act/ent"
 	"io"
 	"net/http"
 )
@@ -111,6 +112,10 @@ func (e ErrHandler) HandleErrors(c *gin.Context) {
 					}
 				}
 				res["fields"] = fields
+
+			} else if ent.IsValidationError(err.Err) {
+				my.Status = http.StatusBadRequest
+				res["fields"] = gin.H{"FieldName": err.Err.Error()}
 			}
 
 			if i == 0 {
