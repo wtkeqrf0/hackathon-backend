@@ -16,8 +16,6 @@ const (
 	FieldName = "name"
 	// FieldWebsite holds the string denoting the website field in the database.
 	FieldWebsite = "website"
-	// FieldEconomicActivityBranch holds the string denoting the economic_activity_branch field in the database.
-	FieldEconomicActivityBranch = "economic_activity_branch"
 	// EdgeUsers holds the string denoting the users edge name in mutations.
 	EdgeUsers = "users"
 	// UserFieldID holds the string denoting the ID field of the User.
@@ -38,7 +36,6 @@ var Columns = []string{
 	FieldID,
 	FieldName,
 	FieldWebsite,
-	FieldEconomicActivityBranch,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -56,8 +53,6 @@ var (
 	NameValidator func(string) error
 	// WebsiteValidator is a validator for the "website" field. It is called by the builders before save.
 	WebsiteValidator func(string) error
-	// EconomicActivityBranchValidator is a validator for the "economic_activity_branch" field. It is called by the builders before save.
-	EconomicActivityBranchValidator func(string) error
 	// IDValidator is a validator for the "id" field. It is called by the builders before save.
 	IDValidator func(string) error
 )
@@ -78,11 +73,6 @@ func ByName(opts ...sql.OrderTermOption) OrderOption {
 // ByWebsite orders the results by the website field.
 func ByWebsite(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldWebsite, opts...).ToFunc()
-}
-
-// ByEconomicActivityBranch orders the results by the economic_activity_branch field.
-func ByEconomicActivityBranch(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldEconomicActivityBranch, opts...).ToFunc()
 }
 
 // ByUsersField orders the results by users field.

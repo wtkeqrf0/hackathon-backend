@@ -68,7 +68,11 @@ func (h *Handler) InitRoutes(r *gin.Engine) {
 	{
 		auth.POST("/sign-up", h.signUp)
 		auth.POST("/sign-in", h.signIn)
-		auth.GET("", h.jwt.RequireAuth, h.getMe)
+
+		session := api.Group("/session")
+		{
+			session.GET("", h.jwt.RequireAuth, h.getMe)
+		}
 	}
 
 	user := api.Group("/user")

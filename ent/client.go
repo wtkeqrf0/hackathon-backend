@@ -15,7 +15,6 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/wtkeqrf0/while.act/ent/company"
-	"github.com/wtkeqrf0/while.act/ent/economicactivity"
 	"github.com/wtkeqrf0/while.act/ent/user"
 )
 
@@ -26,8 +25,6 @@ type Client struct {
 	Schema *migrate.Schema
 	// Company is the client for interacting with the Company builders.
 	Company *CompanyClient
-	// EconomicActivity is the client for interacting with the EconomicActivity builders.
-	EconomicActivity *EconomicActivityClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 }
@@ -44,7 +41,6 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Company = NewCompanyClient(c.config)
-	c.EconomicActivity = NewEconomicActivityClient(c.config)
 	c.User = NewUserClient(c.config)
 }
 
@@ -126,11 +122,10 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:              ctx,
-		config:           cfg,
-		Company:          NewCompanyClient(cfg),
-		EconomicActivity: NewEconomicActivityClient(cfg),
-		User:             NewUserClient(cfg),
+		ctx:     ctx,
+		config:  cfg,
+		Company: NewCompanyClient(cfg),
+		User:    NewUserClient(cfg),
 	}, nil
 }
 
@@ -148,11 +143,10 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:              ctx,
-		config:           cfg,
-		Company:          NewCompanyClient(cfg),
-		EconomicActivity: NewEconomicActivityClient(cfg),
-		User:             NewUserClient(cfg),
+		ctx:     ctx,
+		config:  cfg,
+		Company: NewCompanyClient(cfg),
+		User:    NewUserClient(cfg),
 	}, nil
 }
 
@@ -182,7 +176,6 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	c.Company.Use(hooks...)
-	c.EconomicActivity.Use(hooks...)
 	c.User.Use(hooks...)
 }
 
@@ -190,7 +183,6 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	c.Company.Intercept(interceptors...)
-	c.EconomicActivity.Intercept(interceptors...)
 	c.User.Intercept(interceptors...)
 }
 
@@ -199,8 +191,6 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
 	case *CompanyMutation:
 		return c.Company.mutate(ctx, m)
-	case *EconomicActivityMutation:
-		return c.EconomicActivity.mutate(ctx, m)
 	case *UserMutation:
 		return c.User.mutate(ctx, m)
 	default:
@@ -342,124 +332,6 @@ func (c *CompanyClient) mutate(ctx context.Context, m *CompanyMutation) (Value, 
 	}
 }
 
-// EconomicActivityClient is a client for the EconomicActivity schema.
-type EconomicActivityClient struct {
-	config
-}
-
-// NewEconomicActivityClient returns a client for the EconomicActivity from the given config.
-func NewEconomicActivityClient(c config) *EconomicActivityClient {
-	return &EconomicActivityClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `economicactivity.Hooks(f(g(h())))`.
-func (c *EconomicActivityClient) Use(hooks ...Hook) {
-	c.hooks.EconomicActivity = append(c.hooks.EconomicActivity, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `economicactivity.Intercept(f(g(h())))`.
-func (c *EconomicActivityClient) Intercept(interceptors ...Interceptor) {
-	c.inters.EconomicActivity = append(c.inters.EconomicActivity, interceptors...)
-}
-
-// Create returns a builder for creating a EconomicActivity entity.
-func (c *EconomicActivityClient) Create() *EconomicActivityCreate {
-	mutation := newEconomicActivityMutation(c.config, OpCreate)
-	return &EconomicActivityCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of EconomicActivity entities.
-func (c *EconomicActivityClient) CreateBulk(builders ...*EconomicActivityCreate) *EconomicActivityCreateBulk {
-	return &EconomicActivityCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for EconomicActivity.
-func (c *EconomicActivityClient) Update() *EconomicActivityUpdate {
-	mutation := newEconomicActivityMutation(c.config, OpUpdate)
-	return &EconomicActivityUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *EconomicActivityClient) UpdateOne(ea *EconomicActivity) *EconomicActivityUpdateOne {
-	mutation := newEconomicActivityMutation(c.config, OpUpdateOne, withEconomicActivity(ea))
-	return &EconomicActivityUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *EconomicActivityClient) UpdateOneID(id string) *EconomicActivityUpdateOne {
-	mutation := newEconomicActivityMutation(c.config, OpUpdateOne, withEconomicActivityID(id))
-	return &EconomicActivityUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for EconomicActivity.
-func (c *EconomicActivityClient) Delete() *EconomicActivityDelete {
-	mutation := newEconomicActivityMutation(c.config, OpDelete)
-	return &EconomicActivityDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *EconomicActivityClient) DeleteOne(ea *EconomicActivity) *EconomicActivityDeleteOne {
-	return c.DeleteOneID(ea.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *EconomicActivityClient) DeleteOneID(id string) *EconomicActivityDeleteOne {
-	builder := c.Delete().Where(economicactivity.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &EconomicActivityDeleteOne{builder}
-}
-
-// Query returns a query builder for EconomicActivity.
-func (c *EconomicActivityClient) Query() *EconomicActivityQuery {
-	return &EconomicActivityQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeEconomicActivity},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a EconomicActivity entity by its id.
-func (c *EconomicActivityClient) Get(ctx context.Context, id string) (*EconomicActivity, error) {
-	return c.Query().Where(economicactivity.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *EconomicActivityClient) GetX(ctx context.Context, id string) *EconomicActivity {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// Hooks returns the client hooks.
-func (c *EconomicActivityClient) Hooks() []Hook {
-	return c.hooks.EconomicActivity
-}
-
-// Interceptors returns the client interceptors.
-func (c *EconomicActivityClient) Interceptors() []Interceptor {
-	return c.inters.EconomicActivity
-}
-
-func (c *EconomicActivityClient) mutate(ctx context.Context, m *EconomicActivityMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&EconomicActivityCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&EconomicActivityUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&EconomicActivityUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&EconomicActivityDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown EconomicActivity mutation op: %q", m.Op())
-	}
-}
-
 // UserClient is a client for the User schema.
 type UserClient struct {
 	config
@@ -598,9 +470,9 @@ func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error)
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Company, EconomicActivity, User []ent.Hook
+		Company, User []ent.Hook
 	}
 	inters struct {
-		Company, EconomicActivity, User []ent.Interceptor
+		Company, User []ent.Interceptor
 	}
 )

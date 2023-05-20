@@ -68,26 +68,6 @@ func (cu *CompanyUpdate) ClearWebsite() *CompanyUpdate {
 	return cu
 }
 
-// SetEconomicActivityBranch sets the "economic_activity_branch" field.
-func (cu *CompanyUpdate) SetEconomicActivityBranch(s string) *CompanyUpdate {
-	cu.mutation.SetEconomicActivityBranch(s)
-	return cu
-}
-
-// SetNillableEconomicActivityBranch sets the "economic_activity_branch" field if the given value is not nil.
-func (cu *CompanyUpdate) SetNillableEconomicActivityBranch(s *string) *CompanyUpdate {
-	if s != nil {
-		cu.SetEconomicActivityBranch(*s)
-	}
-	return cu
-}
-
-// ClearEconomicActivityBranch clears the value of the "economic_activity_branch" field.
-func (cu *CompanyUpdate) ClearEconomicActivityBranch() *CompanyUpdate {
-	cu.mutation.ClearEconomicActivityBranch()
-	return cu
-}
-
 // SetUsersID sets the "users" edge to the User entity by ID.
 func (cu *CompanyUpdate) SetUsersID(id int) *CompanyUpdate {
 	cu.mutation.SetUsersID(id)
@@ -157,11 +137,6 @@ func (cu *CompanyUpdate) check() error {
 			return &ValidationError{Name: "website", err: fmt.Errorf(`ent: validator failed for field "Company.website": %w`, err)}
 		}
 	}
-	if v, ok := cu.mutation.EconomicActivityBranch(); ok {
-		if err := company.EconomicActivityBranchValidator(v); err != nil {
-			return &ValidationError{Name: "economic_activity_branch", err: fmt.Errorf(`ent: validator failed for field "Company.economic_activity_branch": %w`, err)}
-		}
-	}
 	return nil
 }
 
@@ -188,12 +163,6 @@ func (cu *CompanyUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	}
 	if cu.mutation.WebsiteCleared() {
 		_spec.ClearField(company.FieldWebsite, field.TypeString)
-	}
-	if value, ok := cu.mutation.EconomicActivityBranch(); ok {
-		_spec.SetField(company.FieldEconomicActivityBranch, field.TypeString, value)
-	}
-	if cu.mutation.EconomicActivityBranchCleared() {
-		_spec.ClearField(company.FieldEconomicActivityBranch, field.TypeString)
 	}
 	if cu.mutation.UsersCleared() {
 		edge := &sqlgraph.EdgeSpec{
@@ -284,26 +253,6 @@ func (cuo *CompanyUpdateOne) ClearWebsite() *CompanyUpdateOne {
 	return cuo
 }
 
-// SetEconomicActivityBranch sets the "economic_activity_branch" field.
-func (cuo *CompanyUpdateOne) SetEconomicActivityBranch(s string) *CompanyUpdateOne {
-	cuo.mutation.SetEconomicActivityBranch(s)
-	return cuo
-}
-
-// SetNillableEconomicActivityBranch sets the "economic_activity_branch" field if the given value is not nil.
-func (cuo *CompanyUpdateOne) SetNillableEconomicActivityBranch(s *string) *CompanyUpdateOne {
-	if s != nil {
-		cuo.SetEconomicActivityBranch(*s)
-	}
-	return cuo
-}
-
-// ClearEconomicActivityBranch clears the value of the "economic_activity_branch" field.
-func (cuo *CompanyUpdateOne) ClearEconomicActivityBranch() *CompanyUpdateOne {
-	cuo.mutation.ClearEconomicActivityBranch()
-	return cuo
-}
-
 // SetUsersID sets the "users" edge to the User entity by ID.
 func (cuo *CompanyUpdateOne) SetUsersID(id int) *CompanyUpdateOne {
 	cuo.mutation.SetUsersID(id)
@@ -386,11 +335,6 @@ func (cuo *CompanyUpdateOne) check() error {
 			return &ValidationError{Name: "website", err: fmt.Errorf(`ent: validator failed for field "Company.website": %w`, err)}
 		}
 	}
-	if v, ok := cuo.mutation.EconomicActivityBranch(); ok {
-		if err := company.EconomicActivityBranchValidator(v); err != nil {
-			return &ValidationError{Name: "economic_activity_branch", err: fmt.Errorf(`ent: validator failed for field "Company.economic_activity_branch": %w`, err)}
-		}
-	}
 	return nil
 }
 
@@ -434,12 +378,6 @@ func (cuo *CompanyUpdateOne) sqlSave(ctx context.Context) (_node *Company, err e
 	}
 	if cuo.mutation.WebsiteCleared() {
 		_spec.ClearField(company.FieldWebsite, field.TypeString)
-	}
-	if value, ok := cuo.mutation.EconomicActivityBranch(); ok {
-		_spec.SetField(company.FieldEconomicActivityBranch, field.TypeString, value)
-	}
-	if cuo.mutation.EconomicActivityBranchCleared() {
-		_spec.ClearField(company.FieldEconomicActivityBranch, field.TypeString)
 	}
 	if cuo.mutation.UsersCleared() {
 		edge := &sqlgraph.EdgeSpec{

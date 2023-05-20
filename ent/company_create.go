@@ -47,20 +47,6 @@ func (cc *CompanyCreate) SetNillableWebsite(s *string) *CompanyCreate {
 	return cc
 }
 
-// SetEconomicActivityBranch sets the "economic_activity_branch" field.
-func (cc *CompanyCreate) SetEconomicActivityBranch(s string) *CompanyCreate {
-	cc.mutation.SetEconomicActivityBranch(s)
-	return cc
-}
-
-// SetNillableEconomicActivityBranch sets the "economic_activity_branch" field if the given value is not nil.
-func (cc *CompanyCreate) SetNillableEconomicActivityBranch(s *string) *CompanyCreate {
-	if s != nil {
-		cc.SetEconomicActivityBranch(*s)
-	}
-	return cc
-}
-
 // SetID sets the "id" field.
 func (cc *CompanyCreate) SetID(s string) *CompanyCreate {
 	cc.mutation.SetID(s)
@@ -130,11 +116,6 @@ func (cc *CompanyCreate) check() error {
 			return &ValidationError{Name: "website", err: fmt.Errorf(`ent: validator failed for field "Company.website": %w`, err)}
 		}
 	}
-	if v, ok := cc.mutation.EconomicActivityBranch(); ok {
-		if err := company.EconomicActivityBranchValidator(v); err != nil {
-			return &ValidationError{Name: "economic_activity_branch", err: fmt.Errorf(`ent: validator failed for field "Company.economic_activity_branch": %w`, err)}
-		}
-	}
 	if v, ok := cc.mutation.ID(); ok {
 		if err := company.IDValidator(v); err != nil {
 			return &ValidationError{Name: "id", err: fmt.Errorf(`ent: validator failed for field "Company.id": %w`, err)}
@@ -182,10 +163,6 @@ func (cc *CompanyCreate) createSpec() (*Company, *sqlgraph.CreateSpec) {
 	if value, ok := cc.mutation.Website(); ok {
 		_spec.SetField(company.FieldWebsite, field.TypeString, value)
 		_node.Website = &value
-	}
-	if value, ok := cc.mutation.EconomicActivityBranch(); ok {
-		_spec.SetField(company.FieldEconomicActivityBranch, field.TypeString, value)
-		_node.EconomicActivityBranch = value
 	}
 	if nodes := cc.mutation.UsersIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{

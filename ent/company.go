@@ -21,8 +21,6 @@ type Company struct {
 	Name *string `json:"company_name,omitempty" example:"ООО \"Парк\""`
 	// Website holds the value of the "website" field.
 	Website *string `json:"website,omitempty" example:"https://www.rusprofile.ru"`
-	// EconomicActivityBranch holds the value of the "economic_activity_branch" field.
-	EconomicActivityBranch string `json:"economicActivityBranch,omitempty" example:"Радиоэлектроника и приборостроение - Приборостроение"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the CompanyQuery when eager-loading is set.
 	Edges        CompanyEdges `json:"edges"`
@@ -56,7 +54,7 @@ func (*Company) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case company.FieldID, company.FieldName, company.FieldWebsite, company.FieldEconomicActivityBranch:
+		case company.FieldID, company.FieldName, company.FieldWebsite:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -92,12 +90,6 @@ func (c *Company) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				c.Website = new(string)
 				*c.Website = value.String
-			}
-		case company.FieldEconomicActivityBranch:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field economic_activity_branch", values[i])
-			} else if value.Valid {
-				c.EconomicActivityBranch = value.String
 			}
 		default:
 			c.selectValues.Set(columns[i], values[i])
@@ -149,9 +141,6 @@ func (c *Company) String() string {
 		builder.WriteString("website=")
 		builder.WriteString(*v)
 	}
-	builder.WriteString(", ")
-	builder.WriteString("economic_activity_branch=")
-	builder.WriteString(c.EconomicActivityBranch)
 	builder.WriteByte(')')
 	return builder.String()
 }

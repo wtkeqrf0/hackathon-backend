@@ -13,24 +13,12 @@ var (
 		{Name: "inn", Type: field.TypeString, Unique: true},
 		{Name: "name", Type: field.TypeString, Unique: true, Nullable: true, Size: 150},
 		{Name: "website", Type: field.TypeString, Nullable: true},
-		{Name: "economic_activity_branch", Type: field.TypeString, Nullable: true, Size: 50},
 	}
 	// CompaniesTable holds the schema information for the "companies" table.
 	CompaniesTable = &schema.Table{
 		Name:       "companies",
 		Columns:    CompaniesColumns,
 		PrimaryKey: []*schema.Column{CompaniesColumns[0]},
-	}
-	// EconomicActivitiesColumns holds the columns for the "economic_activities" table.
-	EconomicActivitiesColumns = []*schema.Column{
-		{Name: "main", Type: field.TypeString, Unique: true, Size: 100},
-		{Name: "subs", Type: field.TypeString, Unique: true, Nullable: true, Size: 100},
-	}
-	// EconomicActivitiesTable holds the schema information for the "economic_activities" table.
-	EconomicActivitiesTable = &schema.Table{
-		Name:       "economic_activities",
-		Columns:    EconomicActivitiesColumns,
-		PrimaryKey: []*schema.Column{EconomicActivitiesColumns[0]},
 	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
@@ -67,7 +55,6 @@ var (
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		CompaniesTable,
-		EconomicActivitiesTable,
 		UsersTable,
 	}
 )

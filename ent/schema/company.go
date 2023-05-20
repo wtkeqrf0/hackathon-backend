@@ -23,9 +23,6 @@ func (Company) Fields() []ent.Field {
 
 		field.String("website").Optional().Match(bind.LinkRegexp).Nillable().
 			StructTag(`json:"website,omitempty" example:"https://www.rusprofile.ru"`),
-
-		field.String("economic_activity_branch").Optional().MinLen(5).MaxLen(50).
-			StructTag(`json:"economicActivityBranch,omitempty" example:"Радиоэлектроника и приборостроение - Приборостроение"`),
 	}
 }
 

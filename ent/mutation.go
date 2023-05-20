@@ -12,7 +12,6 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"github.com/wtkeqrf0/while.act/ent/company"
-	"github.com/wtkeqrf0/while.act/ent/economicactivity"
 	"github.com/wtkeqrf0/while.act/ent/predicate"
 	"github.com/wtkeqrf0/while.act/ent/user"
 )
@@ -26,26 +25,24 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypeCompany          = "Company"
-	TypeEconomicActivity = "EconomicActivity"
-	TypeUser             = "User"
+	TypeCompany = "Company"
+	TypeUser    = "User"
 )
 
 // CompanyMutation represents an operation that mutates the Company nodes in the graph.
 type CompanyMutation struct {
 	config
-	op                       Op
-	typ                      string
-	id                       *string
-	name                     *string
-	website                  *string
-	economic_activity_branch *string
-	clearedFields            map[string]struct{}
-	users                    *int
-	clearedusers             bool
-	done                     bool
-	oldValue                 func(context.Context) (*Company, error)
-	predicates               []predicate.Company
+	op            Op
+	typ           string
+	id            *string
+	name          *string
+	website       *string
+	clearedFields map[string]struct{}
+	users         *int
+	clearedusers  bool
+	done          bool
+	oldValue      func(context.Context) (*Company, error)
+	predicates    []predicate.Company
 }
 
 var _ ent.Mutation = (*CompanyMutation)(nil)
@@ -250,55 +247,6 @@ func (m *CompanyMutation) ResetWebsite() {
 	delete(m.clearedFields, company.FieldWebsite)
 }
 
-// SetEconomicActivityBranch sets the "economic_activity_branch" field.
-func (m *CompanyMutation) SetEconomicActivityBranch(s string) {
-	m.economic_activity_branch = &s
-}
-
-// EconomicActivityBranch returns the value of the "economic_activity_branch" field in the mutation.
-func (m *CompanyMutation) EconomicActivityBranch() (r string, exists bool) {
-	v := m.economic_activity_branch
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldEconomicActivityBranch returns the old "economic_activity_branch" field's value of the Company entity.
-// If the Company object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *CompanyMutation) OldEconomicActivityBranch(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldEconomicActivityBranch is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldEconomicActivityBranch requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldEconomicActivityBranch: %w", err)
-	}
-	return oldValue.EconomicActivityBranch, nil
-}
-
-// ClearEconomicActivityBranch clears the value of the "economic_activity_branch" field.
-func (m *CompanyMutation) ClearEconomicActivityBranch() {
-	m.economic_activity_branch = nil
-	m.clearedFields[company.FieldEconomicActivityBranch] = struct{}{}
-}
-
-// EconomicActivityBranchCleared returns if the "economic_activity_branch" field was cleared in this mutation.
-func (m *CompanyMutation) EconomicActivityBranchCleared() bool {
-	_, ok := m.clearedFields[company.FieldEconomicActivityBranch]
-	return ok
-}
-
-// ResetEconomicActivityBranch resets all changes to the "economic_activity_branch" field.
-func (m *CompanyMutation) ResetEconomicActivityBranch() {
-	m.economic_activity_branch = nil
-	delete(m.clearedFields, company.FieldEconomicActivityBranch)
-}
-
 // SetUsersID sets the "users" edge to the User entity by id.
 func (m *CompanyMutation) SetUsersID(id int) {
 	m.users = &id
@@ -372,15 +320,12 @@ func (m *CompanyMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *CompanyMutation) Fields() []string {
-	fields := make([]string, 0, 3)
+	fields := make([]string, 0, 2)
 	if m.name != nil {
 		fields = append(fields, company.FieldName)
 	}
 	if m.website != nil {
 		fields = append(fields, company.FieldWebsite)
-	}
-	if m.economic_activity_branch != nil {
-		fields = append(fields, company.FieldEconomicActivityBranch)
 	}
 	return fields
 }
@@ -394,8 +339,6 @@ func (m *CompanyMutation) Field(name string) (ent.Value, bool) {
 		return m.Name()
 	case company.FieldWebsite:
 		return m.Website()
-	case company.FieldEconomicActivityBranch:
-		return m.EconomicActivityBranch()
 	}
 	return nil, false
 }
@@ -409,8 +352,6 @@ func (m *CompanyMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldName(ctx)
 	case company.FieldWebsite:
 		return m.OldWebsite(ctx)
-	case company.FieldEconomicActivityBranch:
-		return m.OldEconomicActivityBranch(ctx)
 	}
 	return nil, fmt.Errorf("unknown Company field %s", name)
 }
@@ -433,13 +374,6 @@ func (m *CompanyMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetWebsite(v)
-		return nil
-	case company.FieldEconomicActivityBranch:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetEconomicActivityBranch(v)
 		return nil
 	}
 	return fmt.Errorf("unknown Company field %s", name)
@@ -477,9 +411,6 @@ func (m *CompanyMutation) ClearedFields() []string {
 	if m.FieldCleared(company.FieldWebsite) {
 		fields = append(fields, company.FieldWebsite)
 	}
-	if m.FieldCleared(company.FieldEconomicActivityBranch) {
-		fields = append(fields, company.FieldEconomicActivityBranch)
-	}
 	return fields
 }
 
@@ -500,9 +431,6 @@ func (m *CompanyMutation) ClearField(name string) error {
 	case company.FieldWebsite:
 		m.ClearWebsite()
 		return nil
-	case company.FieldEconomicActivityBranch:
-		m.ClearEconomicActivityBranch()
-		return nil
 	}
 	return fmt.Errorf("unknown Company nullable field %s", name)
 }
@@ -516,9 +444,6 @@ func (m *CompanyMutation) ResetField(name string) error {
 		return nil
 	case company.FieldWebsite:
 		m.ResetWebsite()
-		return nil
-	case company.FieldEconomicActivityBranch:
-		m.ResetEconomicActivityBranch()
 		return nil
 	}
 	return fmt.Errorf("unknown Company field %s", name)
@@ -596,360 +521,6 @@ func (m *CompanyMutation) ResetEdge(name string) error {
 		return nil
 	}
 	return fmt.Errorf("unknown Company edge %s", name)
-}
-
-// EconomicActivityMutation represents an operation that mutates the EconomicActivity nodes in the graph.
-type EconomicActivityMutation struct {
-	config
-	op            Op
-	typ           string
-	id            *string
-	subs          *string
-	clearedFields map[string]struct{}
-	done          bool
-	oldValue      func(context.Context) (*EconomicActivity, error)
-	predicates    []predicate.EconomicActivity
-}
-
-var _ ent.Mutation = (*EconomicActivityMutation)(nil)
-
-// economicactivityOption allows management of the mutation configuration using functional options.
-type economicactivityOption func(*EconomicActivityMutation)
-
-// newEconomicActivityMutation creates new mutation for the EconomicActivity entity.
-func newEconomicActivityMutation(c config, op Op, opts ...economicactivityOption) *EconomicActivityMutation {
-	m := &EconomicActivityMutation{
-		config:        c,
-		op:            op,
-		typ:           TypeEconomicActivity,
-		clearedFields: make(map[string]struct{}),
-	}
-	for _, opt := range opts {
-		opt(m)
-	}
-	return m
-}
-
-// withEconomicActivityID sets the ID field of the mutation.
-func withEconomicActivityID(id string) economicactivityOption {
-	return func(m *EconomicActivityMutation) {
-		var (
-			err   error
-			once  sync.Once
-			value *EconomicActivity
-		)
-		m.oldValue = func(ctx context.Context) (*EconomicActivity, error) {
-			once.Do(func() {
-				if m.done {
-					err = errors.New("querying old values post mutation is not allowed")
-				} else {
-					value, err = m.Client().EconomicActivity.Get(ctx, id)
-				}
-			})
-			return value, err
-		}
-		m.id = &id
-	}
-}
-
-// withEconomicActivity sets the old EconomicActivity of the mutation.
-func withEconomicActivity(node *EconomicActivity) economicactivityOption {
-	return func(m *EconomicActivityMutation) {
-		m.oldValue = func(context.Context) (*EconomicActivity, error) {
-			return node, nil
-		}
-		m.id = &node.ID
-	}
-}
-
-// Client returns a new `ent.Client` from the mutation. If the mutation was
-// executed in a transaction (ent.Tx), a transactional client is returned.
-func (m EconomicActivityMutation) Client() *Client {
-	client := &Client{config: m.config}
-	client.init()
-	return client
-}
-
-// Tx returns an `ent.Tx` for mutations that were executed in transactions;
-// it returns an error otherwise.
-func (m EconomicActivityMutation) Tx() (*Tx, error) {
-	if _, ok := m.driver.(*txDriver); !ok {
-		return nil, errors.New("ent: mutation is not running in a transaction")
-	}
-	tx := &Tx{config: m.config}
-	tx.init()
-	return tx, nil
-}
-
-// SetID sets the value of the id field. Note that this
-// operation is only accepted on creation of EconomicActivity entities.
-func (m *EconomicActivityMutation) SetID(id string) {
-	m.id = &id
-}
-
-// ID returns the ID value in the mutation. Note that the ID is only available
-// if it was provided to the builder or after it was returned from the database.
-func (m *EconomicActivityMutation) ID() (id string, exists bool) {
-	if m.id == nil {
-		return
-	}
-	return *m.id, true
-}
-
-// IDs queries the database and returns the entity ids that match the mutation's predicate.
-// That means, if the mutation is applied within a transaction with an isolation level such
-// as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
-// or updated by the mutation.
-func (m *EconomicActivityMutation) IDs(ctx context.Context) ([]string, error) {
-	switch {
-	case m.op.Is(OpUpdateOne | OpDeleteOne):
-		id, exists := m.ID()
-		if exists {
-			return []string{id}, nil
-		}
-		fallthrough
-	case m.op.Is(OpUpdate | OpDelete):
-		return m.Client().EconomicActivity.Query().Where(m.predicates...).IDs(ctx)
-	default:
-		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
-	}
-}
-
-// SetSubs sets the "subs" field.
-func (m *EconomicActivityMutation) SetSubs(s string) {
-	m.subs = &s
-}
-
-// Subs returns the value of the "subs" field in the mutation.
-func (m *EconomicActivityMutation) Subs() (r string, exists bool) {
-	v := m.subs
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldSubs returns the old "subs" field's value of the EconomicActivity entity.
-// If the EconomicActivity object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *EconomicActivityMutation) OldSubs(ctx context.Context) (v string, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldSubs is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldSubs requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldSubs: %w", err)
-	}
-	return oldValue.Subs, nil
-}
-
-// ClearSubs clears the value of the "subs" field.
-func (m *EconomicActivityMutation) ClearSubs() {
-	m.subs = nil
-	m.clearedFields[economicactivity.FieldSubs] = struct{}{}
-}
-
-// SubsCleared returns if the "subs" field was cleared in this mutation.
-func (m *EconomicActivityMutation) SubsCleared() bool {
-	_, ok := m.clearedFields[economicactivity.FieldSubs]
-	return ok
-}
-
-// ResetSubs resets all changes to the "subs" field.
-func (m *EconomicActivityMutation) ResetSubs() {
-	m.subs = nil
-	delete(m.clearedFields, economicactivity.FieldSubs)
-}
-
-// Where appends a list predicates to the EconomicActivityMutation builder.
-func (m *EconomicActivityMutation) Where(ps ...predicate.EconomicActivity) {
-	m.predicates = append(m.predicates, ps...)
-}
-
-// WhereP appends storage-level predicates to the EconomicActivityMutation builder. Using this method,
-// users can use type-assertion to append predicates that do not depend on any generated package.
-func (m *EconomicActivityMutation) WhereP(ps ...func(*sql.Selector)) {
-	p := make([]predicate.EconomicActivity, len(ps))
-	for i := range ps {
-		p[i] = ps[i]
-	}
-	m.Where(p...)
-}
-
-// Op returns the operation name.
-func (m *EconomicActivityMutation) Op() Op {
-	return m.op
-}
-
-// SetOp allows setting the mutation operation.
-func (m *EconomicActivityMutation) SetOp(op Op) {
-	m.op = op
-}
-
-// Type returns the node type of this mutation (EconomicActivity).
-func (m *EconomicActivityMutation) Type() string {
-	return m.typ
-}
-
-// Fields returns all fields that were changed during this mutation. Note that in
-// order to get all numeric fields that were incremented/decremented, call
-// AddedFields().
-func (m *EconomicActivityMutation) Fields() []string {
-	fields := make([]string, 0, 1)
-	if m.subs != nil {
-		fields = append(fields, economicactivity.FieldSubs)
-	}
-	return fields
-}
-
-// Field returns the value of a field with the given name. The second boolean
-// return value indicates that this field was not set, or was not defined in the
-// schema.
-func (m *EconomicActivityMutation) Field(name string) (ent.Value, bool) {
-	switch name {
-	case economicactivity.FieldSubs:
-		return m.Subs()
-	}
-	return nil, false
-}
-
-// OldField returns the old value of the field from the database. An error is
-// returned if the mutation operation is not UpdateOne, or the query to the
-// database failed.
-func (m *EconomicActivityMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
-	switch name {
-	case economicactivity.FieldSubs:
-		return m.OldSubs(ctx)
-	}
-	return nil, fmt.Errorf("unknown EconomicActivity field %s", name)
-}
-
-// SetField sets the value of a field with the given name. It returns an error if
-// the field is not defined in the schema, or if the type mismatched the field
-// type.
-func (m *EconomicActivityMutation) SetField(name string, value ent.Value) error {
-	switch name {
-	case economicactivity.FieldSubs:
-		v, ok := value.(string)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetSubs(v)
-		return nil
-	}
-	return fmt.Errorf("unknown EconomicActivity field %s", name)
-}
-
-// AddedFields returns all numeric fields that were incremented/decremented during
-// this mutation.
-func (m *EconomicActivityMutation) AddedFields() []string {
-	return nil
-}
-
-// AddedField returns the numeric value that was incremented/decremented on a field
-// with the given name. The second boolean return value indicates that this field
-// was not set, or was not defined in the schema.
-func (m *EconomicActivityMutation) AddedField(name string) (ent.Value, bool) {
-	return nil, false
-}
-
-// AddField adds the value to the field with the given name. It returns an error if
-// the field is not defined in the schema, or if the type mismatched the field
-// type.
-func (m *EconomicActivityMutation) AddField(name string, value ent.Value) error {
-	switch name {
-	}
-	return fmt.Errorf("unknown EconomicActivity numeric field %s", name)
-}
-
-// ClearedFields returns all nullable fields that were cleared during this
-// mutation.
-func (m *EconomicActivityMutation) ClearedFields() []string {
-	var fields []string
-	if m.FieldCleared(economicactivity.FieldSubs) {
-		fields = append(fields, economicactivity.FieldSubs)
-	}
-	return fields
-}
-
-// FieldCleared returns a boolean indicating if a field with the given name was
-// cleared in this mutation.
-func (m *EconomicActivityMutation) FieldCleared(name string) bool {
-	_, ok := m.clearedFields[name]
-	return ok
-}
-
-// ClearField clears the value of the field with the given name. It returns an
-// error if the field is not defined in the schema.
-func (m *EconomicActivityMutation) ClearField(name string) error {
-	switch name {
-	case economicactivity.FieldSubs:
-		m.ClearSubs()
-		return nil
-	}
-	return fmt.Errorf("unknown EconomicActivity nullable field %s", name)
-}
-
-// ResetField resets all changes in the mutation for the field with the given name.
-// It returns an error if the field is not defined in the schema.
-func (m *EconomicActivityMutation) ResetField(name string) error {
-	switch name {
-	case economicactivity.FieldSubs:
-		m.ResetSubs()
-		return nil
-	}
-	return fmt.Errorf("unknown EconomicActivity field %s", name)
-}
-
-// AddedEdges returns all edge names that were set/added in this mutation.
-func (m *EconomicActivityMutation) AddedEdges() []string {
-	edges := make([]string, 0, 0)
-	return edges
-}
-
-// AddedIDs returns all IDs (to other nodes) that were added for the given edge
-// name in this mutation.
-func (m *EconomicActivityMutation) AddedIDs(name string) []ent.Value {
-	return nil
-}
-
-// RemovedEdges returns all edge names that were removed in this mutation.
-func (m *EconomicActivityMutation) RemovedEdges() []string {
-	edges := make([]string, 0, 0)
-	return edges
-}
-
-// RemovedIDs returns all IDs (to other nodes) that were removed for the edge with
-// the given name in this mutation.
-func (m *EconomicActivityMutation) RemovedIDs(name string) []ent.Value {
-	return nil
-}
-
-// ClearedEdges returns all edge names that were cleared in this mutation.
-func (m *EconomicActivityMutation) ClearedEdges() []string {
-	edges := make([]string, 0, 0)
-	return edges
-}
-
-// EdgeCleared returns a boolean which indicates if the edge with the given name
-// was cleared in this mutation.
-func (m *EconomicActivityMutation) EdgeCleared(name string) bool {
-	return false
-}
-
-// ClearEdge clears the value of the edge with the given name. It returns an error
-// if that edge is not defined in the schema.
-func (m *EconomicActivityMutation) ClearEdge(name string) error {
-	return fmt.Errorf("unknown EconomicActivity unique edge %s", name)
-}
-
-// ResetEdge resets all changes to the edge with the given name in this mutation.
-// It returns an error if the edge is not defined in the schema.
-func (m *EconomicActivityMutation) ResetEdge(name string) error {
-	return fmt.Errorf("unknown EconomicActivity edge %s", name)
 }
 
 // UserMutation represents an operation that mutates the User nodes in the graph.

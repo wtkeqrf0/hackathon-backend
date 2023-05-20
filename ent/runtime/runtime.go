@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/wtkeqrf0/while.act/ent/company"
-	"github.com/wtkeqrf0/while.act/ent/economicactivity"
 	"github.com/wtkeqrf0/while.act/ent/schema"
 	"github.com/wtkeqrf0/while.act/ent/user"
 )
@@ -39,66 +38,10 @@ func init() {
 	companyDescWebsite := companyFields[2].Descriptor()
 	// company.WebsiteValidator is a validator for the "website" field. It is called by the builders before save.
 	company.WebsiteValidator = companyDescWebsite.Validators[0].(func(string) error)
-	// companyDescEconomicActivityBranch is the schema descriptor for economic_activity_branch field.
-	companyDescEconomicActivityBranch := companyFields[3].Descriptor()
-	// company.EconomicActivityBranchValidator is a validator for the "economic_activity_branch" field. It is called by the builders before save.
-	company.EconomicActivityBranchValidator = func() func(string) error {
-		validators := companyDescEconomicActivityBranch.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(economic_activity_branch string) error {
-			for _, fn := range fns {
-				if err := fn(economic_activity_branch); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
 	// companyDescID is the schema descriptor for id field.
 	companyDescID := companyFields[0].Descriptor()
 	// company.IDValidator is a validator for the "id" field. It is called by the builders before save.
 	company.IDValidator = companyDescID.Validators[0].(func(string) error)
-	economicactivityFields := schema.EconomicActivity{}.Fields()
-	_ = economicactivityFields
-	// economicactivityDescSubs is the schema descriptor for subs field.
-	economicactivityDescSubs := economicactivityFields[1].Descriptor()
-	// economicactivity.SubsValidator is a validator for the "subs" field. It is called by the builders before save.
-	economicactivity.SubsValidator = func() func(string) error {
-		validators := economicactivityDescSubs.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(subs string) error {
-			for _, fn := range fns {
-				if err := fn(subs); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
-	// economicactivityDescID is the schema descriptor for id field.
-	economicactivityDescID := economicactivityFields[0].Descriptor()
-	// economicactivity.IDValidator is a validator for the "id" field. It is called by the builders before save.
-	economicactivity.IDValidator = func() func(string) error {
-		validators := economicactivityDescID.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(id string) error {
-			for _, fn := range fns {
-				if err := fn(id); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
 	userMixin := schema.User{}.Mixin()
 	userHooks := schema.User{}.Hooks()
 	user.Hooks[0] = userHooks[0]

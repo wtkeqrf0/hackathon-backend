@@ -73,11 +73,6 @@ func Website(v string) predicate.Company {
 	return predicate.Company(sql.FieldEQ(FieldWebsite, v))
 }
 
-// EconomicActivityBranch applies equality check predicate on the "economic_activity_branch" field. It's identical to EconomicActivityBranchEQ.
-func EconomicActivityBranch(v string) predicate.Company {
-	return predicate.Company(sql.FieldEQ(FieldEconomicActivityBranch, v))
-}
-
 // NameEQ applies the EQ predicate on the "name" field.
 func NameEQ(v string) predicate.Company {
 	return predicate.Company(sql.FieldEQ(FieldName, v))
@@ -226,81 +221,6 @@ func WebsiteEqualFold(v string) predicate.Company {
 // WebsiteContainsFold applies the ContainsFold predicate on the "website" field.
 func WebsiteContainsFold(v string) predicate.Company {
 	return predicate.Company(sql.FieldContainsFold(FieldWebsite, v))
-}
-
-// EconomicActivityBranchEQ applies the EQ predicate on the "economic_activity_branch" field.
-func EconomicActivityBranchEQ(v string) predicate.Company {
-	return predicate.Company(sql.FieldEQ(FieldEconomicActivityBranch, v))
-}
-
-// EconomicActivityBranchNEQ applies the NEQ predicate on the "economic_activity_branch" field.
-func EconomicActivityBranchNEQ(v string) predicate.Company {
-	return predicate.Company(sql.FieldNEQ(FieldEconomicActivityBranch, v))
-}
-
-// EconomicActivityBranchIn applies the In predicate on the "economic_activity_branch" field.
-func EconomicActivityBranchIn(vs ...string) predicate.Company {
-	return predicate.Company(sql.FieldIn(FieldEconomicActivityBranch, vs...))
-}
-
-// EconomicActivityBranchNotIn applies the NotIn predicate on the "economic_activity_branch" field.
-func EconomicActivityBranchNotIn(vs ...string) predicate.Company {
-	return predicate.Company(sql.FieldNotIn(FieldEconomicActivityBranch, vs...))
-}
-
-// EconomicActivityBranchGT applies the GT predicate on the "economic_activity_branch" field.
-func EconomicActivityBranchGT(v string) predicate.Company {
-	return predicate.Company(sql.FieldGT(FieldEconomicActivityBranch, v))
-}
-
-// EconomicActivityBranchGTE applies the GTE predicate on the "economic_activity_branch" field.
-func EconomicActivityBranchGTE(v string) predicate.Company {
-	return predicate.Company(sql.FieldGTE(FieldEconomicActivityBranch, v))
-}
-
-// EconomicActivityBranchLT applies the LT predicate on the "economic_activity_branch" field.
-func EconomicActivityBranchLT(v string) predicate.Company {
-	return predicate.Company(sql.FieldLT(FieldEconomicActivityBranch, v))
-}
-
-// EconomicActivityBranchLTE applies the LTE predicate on the "economic_activity_branch" field.
-func EconomicActivityBranchLTE(v string) predicate.Company {
-	return predicate.Company(sql.FieldLTE(FieldEconomicActivityBranch, v))
-}
-
-// EconomicActivityBranchContains applies the Contains predicate on the "economic_activity_branch" field.
-func EconomicActivityBranchContains(v string) predicate.Company {
-	return predicate.Company(sql.FieldContains(FieldEconomicActivityBranch, v))
-}
-
-// EconomicActivityBranchHasPrefix applies the HasPrefix predicate on the "economic_activity_branch" field.
-func EconomicActivityBranchHasPrefix(v string) predicate.Company {
-	return predicate.Company(sql.FieldHasPrefix(FieldEconomicActivityBranch, v))
-}
-
-// EconomicActivityBranchHasSuffix applies the HasSuffix predicate on the "economic_activity_branch" field.
-func EconomicActivityBranchHasSuffix(v string) predicate.Company {
-	return predicate.Company(sql.FieldHasSuffix(FieldEconomicActivityBranch, v))
-}
-
-// EconomicActivityBranchIsNil applies the IsNil predicate on the "economic_activity_branch" field.
-func EconomicActivityBranchIsNil() predicate.Company {
-	return predicate.Company(sql.FieldIsNull(FieldEconomicActivityBranch))
-}
-
-// EconomicActivityBranchNotNil applies the NotNil predicate on the "economic_activity_branch" field.
-func EconomicActivityBranchNotNil() predicate.Company {
-	return predicate.Company(sql.FieldNotNull(FieldEconomicActivityBranch))
-}
-
-// EconomicActivityBranchEqualFold applies the EqualFold predicate on the "economic_activity_branch" field.
-func EconomicActivityBranchEqualFold(v string) predicate.Company {
-	return predicate.Company(sql.FieldEqualFold(FieldEconomicActivityBranch, v))
-}
-
-// EconomicActivityBranchContainsFold applies the ContainsFold predicate on the "economic_activity_branch" field.
-func EconomicActivityBranchContainsFold(v string) predicate.Company {
-	return predicate.Company(sql.FieldContainsFold(FieldEconomicActivityBranch, v))
 }
 
 // HasUsers applies the HasEdge predicate on the "users" edge.
