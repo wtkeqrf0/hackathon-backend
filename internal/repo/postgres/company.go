@@ -5,6 +5,7 @@ import (
 	"github.com/wtkeqrf0/while.act/ent"
 	"github.com/wtkeqrf0/while.act/ent/company"
 	"github.com/wtkeqrf0/while.act/internal/controller/dao"
+	"github.com/wtkeqrf0/while.act/internal/controller/dto"
 	"github.com/wtkeqrf0/while.act/pkg/middleware/errs"
 )
 
@@ -37,8 +38,8 @@ func (r *CompanyStorage) GetCompany(ctx context.Context, inn string) (*ent.Compa
 	return r.companyClient.Get(ctx, inn)
 }
 
-func (r *CompanyStorage) UpdateCompany(ctx context.Context, inn string, name, website *string) error {
+func (r *CompanyStorage) UpdateCompany(ctx context.Context, updateCompany dto.UpdateCompany, inn string) error {
 	return r.companyClient.UpdateOneID(inn).
-		SetNillableName(name).
-		SetNillableWebsite(website).Exec(ctx)
+		SetNillableName(updateCompany.Name).
+		SetNillableWebsite(updateCompany.Website).Exec(ctx)
 }
