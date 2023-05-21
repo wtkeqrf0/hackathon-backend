@@ -47,32 +47,31 @@ func NewHandler(user UserService, company CompanyService, auth AuthService, jwt 
 	return &Handler{user: user, company: company, auth: auth, jwt: jwt}
 }
 
-func (h *Handler) InitRoutes(r *gin.RouterGroup) {
-	api := r.Group("/api")
+func (h *Handler) InitRoutes(rg *gin.RouterGroup) {
 
-	docs := api.Group("/docs")
+	docs := rg.Group("/docs")
 	{
 		docs.GET("/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	}
 
-	auth := api.Group("/auth")
+	auth := rg.Group("/auth")
 	{
 		auth.POST("/sign-up", h.signUp)
 		auth.POST("/sign-in", h.signIn)
 
-		session := api.Group("/session")
+		session := rg.Group("/session")
 		{
 			session.GET("", h.jwt.RequireAuth, h.getMe)
 		}
 	}
 
-	user := api.Group("/user")
+	user := rg.Group("/user")
 	{
 		user.PATCH("", h.jwt.RequireAuth, h.updateMe)
 		user.PATCH("/password", h.jwt.RequireAuth, h.updatePassword)
 	}
 
-	company := api.Group("/company")
+	company := rg.Group("/company")
 	{
 		company.GET("/:inn", h.getCompany)
 		company.GET("", h.jwt.RequireAuth, h.getMyCompany)
