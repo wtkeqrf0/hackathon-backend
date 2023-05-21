@@ -58,6 +58,7 @@ func init() {
 // @securityDefinitions.apiKey  ApiKeyAuth
 // @in header
 // @name Authorization
+// @host 68.183.76.225:3000
 
 // @sessions.docs.description Authorization, registration and authentication
 func main() {
@@ -69,26 +70,18 @@ func main() {
 	pClient := postgresql.Open(cfg.DB.Postgres.Username, cfg.DB.Postgres.Password,
 		cfg.DB.Postgres.Host, cfg.DB.Postgres.Port, cfg.DB.Postgres.DBName)
 
-	pConn := postgres.NewUserStorage(pClient.User)
-	auth := service.NewAuthService(pConn)
-
-	h := controller.NewHandler(
-		service.NewUserService(pConn),
-		service.NewCompanyService(postgres.NewCompanyStorage(pClient.Company)),
-		jwts.NewAuth(auth),
-		auth,
-		errs.NewErrHandler(logrus.New(), out),
-		logger.NewQueryHandler(logrus.New(), out),
-	)
+	h := initHandler(pClient)
+	m := initMiddlewares(out)
 
 	r := gin.New()
-	h.InitRoutes(r)
+	m.InitGlobalMiddleWares(r)
+	h.InitRoutes(r.Group(cfg.Listen.MainPath))
 
-	Run(fmt.Sprintf(":%d", cfg.Listen.Port), r, pClient, logrus.New())
+	run(cfg.Listen.Port, r, pClient, logrus.New())
 }
 
-// Run the Server with graceful shutdown
-func Run(port string, r *gin.Engine, pClient *ent.Client, l *logrus.Logger) {
+// run the Server with graceful shutdown
+func run(port int, r *gin.Engine, pClient *ent.Client, l *logrus.Logger) {
 	l.SetOutput(os.Stdout)
 	l.SetLevel(logrus.InfoLevel)
 	l.SetFormatter(&logrus.JSONFormatter{
@@ -102,7 +95,7 @@ func Run(port string, r *gin.Engine, pClient *ent.Client, l *logrus.Logger) {
 	l.SetReportCaller(true)
 
 	srv := &http.Server{
-		Addr:           port,
+		Addr:           fmt.Sprintf(":%d", port),
 		Handler:        r,
 		MaxHeaderBytes: 1 << 20, // 1 MB
 		ReadTimeout:    10 * time.Second,
@@ -117,7 +110,7 @@ func Run(port string, r *gin.Engine, pClient *ent.Client, l *logrus.Logger) {
 			l.WithError(err).Fatalf("error occurred while running http server")
 		}
 	}()
-	l.Infof("Server Started On Port %s", port)
+	l.Infof("Server Started On Port %d", port)
 
 	<-quit
 
@@ -148,4 +141,26 @@ func getLogsOut(s string) io.Writer {
 		return writer
 	}
 	return os.Stdout
+}
+
+func initHandler(pClient *ent.Client) *controller.Handler {
+	pConn := postgres.NewUserStorage(pClient.User)
+
+	user := service.NewUserService(pConn)
+	company := service.NewCompanyService(postgres.NewCompanyStorage(pClient.Company))
+	auth := service.NewAuthService(pConn)
+
+	return controller.NewHandler(
+		user,
+		company,
+		auth,
+		jwts.NewAuth(auth),
+	)
+}
+
+func initMiddlewares(out io.Writer) *controller.Middlewares {
+	return controller.NewMiddleWares(
+		errs.NewErrHandler(logrus.New(), out),
+		logger.NewQueryHandler(logrus.New(), out),
+	)
 }

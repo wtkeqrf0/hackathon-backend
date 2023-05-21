@@ -12,14 +12,16 @@ import (
 // UserService interacts with the users table
 type UserService interface {
 	FindUserByID(id int) (*dao.Me, error)
+
 	UpdateUser(updateUser dto.UpdateUser, id int) error
+	UpdatePassword(updPassword dto.UpdatePassword, id int) error
 }
 
 type CompanyService interface {
 	CreateCompany(inn string, name, website *string) (*ent.Company, error)
 	GetCompany(inn string) (*ent.Company, error)
 	GetCompanyDTO(inn string) (*dao.Company, error)
-	UpdateCompany(inn string, name, website *string) error
+	UpdateCompany(updateCompany dto.UpdateCompany, inn string) error
 }
 
 type AuthService interface {
@@ -34,29 +36,18 @@ type AuthMiddleware interface {
 	RequireAuth(c *gin.Context)
 }
 
-type ErrHandler interface {
-	HandleErrors(c *gin.Context)
-}
-
-type QueryHandler interface {
-	HandleQueries(c *gin.Context)
-}
-
 type Handler struct {
 	user    UserService
 	company CompanyService
-	jwt     AuthMiddleware
 	auth    AuthService
-	erh     ErrHandler
-	qh      QueryHandler
+	jwt     AuthMiddleware
 }
 
-func NewHandler(user UserService, company CompanyService, jwt AuthMiddleware, auth AuthService, erh ErrHandler, qh QueryHandler) *Handler {
-	return &Handler{user: user, company: company, jwt: jwt, auth: auth, erh: erh, qh: qh}
+func NewHandler(user UserService, company CompanyService, auth AuthService, jwt AuthMiddleware) *Handler {
+	return &Handler{user: user, company: company, auth: auth, jwt: jwt}
 }
 
-func (h *Handler) InitRoutes(r *gin.Engine) {
-	r.Use(h.qh.HandleQueries, gin.Recovery(), h.erh.HandleErrors)
+func (h *Handler) InitRoutes(r *gin.RouterGroup) {
 	api := r.Group("/api")
 
 	docs := api.Group("/docs")
@@ -78,11 +69,34 @@ func (h *Handler) InitRoutes(r *gin.Engine) {
 	user := api.Group("/user")
 	{
 		user.PATCH("", h.jwt.RequireAuth, h.updateMe)
+		user.PATCH("/password", h.jwt.RequireAuth, h.updatePassword)
 	}
 
 	company := api.Group("/company")
 	{
 		company.GET("/:inn", h.getCompany)
 		company.GET("", h.jwt.RequireAuth, h.getMyCompany)
+		company.PATCH("", h.jwt.RequireAuth, h.updateCompany)
 	}
+}
+
+type ErrHandler interface {
+	HandleErrors(c *gin.Context)
+}
+
+type QueryHandler interface {
+	HandleQueries(c *gin.Context)
+}
+
+type Middlewares struct {
+	erh ErrHandler
+	qh  QueryHandler
+}
+
+func NewMiddleWares(erh ErrHandler, qh QueryHandler) *Middlewares {
+	return &Middlewares{erh: erh, qh: qh}
+}
+
+func (m *Middlewares) InitGlobalMiddleWares(r *gin.Engine) {
+	r.Use(m.qh.HandleQueries, gin.Recovery(), m.erh.HandleErrors)
 }

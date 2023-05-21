@@ -23,8 +23,9 @@ type Config struct {
 	} `yaml:"token"`
 
 	Listen struct {
-		Host string `yaml:"host" env:"HOST" env-default:"localhost"`
-		Port int    `yaml:"port" env:"PORT" env-default:"3000"`
+		MainPath string `yaml:"main_path" env:"MAIN_PATH" env-default:"/api"`
+		Host     string `yaml:"host" env:"HOST" env-default:"localhost"`
+		Port     int    `yaml:"port" env:"PORT" env-default:"3000"`
 	} `yaml:"listen"`
 
 	DB struct {
