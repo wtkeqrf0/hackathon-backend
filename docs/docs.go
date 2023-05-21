@@ -178,6 +178,55 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Updates information about company by INN",
+                "tags": [
+                    "Company"
+                ],
+                "summary": "Update data about company",
+                "parameters": [
+                    {
+                        "description": "Company",
+                        "name": "updCompany",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateCompany"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dao.Company"
+                        }
+                    },
+                    "401": {
+                        "description": "User isn't logged in",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    },
+                    "404": {
+                        "description": "Something doesn't exist",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    }
+                }
             }
         },
         "/company/{inn}": {
@@ -225,7 +274,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Updates user's not required info",
+                "description": "Updates user's info",
                 "tags": [
                     "User"
                 ],
@@ -238,6 +287,54 @@ const docTemplate = `{
                         "required": true,
                         "schema": {
                             "$ref": "#/definitions/dto.UpdateUser"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully Updated"
+                    },
+                    "401": {
+                        "description": "User isn't logged in",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    },
+                    "404": {
+                        "description": "User doesn't exist",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/password": {
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Updates user's password",
+                "tags": [
+                    "User"
+                ],
+                "summary": "Update user's password",
+                "parameters": [
+                    {
+                        "description": "Passwords",
+                        "name": "updPassword",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdatePassword"
                         }
                     }
                 ],
@@ -330,6 +427,10 @@ const docTemplate = `{
                 "position": {
                     "type": "string",
                     "example": "Director"
+                },
+                "role": {
+                    "type": "string",
+                    "example": "USER"
                 }
             }
         },
@@ -408,6 +509,40 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.UpdateCompany": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "example": "ООО 'Парк'"
+                },
+                "website": {
+                    "type": "string",
+                    "example": "https://www.rusprofile.ru"
+                }
+            }
+        },
+        "dto.UpdatePassword": {
+            "type": "object",
+            "required": [
+                "newPassword",
+                "password"
+            ],
+            "properties": {
+                "newPassword": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "minLength": 4,
+                    "example": "mob126"
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "minLength": 4,
+                    "example": "bob126"
+                }
+            }
+        },
         "dto.UpdateUser": {
             "type": "object",
             "properties": {
@@ -426,6 +561,14 @@ const docTemplate = `{
                 "fatherName": {
                     "type": "string",
                     "example": "Ivanovich"
+                },
+                "firstName": {
+                    "type": "string",
+                    "example": "Ivan"
+                },
+                "lastName": {
+                    "type": "string",
+                    "example": "Ivanov"
                 },
                 "position": {
                     "type": "string",

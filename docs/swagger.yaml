@@ -48,6 +48,9 @@ definitions:
       position:
         example: Director
         type: string
+      role:
+        example: USER
+        type: string
     type: object
   dto.SignIn:
     properties:
@@ -106,6 +109,31 @@ definitions:
     - lastName
     - password
     type: object
+  dto.UpdateCompany:
+    properties:
+      name:
+        example: ООО 'Парк'
+        type: string
+      website:
+        example: https://www.rusprofile.ru
+        type: string
+    type: object
+  dto.UpdatePassword:
+    properties:
+      newPassword:
+        example: mob126
+        maxLength: 20
+        minLength: 4
+        type: string
+      password:
+        example: bob126
+        maxLength: 20
+        minLength: 4
+        type: string
+    required:
+    - newPassword
+    - password
+    type: object
   dto.UpdateUser:
     properties:
       biography:
@@ -119,6 +147,12 @@ definitions:
         type: string
       fatherName:
         example: Ivanovich
+        type: string
+      firstName:
+        example: Ivan
+        type: string
+      lastName:
+        example: Ivanov
         type: string
       position:
         example: Director
@@ -244,6 +278,37 @@ paths:
       summary: Get data about company by jwt
       tags:
       - Company
+    patch:
+      description: Updates information about company by INN
+      parameters:
+      - description: Company
+        in: body
+        name: updCompany
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateCompany'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dao.Company'
+        "401":
+          description: User isn't logged in
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "404":
+          description: Something doesn't exist
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+      security:
+      - ApiKeyAuth: []
+      summary: Update data about company
+      tags:
+      - Company
   /company/{inn}:
     get:
       description: Returns information about company by INN
@@ -271,7 +336,7 @@ paths:
       - Company
   /user:
     patch:
-      description: Updates user's not required info
+      description: Updates user's info
       parameters:
       - description: Fields to update
         in: body
@@ -297,6 +362,36 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Update user's data
+      tags:
+      - User
+  /user/password:
+    patch:
+      description: Updates user's password
+      parameters:
+      - description: Passwords
+        in: body
+        name: updPassword
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdatePassword'
+      responses:
+        "200":
+          description: Successfully Updated
+        "401":
+          description: User isn't logged in
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "404":
+          description: User doesn't exist
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+      security:
+      - ApiKeyAuth: []
+      summary: Update user's password
       tags:
       - User
 produces:
