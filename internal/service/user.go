@@ -9,6 +9,7 @@ import (
 type UserPostgres interface {
 	FindUserByID(ctx context.Context, id int) (*dao.Me, error)
 	UpdateUser(ctx context.Context, updateUser dto.UpdateUser, id int) error
+	UpdatePassword(ctx context.Context, updPassword dto.UpdatePassword, id int) error
 }
 
 type UserService struct {
@@ -25,4 +26,8 @@ func (u *UserService) FindUserByID(id int) (*dao.Me, error) {
 
 func (u *UserService) UpdateUser(updateUser dto.UpdateUser, id int) error {
 	return u.postgres.UpdateUser(context.Background(), updateUser, id)
+}
+
+func (u *UserService) UpdatePassword(updPassword dto.UpdatePassword, id int) error {
+	return u.postgres.UpdatePassword(context.Background(), updPassword, id)
 }

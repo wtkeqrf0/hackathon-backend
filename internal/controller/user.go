@@ -41,7 +41,7 @@ func (h *Handler) getMe(c *gin.Context) {
 // UpdateMe godoc
 // @Summary Update user's data
 // @Security ApiKeyAuth
-// @Description Updates user's not required info
+// @Description Updates user's info
 // @Tags User
 // @Param updFields body dto.UpdateUser true "Fields to update"
 // @Success 200 "Successfully Updated"
@@ -61,6 +61,43 @@ func (h *Handler) updateMe(c *gin.Context) {
 	}
 
 	if err := h.user.UpdateUser(updFields, id); err != nil {
+		switch {
+		case ent.IsNotFound(err):
+			c.Error(errs.NoSuchUser.AddErr(err))
+		case ent.IsValidationError(err):
+			c.Error(errs.ValidError.AddErr(err))
+		default:
+			c.Error(errs.ServerError.AddErr(err))
+		}
+		return
+	}
+
+	c.Status(http.StatusOK)
+}
+
+// UpdatePassword godoc
+// @Summary Update user's password
+// @Security ApiKeyAuth
+// @Description Updates user's password
+// @Tags User
+// @Param updPassword body dto.UpdatePassword true "Passwords"
+// @Success 200 "Successfully Updated"
+// @Failure 401 {object} errs.MyError "User isn't logged in"
+// @Failure 404 {object} errs.MyError "User doesn't exist"
+// @Failure 500 {object} errs.MyError
+// @Router /user/password [patch]
+func (h *Handler) updatePassword(c *gin.Context) {
+	id, ok := h.jwt.GetUserId(c)
+	if !ok {
+		return
+	}
+
+	updPassword, ok := bind.FillStruct[dto.UpdatePassword](c)
+	if !ok {
+		return
+	}
+
+	if err := h.user.UpdatePassword(updPassword, id); err != nil {
 		switch {
 		case ent.IsNotFound(err):
 			c.Error(errs.NoSuchUser.AddErr(err))
