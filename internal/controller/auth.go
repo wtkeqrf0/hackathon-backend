@@ -7,6 +7,7 @@ import (
 	"github.com/wtkeqrf0/while.act/pkg/bind"
 	"github.com/wtkeqrf0/while.act/pkg/middleware/errs"
 	"golang.org/x/crypto/bcrypt"
+	"math/rand"
 	"net/http"
 )
 
@@ -14,7 +15,7 @@ import (
 // @Summary Sign up by password
 // @Description Compare the user's password with an existing user's password. If it matches, create session of the user. If the user does not exist, create new user
 // @Param SignUp body dto.SignUp true "User's email, password, firstName, lastName, inn"
-// @Tags Authorization
+// @Tags Auth
 // @Success 200 {string} string "user's session"
 // @Failure 400 {object} errs.MyError "Data is not valid"
 // @Failure 500 {object} errs.MyError
@@ -30,18 +31,14 @@ func (h *Handler) signUp(c *gin.Context) {
 	if err != nil {
 		company := new(ent.Company)
 
-		company, err = h.company.GetCompany(auth.Company.INN)
+		company, err = h.company.CreateCompany(
+			auth.Company.INN,
+			auth.Company.Name,
+			auth.Company.Website)
+
 		if err != nil {
-
-			company, err = h.company.CreateCompany(
-				auth.Company.INN,
-				auth.Company.Name,
-				auth.Company.Website)
-
-			if err != nil {
-				c.Error(errs.ServerError.AddErr(err))
-				return
-			}
+			c.Error(errs.ServerError.AddErr(err))
+			return
 		}
 
 		user, err = h.auth.CreateUserWithPassword(auth, company)
@@ -57,22 +54,16 @@ func (h *Handler) signUp(c *gin.Context) {
 		return
 	}
 
-	t, err := h.jwt.GenerateJWT(user.ID)
-	if err != nil {
-		c.Error(errs.ServerError.AddErr(err))
-		return
-	}
+	h.session.SetNewCookie(user.ID, c.GetHeader("User-Agent"), c)
 
-	c.JSON(http.StatusOK, gin.H{
-		"token": t,
-	})
+	c.Status(http.StatusOK)
 }
 
 // SignIn godoc
 // @Summary Sign in by password
 // @Description Compare the user's password with an existing user's password. If it matches, create session of this user
 // @Param SignIn body dto.SignIn true "User's email, password"
-// @Tags Authorization
+// @Tags Auth
 // @Success 200 {string} string "user's session"
 // @Failure 400 {object} errs.MyError "Data is not valid"
 // @Failure 500 {object} errs.MyError
@@ -95,13 +86,56 @@ func (h *Handler) signIn(c *gin.Context) {
 		return
 	}
 
-	t, err := h.jwt.GenerateJWT(user.ID)
-	if err != nil {
+	h.session.SetNewCookie(user.ID, c.GetHeader("User-Agent"), c)
+
+	c.Status(http.StatusOK)
+}
+
+// SendCodeToEmail godoc
+// @Summary Send code to specified email
+// @Description Generates secret code and sends it to specified email
+// @Param SignIn body dto.Email true "User's email"
+// @Tags Auth
+// @Success 200 {string} string "user's session"
+// @Failure 400 {object} errs.MyError "Data is not valid"
+// @Failure 500 {object} errs.MyError
+// @Router /email/send-code [post]
+func (h *Handler) sendCodeToEmail(c *gin.Context) {
+	to, ok := bind.FillStruct[dto.Email](c)
+	if !ok {
+		return
+	}
+
+	code := generateSecretCode()
+	if err := h.auth.SetCodes(to.Email, code); err != nil {
 		c.Error(errs.ServerError.AddErr(err))
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{
-		"token": t,
-	})
+	if err := h.mail.SendEmail("Verify email for you-together account", code, cfg.Email.From, to.Email); err != nil {
+		c.Error(errs.EmailError.AddErr(err))
+	}
+
+	c.Status(http.StatusOK)
+}
+
+// SignOut godoc
+// @Summary Delete cookie session
+// @Description Get cookie and delete them from db
+// @Tags Session
+// @Success 200 {string} string "deleted"
+// @Failure 500 {object} errs.MyError
+// @Router /auth/session [delete]
+func (h *Handler) signOut(c *gin.Context) {
+	h.session.PopCookie(c)
+	c.Status(http.StatusOK)
+}
+
+// generateSecretCode for email auth
+func generateSecretCode() string {
+	b := make([]rune, 5)
+	for i := range b {
+		b[i] = chars[rand.Intn(len(chars))]
+	}
+	return string(b)
 }

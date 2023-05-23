@@ -7,21 +7,25 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-playground/validator/v10"
+	"github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
 	"github.com/wtkeqrf0/while.act/docs"
-	_ "github.com/wtkeqrf0/while.act/docs"
 	"github.com/wtkeqrf0/while.act/ent"
 	"github.com/wtkeqrf0/while.act/internal/controller"
 	"github.com/wtkeqrf0/while.act/internal/repo/postgres"
+	redisRepo "github.com/wtkeqrf0/while.act/internal/repo/redis"
 	"github.com/wtkeqrf0/while.act/internal/service"
 	"github.com/wtkeqrf0/while.act/pkg/bind"
+	"github.com/wtkeqrf0/while.act/pkg/client/email"
 	"github.com/wtkeqrf0/while.act/pkg/client/postgresql"
+	redisInit "github.com/wtkeqrf0/while.act/pkg/client/redis"
 	"github.com/wtkeqrf0/while.act/pkg/conf"
 	"github.com/wtkeqrf0/while.act/pkg/middleware/errs"
-	"github.com/wtkeqrf0/while.act/pkg/middleware/jwts"
 	"github.com/wtkeqrf0/while.act/pkg/middleware/logger"
+	"github.com/wtkeqrf0/while.act/pkg/middleware/sessions"
 	"io"
 	"net/http"
+	"net/smtp"
 	"os"
 	"os/signal"
 	"syscall"
@@ -57,8 +61,8 @@ func init() {
 
 // @securityDefinitions.apiKey  ApiKeyAuth
 // @in header
-// @name Authorization
-// @host 68.183.76.225:3000
+// @name session_id
+// @host 37.230.195.26:3000
 
 // @sessions.docs.description Authorization, registration and authentication
 func main() {
@@ -66,22 +70,21 @@ func main() {
 	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%d", cfg.Listen.Host, cfg.Listen.Port)
 
 	out := getLogsOut(cfg.LogsPath)
+	pClient, rClient, mailClient := getClients(cfg)
 
-	pClient := postgresql.Open(cfg.DB.Postgres.Username, cfg.DB.Postgres.Password,
-		cfg.DB.Postgres.Host, cfg.DB.Postgres.Port, cfg.DB.Postgres.DBName)
-
-	h := initHandler(pClient)
+	h := initHandler(pClient, rClient, mailClient)
 	m := initMiddlewares(out)
 
 	r := gin.New()
-	m.InitGlobalMiddleWares(r)
-	h.InitRoutes(r.Group(cfg.Listen.MainPath))
 
-	run(cfg.Listen.Port, r, pClient, logrus.New())
+	m.InitGlobalMiddleWares(r)
+	h.InitRoutes(r.Group(cfg.Listen.MainPath), mailClient != nil)
+
+	run(cfg.Listen.Port, r, pClient, rClient, mailClient, logrus.New())
 }
 
 // run the Server with graceful shutdown
-func run(port int, r *gin.Engine, pClient *ent.Client, l *logrus.Logger) {
+func run(port int, r *gin.Engine, pClient *ent.Client, rClient *redis.Client, mailClient *smtp.Client, l *logrus.Logger) {
 	l.SetOutput(os.Stdout)
 	l.SetLevel(logrus.InfoLevel)
 	l.SetFormatter(&logrus.JSONFormatter{
@@ -107,27 +110,35 @@ func run(port int, r *gin.Engine, pClient *ent.Client, l *logrus.Logger) {
 
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			l.WithError(err).Fatalf("error occurred while running http server")
+			logrus.WithError(err).Fatalf("error occurred while running http server")
 		}
 	}()
-	l.Infof("Server Started On Port %d", port)
+	logrus.Infof("Server Started On Port %d", port)
 
 	<-quit
 
-	l.Info("Server Shutting Down ...")
+	logrus.Info("Server Shutting Down ...")
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
 	if err := srv.Shutdown(ctx); err != nil {
-		l.WithError(err).Fatal("Server Shutdown Failed")
+		logrus.WithError(err).Fatal("Server Shutdown Failed")
+	}
+
+	if err := rClient.Close(); err != nil {
+		logrus.WithError(err).Fatal("Redis Connection Shutdown Failed")
 	}
 
 	if err := pClient.Close(); err != nil {
-		l.WithError(err).Fatal("PostgreSQL Connection Shutdown Failed")
+		logrus.WithError(err).Fatal("PostgreSQL Connection Shutdown Failed")
 	}
 
-	l.Info("Server Exited Properly")
+	if err := mailClient.Quit(); err != nil {
+		logrus.WithError(err).Fatal("Email Connection Shutdown Failed")
+	}
+
+	logrus.Info("Server Exited Properly")
 }
 
 func getLogsOut(s string) io.Writer {
@@ -143,18 +154,33 @@ func getLogsOut(s string) io.Writer {
 	return os.Stdout
 }
 
-func initHandler(pClient *ent.Client) *controller.Handler {
-	pConn := postgres.NewUserStorage(pClient.User)
+func getClients(cfg *conf.Config) (*ent.Client, *redis.Client, *smtp.Client) {
+	pClient := postgresql.Open(cfg.DB.Postgres.Username, cfg.DB.Postgres.Password,
+		cfg.DB.Postgres.Host, cfg.DB.Postgres.Port, cfg.DB.Postgres.DBName)
 
-	user := service.NewUserService(pConn)
-	company := service.NewCompanyService(postgres.NewCompanyStorage(pClient.Company))
-	auth := service.NewAuthService(pConn)
+	rClient := redisInit.Open(cfg.DB.Redis.Host, cfg.DB.Redis.Port, cfg.DB.Redis.DbId)
+
+	mailClient := email.Open(cfg.Email.User, cfg.Email.Password, cfg.Email.Host, cfg.Email.Port)
+
+	return pClient, rClient, mailClient
+}
+
+func initHandler(pClient *ent.Client, rClient *redis.Client, mailClient *smtp.Client) *controller.Handler {
+	pUser := postgres.NewUserStorage(pClient.User)
+	pComp := postgres.NewCompanyStorage(pClient.Company)
+	rConn := redisRepo.NewRClient(rClient)
+	mailConn := service.NewEmailSender(mailClient)
+
+	auth := service.NewAuthService(pUser, rConn)
+	user := service.NewUserService(pUser, rConn)
+	company := service.NewCompanyService(pComp)
 
 	return controller.NewHandler(
 		user,
 		company,
 		auth,
-		jwts.NewAuth(auth),
+		sessions.NewAuth(auth),
+		mailConn,
 	)
 }
 
