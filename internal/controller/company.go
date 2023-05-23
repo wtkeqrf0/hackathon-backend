@@ -10,58 +10,36 @@ import (
 )
 
 // GetMyCompany godoc
-// @Summary Get data about company by jwt
+// @Summary Get data about company by session
 // @Security ApiKeyAuth
-// @Description Returns information about company by jwt
+// @Description Returns information about company by session
 // @Tags Company
 // @Success 200 {object} dao.Company "Info about company"
 // @Failure 404 {object} errs.MyError "Company doesn't exist"
 // @Failure 500 {object} errs.MyError
 // @Router /company [get]
 func (h *Handler) getMyCompany(c *gin.Context) {
-	id, ok := h.jwt.GetUserId(c)
-	if !ok {
+	s, err := h.session.GetSession(c)
+	if err != nil {
+		c.Error(errs.UnAuthorized.AddErr(err))
 		return
 	}
-	user, err := h.user.FindUserByID(id)
+
+	user, err := h.user.FindUserByID(s.ID)
 	if err != nil {
-		if myErr, ok := err.(errs.MyError); ok {
-			c.Error(myErr)
-		} else {
+		switch {
+		case ent.IsNotFound(err):
+			c.Error(errs.NoSuchUser.AddErr(err))
+		default:
 			c.Error(errs.ServerError.AddErr(err))
 		}
 		return
 	}
 
-	company, err := h.company.GetCompanyDTO(user.INN)
+	company, err := h.company.GetCompanyDTO(user.CompanyID)
 	if err != nil {
-		if myErr, ok := err.(errs.MyError); ok {
-			c.Error(myErr)
-		} else {
-			c.Error(errs.ServerError.AddErr(err))
-		}
-		return
-	}
-
-	c.JSON(http.StatusOK, company)
-}
-
-// GetCompany godoc
-// @Summary Get data about company inn
-// @Description Returns information about company by INN
-// @Tags Company
-// @Param inn path string true "company's inn"
-// @Success 200 {object} dao.Company "Info about company"
-// @Failure 404 {object} errs.MyError "Company doesn't exist"
-// @Failure 500 {object} errs.MyError
-// @Router /company/{inn} [get]
-func (h *Handler) getCompany(c *gin.Context) {
-	inn := c.Param("inn")
-
-	company, err := h.company.GetCompanyDTO(inn)
-	if err != nil {
-		if myErr, ok := err.(errs.MyError); ok {
-			c.Error(myErr)
+		if company == nil {
+			c.Error(errs.NoSuchCompany.AddErr(err))
 		} else {
 			c.Error(errs.ServerError.AddErr(err))
 		}
@@ -77,14 +55,15 @@ func (h *Handler) getCompany(c *gin.Context) {
 // @Tags Company
 // @Security ApiKeyAuth
 // @Param updCompany body dto.UpdateCompany true "Company"
-// @Success 200 {object} dao.Company "OK"
+// @Success 200 "OK"
 // @Failure 401 {object} errs.MyError "User isn't logged in"
 // @Failure 404 {object} errs.MyError "Something doesn't exist"
 // @Failure 500 {object} errs.MyError
 // @Router /company [patch]
 func (h *Handler) updateCompany(c *gin.Context) {
-	id, ok := h.jwt.GetUserId(c)
-	if !ok {
+	s, err := h.session.GetSession(c)
+	if err != nil {
+		c.Error(errs.UnAuthorized.AddErr(err))
 		return
 	}
 
@@ -93,7 +72,7 @@ func (h *Handler) updateCompany(c *gin.Context) {
 		return
 	}
 
-	user, err := h.user.FindUserByID(id)
+	user, err := h.user.FindUserByID(s.ID)
 	if err != nil {
 		switch {
 		case ent.IsNotFound(err):
@@ -104,7 +83,7 @@ func (h *Handler) updateCompany(c *gin.Context) {
 		return
 	}
 
-	if err = h.company.UpdateCompany(updCompany, user.INN); err != nil {
+	if err = h.company.UpdateCompany(updCompany, user.CompanyID); err != nil {
 		switch {
 		case ent.IsNotFound(err):
 			c.Error(errs.NoSuchUser.AddErr(err))

@@ -6,7 +6,6 @@ import (
 	"github.com/wtkeqrf0/while.act/ent/company"
 	"github.com/wtkeqrf0/while.act/internal/controller/dao"
 	"github.com/wtkeqrf0/while.act/internal/controller/dto"
-	"github.com/wtkeqrf0/while.act/pkg/middleware/errs"
 )
 
 type CompanyStorage struct {
@@ -18,28 +17,28 @@ func NewCompanyStorage(companyClient *ent.CompanyClient) *CompanyStorage {
 }
 
 func (r *CompanyStorage) CreateCompany(ctx context.Context, inn string, name, website *string) (*ent.Company, error) {
-	return r.companyClient.Create().SetID(inn).
-		SetNillableName(name).
+	return r.companyClient.Create().
+		SetInn(inn).SetNillableName(name).
 		SetNillableWebsite(website).Save(ctx)
 }
 
-func (r *CompanyStorage) GetCompanyDTO(ctx context.Context, inn string) (*dao.Company, error) {
+func (r *CompanyStorage) GetCompanyDTO(ctx context.Context, id int) (*dao.Company, error) {
 	var comp []*dao.Company
-	err := r.companyClient.Query().Where(company.ID(inn)).Select(
+	err := r.companyClient.Query().Where(company.ID(id)).Select(
 		company.FieldID, company.FieldWebsite, company.FieldName).Scan(ctx, &comp)
 
 	if comp != nil {
-		return comp[0], err
+		return comp[0], nil
 	}
-	return nil, errs.NoSuchCompany.AddErr(err)
+	return nil, err
 }
 
-func (r *CompanyStorage) GetCompany(ctx context.Context, inn string) (*ent.Company, error) {
-	return r.companyClient.Get(ctx, inn)
+func (r *CompanyStorage) GetCompany(ctx context.Context, id int) (*ent.Company, error) {
+	return r.companyClient.Get(ctx, id)
 }
 
-func (r *CompanyStorage) UpdateCompany(ctx context.Context, updateCompany dto.UpdateCompany, inn string) error {
-	return r.companyClient.UpdateOneID(inn).
+func (r *CompanyStorage) UpdateCompany(ctx context.Context, updateCompany dto.UpdateCompany, id int) error {
+	return r.companyClient.UpdateOneID(id).
 		SetNillableName(updateCompany.Name).
 		SetNillableWebsite(updateCompany.Website).Exec(ctx)
 }
