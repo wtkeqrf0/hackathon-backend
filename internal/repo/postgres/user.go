@@ -23,7 +23,7 @@ func (r *UserStorage) FindUserByID(ctx context.Context, id int) (*dao.Me, error)
 	err := r.userClient.Query().Where(user.ID(id)).Select(user.FieldCity, user.FieldBiography,
 		user.FieldCountry, user.FieldName, user.FieldLastName,
 		user.FieldFirstName, user.FieldFatherName, user.FieldEmail,
-		user.FieldPosition, user.FieldRole).Scan(ctx, &me)
+		user.FieldPosition, user.FieldRole, user.FieldCompanyID).Scan(ctx, &me)
 	if me != nil {
 		return me[0], err
 	}
@@ -39,16 +39,20 @@ func (r *UserStorage) UpdateUser(ctx context.Context, updateUser dto.UpdateUser,
 		SetNillableBiography(updateUser.Biography).Exec(ctx)
 }
 
-func (r *UserStorage) UpdatePassword(ctx context.Context, updPassword dto.UpdatePassword, id int) error {
+func (r *UserStorage) UpdatePassword(ctx context.Context, newPassword []byte, email string) error {
+	return r.userClient.Update().SetPasswordHash(newPassword).Where(user.Email(email)).Exec(ctx)
+}
+
+func (r *UserStorage) UpdateEmail(ctx context.Context, password []byte, newEmail string, id int) error {
 	customer, err := r.userClient.Get(ctx, id)
 	if err != nil {
 		return err
 	}
 
-	err = bcrypt.CompareHashAndPassword(customer.PasswordHash, []byte(updPassword.Password))
+	err = bcrypt.CompareHashAndPassword(customer.PasswordHash, password)
 	if err != nil {
 		return err
 	}
 
-	return r.userClient.UpdateOneID(id).SetPasswordHash([]byte(updPassword.NewPassword)).Exec(ctx)
+	return r.userClient.UpdateOneID(id).SetEmail(newEmail).Exec(ctx)
 }
