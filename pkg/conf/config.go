@@ -16,11 +16,11 @@ type Config struct {
 	// specify the path where will the logs output be stored
 	LogsPath string `yaml:"logs_path" env:"LOGS_PATH" env-default:"cons"`
 
-	Token struct {
-		Secret         string        `yaml:"secret" env:"SECRET" env-default:"1234"`
-		AccessDuration time.Duration `yaml:"access_duration" env:"ACCESS_DURATION" env-default:"12h"`
-		AccessName     string        `yaml:"access_name" env:"ACCESS_NAME" env-default:"Authorization"`
-	} `yaml:"token"`
+	Session struct {
+		CookieName string        `yaml:"cookie_name" env:"COOKIE_NAME" env-default:"session_id"`
+		CookiePath string        `yaml:"cookie_path" env:"COOKIE_PATH" env-default:"/api"`
+		Duration   time.Duration `yaml:"duration" env:"COOKIE_DURATION" env-default:"720h"`
+	} `yaml:"session"`
 
 	Listen struct {
 		MainPath string `yaml:"main_path" env:"MAIN_PATH" env-default:"/api"`
@@ -37,7 +37,22 @@ type Config struct {
 			Host string `yaml:"host" env:"POSTGRES_HOST" env-default:"127.0.0.1"`
 			Port int    `yaml:"port" env:"POSTGRES_PORT" env-default:"5432"`
 		} `yaml:"postgres"`
+
+		Redis struct {
+			DbId int `yaml:"db_id" env:"REDIS_DB" env-default:"0"`
+			// if prod=1, host will always be "redis" (docker constant)
+			Host string `yaml:"host" env:"REDIS_HOST" env-default:"127.0.0.1"`
+			Port int    `yaml:"port" env:"REDIS_POST" env-default:"6379"`
+		} `yaml:"redis"`
 	} `yaml:"db"`
+
+	Email struct {
+		From     string `yaml:"from" env:"EMAIL_FROM" env-default:"you-together@gmail.com"`
+		User     string `yaml:"user" env:"EMAIL_USER"`
+		Password string `yaml:"password" env:"EMAIL_PASSWORD"`
+		Host     string `yaml:"host" env:"EMAIL_STMP_HOST"`
+		Port     int    `yaml:"port" env:"EMAIL_PORT"`
+	} `yaml:"email"`
 }
 
 var (
@@ -47,7 +62,7 @@ var (
 
 // GetConfig builds the golang type by environment variables
 // or (if not specified) configuration file and returns it
-func GetConfig() Config {
+func GetConfig() *Config {
 	once.Do(func() {
 		godotenv.Load()
 
@@ -65,11 +80,7 @@ func GetConfig() Config {
 		} else {
 			logrus.SetLevel(logrus.DebugLevel)
 		}
-
-		if inst.Token.Secret == "1234" {
-			logrus.Warn("secret word not set. Set it in env (\"SECRET\") or in config file. Default secret - \"1234\"")
-		}
 	})
 
-	return inst
+	return &inst
 }
