@@ -13,6 +13,7 @@ import (
 // Sign-in errors
 var (
 	PasswordError = newError(http.StatusBadRequest, "Wrong password", "You can still sign in by your email!")
+	CodeError     = newError(http.StatusBadRequest, "Code is not correct", "Try to request a new one")
 )
 
 // Auth errors
@@ -33,6 +34,7 @@ var (
 
 // ServerError errors
 var (
+	EmailError  = newError(http.StatusInternalServerError, "Can't send message to your email", "Try to send it later")
 	ServerError = newError(http.StatusInternalServerError, "Server exception was occurred", "Try to restart the page")
 )
 
