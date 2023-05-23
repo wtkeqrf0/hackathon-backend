@@ -7,6 +7,13 @@ import (
 	"github.com/wtkeqrf0/while.act/ent"
 	"github.com/wtkeqrf0/while.act/internal/controller/dao"
 	"github.com/wtkeqrf0/while.act/internal/controller/dto"
+	"github.com/wtkeqrf0/while.act/pkg/conf"
+	"time"
+)
+
+var (
+	chars = []rune("ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
+	cfg   = conf.GetConfig()
 )
 
 // UserService interacts with the users table
@@ -14,40 +21,54 @@ type UserService interface {
 	FindUserByID(id int) (*dao.Me, error)
 
 	UpdateUser(updateUser dto.UpdateUser, id int) error
-	UpdatePassword(updPassword dto.UpdatePassword, id int) error
+	UpdatePassword(newPassword []byte, email string) error
+	UpdateEmail(password []byte, newEmail string, id int) error
+
+	ContainsKeys(keys ...string) (int64, error)
+	SetVariable(key string, value any, exp time.Duration) error
 }
 
 type CompanyService interface {
 	CreateCompany(inn string, name, website *string) (*ent.Company, error)
-	GetCompany(inn string) (*ent.Company, error)
-	GetCompanyDTO(inn string) (*dao.Company, error)
-	UpdateCompany(updateCompany dto.UpdateCompany, inn string) error
+	GetCompany(id int) (*ent.Company, error)
+	GetCompanyDTO(id int) (*dao.Company, error)
+	UpdateCompany(updateCompany dto.UpdateCompany, id int) error
 }
 
 type AuthService interface {
 	CreateUserWithPassword(auth dto.SignUp, company *ent.Company) (*ent.User, error)
 	AuthUserByEmail(email string) (*ent.User, error)
+
+	EqualsPopCode(email string, code string) (bool, error)
+	SetCodes(key string, value ...any) error
 }
 
 type AuthMiddleware interface {
-	ValidateJWT(token string) (int, error)
-	GenerateJWT(id int) (string, error)
-	GetUserId(c *gin.Context) (int, bool)
-	RequireAuth(c *gin.Context)
+	RequireSession(c *gin.Context)
+	MaybeSession(c *gin.Context)
+	GenerateSession(id int, ip, userAgent string) (string, error)
+	SetNewCookie(id int, userAgent string, c *gin.Context)
+	GetSession(c *gin.Context) (*dao.Session, error)
+	PopCookie(c *gin.Context)
+}
+
+type MailSender interface {
+	SendEmail(subj, body, from string, to ...string) error
 }
 
 type Handler struct {
 	user    UserService
 	company CompanyService
 	auth    AuthService
-	jwt     AuthMiddleware
+	session AuthMiddleware
+	mail    MailSender
 }
 
-func NewHandler(user UserService, company CompanyService, auth AuthService, jwt AuthMiddleware) *Handler {
-	return &Handler{user: user, company: company, auth: auth, jwt: jwt}
+func NewHandler(user UserService, company CompanyService, auth AuthService, session AuthMiddleware, mail MailSender) *Handler {
+	return &Handler{user: user, company: company, auth: auth, session: session, mail: mail}
 }
 
-func (h *Handler) InitRoutes(rg *gin.RouterGroup) {
+func (h *Handler) InitRoutes(rg *gin.RouterGroup, mailSet bool) {
 
 	docs := rg.Group("/docs")
 	{
@@ -59,23 +80,31 @@ func (h *Handler) InitRoutes(rg *gin.RouterGroup) {
 		auth.POST("/sign-up", h.signUp)
 		auth.POST("/sign-in", h.signIn)
 
-		session := rg.Group("/session")
+		session := auth.Group("/session")
 		{
-			session.GET("", h.jwt.RequireAuth, h.getMe)
+			session.GET("", h.session.RequireSession, h.getMe)
+			session.DELETE("", h.signOut)
 		}
 	}
 
 	user := rg.Group("/user")
 	{
-		user.PATCH("", h.jwt.RequireAuth, h.updateMe)
-		user.PATCH("/password", h.jwt.RequireAuth, h.updatePassword)
+		user.PATCH("", h.session.RequireSession, h.updateMe)
+		user.PATCH("/password", h.session.RequireSession, h.updatePassword)
+		user.PATCH("/email", h.session.RequireSession, h.updateEmail)
 	}
 
 	company := rg.Group("/company")
 	{
-		company.GET("/:inn", h.getCompany)
-		company.GET("", h.jwt.RequireAuth, h.getMyCompany)
-		company.PATCH("", h.jwt.RequireAuth, h.updateCompany)
+		company.GET("", h.session.RequireSession, h.getMyCompany)
+		company.PATCH("", h.session.RequireSession, h.updateCompany)
+	}
+
+	if mailSet {
+		email := rg.Group("/email")
+		{
+			email.POST("/send-code", h.sendCodeToEmail)
+		}
 	}
 }
 
