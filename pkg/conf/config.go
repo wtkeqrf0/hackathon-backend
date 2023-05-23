@@ -75,6 +75,7 @@ func GetConfig() *Config {
 
 		if inst.Prod == 1 {
 			inst.DB.Postgres.Host = "postgres"
+			inst.DB.Redis.Host = "redis"
 			//gin.SetMode(gin.ReleaseMode)
 
 		} else {
