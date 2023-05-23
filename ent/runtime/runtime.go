@@ -16,8 +16,12 @@ import (
 func init() {
 	companyFields := schema.Company{}.Fields()
 	_ = companyFields
+	// companyDescInn is the schema descriptor for inn field.
+	companyDescInn := companyFields[1].Descriptor()
+	// company.InnValidator is a validator for the "inn" field. It is called by the builders before save.
+	company.InnValidator = companyDescInn.Validators[0].(func(string) error)
 	// companyDescName is the schema descriptor for name field.
-	companyDescName := companyFields[1].Descriptor()
+	companyDescName := companyFields[2].Descriptor()
 	// company.NameValidator is a validator for the "name" field. It is called by the builders before save.
 	company.NameValidator = func() func(string) error {
 		validators := companyDescName.Validators
@@ -35,13 +39,9 @@ func init() {
 		}
 	}()
 	// companyDescWebsite is the schema descriptor for website field.
-	companyDescWebsite := companyFields[2].Descriptor()
+	companyDescWebsite := companyFields[3].Descriptor()
 	// company.WebsiteValidator is a validator for the "website" field. It is called by the builders before save.
 	company.WebsiteValidator = companyDescWebsite.Validators[0].(func(string) error)
-	// companyDescID is the schema descriptor for id field.
-	companyDescID := companyFields[0].Descriptor()
-	// company.IDValidator is a validator for the "id" field. It is called by the builders before save.
-	company.IDValidator = companyDescID.Validators[0].(func(string) error)
 	userMixin := schema.User{}.Mixin()
 	userHooks := schema.User{}.Hooks()
 	user.Hooks[0] = userHooks[0]
@@ -107,10 +107,6 @@ func init() {
 			return nil
 		}
 	}()
-	// userDescCompanyInn is the schema descriptor for company_inn field.
-	userDescCompanyInn := userFields[7].Descriptor()
-	// user.CompanyInnValidator is a validator for the "company_inn" field. It is called by the builders before save.
-	user.CompanyInnValidator = userDescCompanyInn.Validators[0].(func(string) error)
 	// userDescFatherName is the schema descriptor for father_name field.
 	userDescFatherName := userFields[8].Descriptor()
 	// user.FatherNameValidator is a validator for the "father_name" field. It is called by the builders before save.

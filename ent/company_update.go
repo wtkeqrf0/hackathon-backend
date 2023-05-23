@@ -28,6 +28,12 @@ func (cu *CompanyUpdate) Where(ps ...predicate.Company) *CompanyUpdate {
 	return cu
 }
 
+// SetInn sets the "inn" field.
+func (cu *CompanyUpdate) SetInn(s string) *CompanyUpdate {
+	cu.mutation.SetInn(s)
+	return cu
+}
+
 // SetName sets the "name" field.
 func (cu *CompanyUpdate) SetName(s string) *CompanyUpdate {
 	cu.mutation.SetName(s)
@@ -127,6 +133,11 @@ func (cu *CompanyUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (cu *CompanyUpdate) check() error {
+	if v, ok := cu.mutation.Inn(); ok {
+		if err := company.InnValidator(v); err != nil {
+			return &ValidationError{Name: "inn", err: fmt.Errorf(`ent: validator failed for field "Company.inn": %w`, err)}
+		}
+	}
 	if v, ok := cu.mutation.Name(); ok {
 		if err := company.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Company.name": %w`, err)}
@@ -144,13 +155,16 @@ func (cu *CompanyUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := cu.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(company.Table, company.Columns, sqlgraph.NewFieldSpec(company.FieldID, field.TypeString))
+	_spec := sqlgraph.NewUpdateSpec(company.Table, company.Columns, sqlgraph.NewFieldSpec(company.FieldID, field.TypeInt))
 	if ps := cu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := cu.mutation.Inn(); ok {
+		_spec.SetField(company.FieldInn, field.TypeString, value)
 	}
 	if value, ok := cu.mutation.Name(); ok {
 		_spec.SetField(company.FieldName, field.TypeString, value)
@@ -211,6 +225,12 @@ type CompanyUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *CompanyMutation
+}
+
+// SetInn sets the "inn" field.
+func (cuo *CompanyUpdateOne) SetInn(s string) *CompanyUpdateOne {
+	cuo.mutation.SetInn(s)
+	return cuo
 }
 
 // SetName sets the "name" field.
@@ -325,6 +345,11 @@ func (cuo *CompanyUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (cuo *CompanyUpdateOne) check() error {
+	if v, ok := cuo.mutation.Inn(); ok {
+		if err := company.InnValidator(v); err != nil {
+			return &ValidationError{Name: "inn", err: fmt.Errorf(`ent: validator failed for field "Company.inn": %w`, err)}
+		}
+	}
 	if v, ok := cuo.mutation.Name(); ok {
 		if err := company.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Company.name": %w`, err)}
@@ -342,7 +367,7 @@ func (cuo *CompanyUpdateOne) sqlSave(ctx context.Context) (_node *Company, err e
 	if err := cuo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(company.Table, company.Columns, sqlgraph.NewFieldSpec(company.FieldID, field.TypeString))
+	_spec := sqlgraph.NewUpdateSpec(company.Table, company.Columns, sqlgraph.NewFieldSpec(company.FieldID, field.TypeInt))
 	id, ok := cuo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Company.id" for update`)}
@@ -366,6 +391,9 @@ func (cuo *CompanyUpdateOne) sqlSave(ctx context.Context) (_node *Company, err e
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := cuo.mutation.Inn(); ok {
+		_spec.SetField(company.FieldInn, field.TypeString, value)
 	}
 	if value, ok := cuo.mutation.Name(); ok {
 		_spec.SetField(company.FieldName, field.TypeString, value)

@@ -16,9 +16,11 @@ import (
 type Company struct {
 	config `example:"-" json:"-"`
 	// ID of the ent.
-	ID string `json:"inn,omitempty" example:"7707083893"`
+	ID int `json:"-"`
+	// Inn holds the value of the "inn" field.
+	Inn string `json:"inn,omitempty" example:"7707083893"`
 	// Name holds the value of the "name" field.
-	Name *string `json:"company_name,omitempty" example:"ООО \"Парк\""`
+	Name *string `json:"company_name,omitempty" example:"ООО 'Парк'"`
 	// Website holds the value of the "website" field.
 	Website *string `json:"website,omitempty" example:"https://www.rusprofile.ru"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -54,7 +56,9 @@ func (*Company) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case company.FieldID, company.FieldName, company.FieldWebsite:
+		case company.FieldID:
+			values[i] = new(sql.NullInt64)
+		case company.FieldInn, company.FieldName, company.FieldWebsite:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -72,10 +76,16 @@ func (c *Company) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case company.FieldID:
+			value, ok := values[i].(*sql.NullInt64)
+			if !ok {
+				return fmt.Errorf("unexpected type %T for field id", value)
+			}
+			c.ID = int(value.Int64)
+		case company.FieldInn:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field id", values[i])
+				return fmt.Errorf("unexpected type %T for field inn", values[i])
 			} else if value.Valid {
-				c.ID = value.String
+				c.Inn = value.String
 			}
 		case company.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -132,6 +142,9 @@ func (c *Company) String() string {
 	var builder strings.Builder
 	builder.WriteString("Company(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", c.ID))
+	builder.WriteString("inn=")
+	builder.WriteString(c.Inn)
+	builder.WriteString(", ")
 	if v := c.Name; v != nil {
 		builder.WriteString("name=")
 		builder.WriteString(*v)

@@ -10,7 +10,8 @@ import (
 var (
 	// CompaniesColumns holds the columns for the "companies" table.
 	CompaniesColumns = []*schema.Column{
-		{Name: "inn", Type: field.TypeString, Unique: true},
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "inn", Type: field.TypeString},
 		{Name: "name", Type: field.TypeString, Unique: true, Nullable: true, Size: 150},
 		{Name: "website", Type: field.TypeString, Nullable: true},
 	}
@@ -19,6 +20,30 @@ var (
 		Name:       "companies",
 		Columns:    CompaniesColumns,
 		PrimaryKey: []*schema.Column{CompaniesColumns[0]},
+	}
+	// EntrepreneurshipsColumns holds the columns for the "entrepreneurships" table.
+	EntrepreneurshipsColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "types", Type: field.TypeString, Unique: true},
+	}
+	// EntrepreneurshipsTable holds the schema information for the "entrepreneurships" table.
+	EntrepreneurshipsTable = &schema.Table{
+		Name:       "entrepreneurships",
+		Columns:    EntrepreneurshipsColumns,
+		PrimaryKey: []*schema.Column{EntrepreneurshipsColumns[0]},
+	}
+	// EquipmentColumns holds the columns for the "equipment" table.
+	EquipmentColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "type", Type: field.TypeString, Unique: true},
+		{Name: "avg_price_dol", Type: field.TypeInt},
+		{Name: "avg_price_rub", Type: field.TypeInt},
+	}
+	// EquipmentTable holds the schema information for the "equipment" table.
+	EquipmentTable = &schema.Table{
+		Name:       "equipment",
+		Columns:    EquipmentColumns,
+		PrimaryKey: []*schema.Column{EquipmentColumns[0]},
 	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
@@ -36,7 +61,7 @@ var (
 		{Name: "country", Type: field.TypeString, Nullable: true},
 		{Name: "city", Type: field.TypeString, Nullable: true},
 		{Name: "biography", Type: field.TypeString, Nullable: true, Size: 1024},
-		{Name: "company_inn", Type: field.TypeString, Unique: true},
+		{Name: "company_id", Type: field.TypeInt, Unique: true},
 	}
 	// UsersTable holds the schema information for the "users" table.
 	UsersTable = &schema.Table{
@@ -55,6 +80,8 @@ var (
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
 		CompaniesTable,
+		EntrepreneurshipsTable,
+		EquipmentTable,
 		UsersTable,
 	}
 )

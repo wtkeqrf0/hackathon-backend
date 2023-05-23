@@ -95,9 +95,9 @@ func LastName(v string) predicate.User {
 	return predicate.User(sql.FieldEQ(FieldLastName, v))
 }
 
-// CompanyInn applies equality check predicate on the "company_inn" field. It's identical to CompanyInnEQ.
-func CompanyInn(v string) predicate.User {
-	return predicate.User(sql.FieldEQ(FieldCompanyInn, v))
+// CompanyID applies equality check predicate on the "company_id" field. It's identical to CompanyIDEQ.
+func CompanyID(v int) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldCompanyID, v))
 }
 
 // FatherName applies equality check predicate on the "father_name" field. It's identical to FatherNameEQ.
@@ -570,69 +570,24 @@ func LastNameContainsFold(v string) predicate.User {
 	return predicate.User(sql.FieldContainsFold(FieldLastName, v))
 }
 
-// CompanyInnEQ applies the EQ predicate on the "company_inn" field.
-func CompanyInnEQ(v string) predicate.User {
-	return predicate.User(sql.FieldEQ(FieldCompanyInn, v))
+// CompanyIDEQ applies the EQ predicate on the "company_id" field.
+func CompanyIDEQ(v int) predicate.User {
+	return predicate.User(sql.FieldEQ(FieldCompanyID, v))
 }
 
-// CompanyInnNEQ applies the NEQ predicate on the "company_inn" field.
-func CompanyInnNEQ(v string) predicate.User {
-	return predicate.User(sql.FieldNEQ(FieldCompanyInn, v))
+// CompanyIDNEQ applies the NEQ predicate on the "company_id" field.
+func CompanyIDNEQ(v int) predicate.User {
+	return predicate.User(sql.FieldNEQ(FieldCompanyID, v))
 }
 
-// CompanyInnIn applies the In predicate on the "company_inn" field.
-func CompanyInnIn(vs ...string) predicate.User {
-	return predicate.User(sql.FieldIn(FieldCompanyInn, vs...))
+// CompanyIDIn applies the In predicate on the "company_id" field.
+func CompanyIDIn(vs ...int) predicate.User {
+	return predicate.User(sql.FieldIn(FieldCompanyID, vs...))
 }
 
-// CompanyInnNotIn applies the NotIn predicate on the "company_inn" field.
-func CompanyInnNotIn(vs ...string) predicate.User {
-	return predicate.User(sql.FieldNotIn(FieldCompanyInn, vs...))
-}
-
-// CompanyInnGT applies the GT predicate on the "company_inn" field.
-func CompanyInnGT(v string) predicate.User {
-	return predicate.User(sql.FieldGT(FieldCompanyInn, v))
-}
-
-// CompanyInnGTE applies the GTE predicate on the "company_inn" field.
-func CompanyInnGTE(v string) predicate.User {
-	return predicate.User(sql.FieldGTE(FieldCompanyInn, v))
-}
-
-// CompanyInnLT applies the LT predicate on the "company_inn" field.
-func CompanyInnLT(v string) predicate.User {
-	return predicate.User(sql.FieldLT(FieldCompanyInn, v))
-}
-
-// CompanyInnLTE applies the LTE predicate on the "company_inn" field.
-func CompanyInnLTE(v string) predicate.User {
-	return predicate.User(sql.FieldLTE(FieldCompanyInn, v))
-}
-
-// CompanyInnContains applies the Contains predicate on the "company_inn" field.
-func CompanyInnContains(v string) predicate.User {
-	return predicate.User(sql.FieldContains(FieldCompanyInn, v))
-}
-
-// CompanyInnHasPrefix applies the HasPrefix predicate on the "company_inn" field.
-func CompanyInnHasPrefix(v string) predicate.User {
-	return predicate.User(sql.FieldHasPrefix(FieldCompanyInn, v))
-}
-
-// CompanyInnHasSuffix applies the HasSuffix predicate on the "company_inn" field.
-func CompanyInnHasSuffix(v string) predicate.User {
-	return predicate.User(sql.FieldHasSuffix(FieldCompanyInn, v))
-}
-
-// CompanyInnEqualFold applies the EqualFold predicate on the "company_inn" field.
-func CompanyInnEqualFold(v string) predicate.User {
-	return predicate.User(sql.FieldEqualFold(FieldCompanyInn, v))
-}
-
-// CompanyInnContainsFold applies the ContainsFold predicate on the "company_inn" field.
-func CompanyInnContainsFold(v string) predicate.User {
-	return predicate.User(sql.FieldContainsFold(FieldCompanyInn, v))
+// CompanyIDNotIn applies the NotIn predicate on the "company_id" field.
+func CompanyIDNotIn(vs ...int) predicate.User {
+	return predicate.User(sql.FieldNotIn(FieldCompanyID, vs...))
 }
 
 // FatherNameEQ applies the EQ predicate on the "father_name" field.

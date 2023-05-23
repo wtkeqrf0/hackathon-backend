@@ -9,5 +9,11 @@ import (
 // Company is the predicate function for company builders.
 type Company func(*sql.Selector)
 
+// Entrepreneurship is the predicate function for entrepreneurship builders.
+type Entrepreneurship func(*sql.Selector)
+
+// Equipment is the predicate function for equipment builders.
+type Equipment func(*sql.Selector)
+
 // User is the predicate function for user builders.
 type User func(*sql.Selector)

@@ -4,6 +4,7 @@ package ent
 
 import (
 	"context"
+	"errors"
 	"fmt"
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
@@ -17,6 +18,12 @@ type CompanyCreate struct {
 	config
 	mutation *CompanyMutation
 	hooks    []Hook
+}
+
+// SetInn sets the "inn" field.
+func (cc *CompanyCreate) SetInn(s string) *CompanyCreate {
+	cc.mutation.SetInn(s)
+	return cc
 }
 
 // SetName sets the "name" field.
@@ -48,8 +55,8 @@ func (cc *CompanyCreate) SetNillableWebsite(s *string) *CompanyCreate {
 }
 
 // SetID sets the "id" field.
-func (cc *CompanyCreate) SetID(s string) *CompanyCreate {
-	cc.mutation.SetID(s)
+func (cc *CompanyCreate) SetID(i int) *CompanyCreate {
+	cc.mutation.SetID(i)
 	return cc
 }
 
@@ -106,6 +113,14 @@ func (cc *CompanyCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (cc *CompanyCreate) check() error {
+	if _, ok := cc.mutation.Inn(); !ok {
+		return &ValidationError{Name: "inn", err: errors.New(`ent: missing required field "Company.inn"`)}
+	}
+	if v, ok := cc.mutation.Inn(); ok {
+		if err := company.InnValidator(v); err != nil {
+			return &ValidationError{Name: "inn", err: fmt.Errorf(`ent: validator failed for field "Company.inn": %w`, err)}
+		}
+	}
 	if v, ok := cc.mutation.Name(); ok {
 		if err := company.NameValidator(v); err != nil {
 			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "Company.name": %w`, err)}
@@ -114,11 +129,6 @@ func (cc *CompanyCreate) check() error {
 	if v, ok := cc.mutation.Website(); ok {
 		if err := company.WebsiteValidator(v); err != nil {
 			return &ValidationError{Name: "website", err: fmt.Errorf(`ent: validator failed for field "Company.website": %w`, err)}
-		}
-	}
-	if v, ok := cc.mutation.ID(); ok {
-		if err := company.IDValidator(v); err != nil {
-			return &ValidationError{Name: "id", err: fmt.Errorf(`ent: validator failed for field "Company.id": %w`, err)}
 		}
 	}
 	return nil
@@ -135,12 +145,9 @@ func (cc *CompanyCreate) sqlSave(ctx context.Context) (*Company, error) {
 		}
 		return nil, err
 	}
-	if _spec.ID.Value != nil {
-		if id, ok := _spec.ID.Value.(string); ok {
-			_node.ID = id
-		} else {
-			return nil, fmt.Errorf("unexpected Company.ID type: %T", _spec.ID.Value)
-		}
+	if _spec.ID.Value != _node.ID {
+		id := _spec.ID.Value.(int64)
+		_node.ID = int(id)
 	}
 	cc.mutation.id = &_node.ID
 	cc.mutation.done = true
@@ -150,11 +157,15 @@ func (cc *CompanyCreate) sqlSave(ctx context.Context) (*Company, error) {
 func (cc *CompanyCreate) createSpec() (*Company, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Company{config: cc.config}
-		_spec = sqlgraph.NewCreateSpec(company.Table, sqlgraph.NewFieldSpec(company.FieldID, field.TypeString))
+		_spec = sqlgraph.NewCreateSpec(company.Table, sqlgraph.NewFieldSpec(company.FieldID, field.TypeInt))
 	)
 	if id, ok := cc.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
+	}
+	if value, ok := cc.mutation.Inn(); ok {
+		_spec.SetField(company.FieldInn, field.TypeString, value)
+		_node.Inn = value
 	}
 	if value, ok := cc.mutation.Name(); ok {
 		_spec.SetField(company.FieldName, field.TypeString, value)
@@ -223,6 +234,10 @@ func (ccb *CompanyCreateBulk) Save(ctx context.Context) ([]*Company, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
+				if specs[i].ID.Value != nil && nodes[i].ID == 0 {
+					id := specs[i].ID.Value.(int64)
+					nodes[i].ID = int(id)
+				}
 				mutation.done = true
 				return nodes[i], nil
 			})

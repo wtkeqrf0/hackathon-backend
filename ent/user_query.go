@@ -401,10 +401,10 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 }
 
 func (uq *UserQuery) loadCompany(ctx context.Context, query *CompanyQuery, nodes []*User, init func(*User), assign func(*User, *Company)) error {
-	ids := make([]string, 0, len(nodes))
-	nodeids := make(map[string][]*User)
+	ids := make([]int, 0, len(nodes))
+	nodeids := make(map[int][]*User)
 	for i := range nodes {
-		fk := nodes[i].CompanyInn
+		fk := nodes[i].CompanyID
 		if _, ok := nodeids[fk]; !ok {
 			ids = append(ids, fk)
 		}
@@ -421,7 +421,7 @@ func (uq *UserQuery) loadCompany(ctx context.Context, query *CompanyQuery, nodes
 	for _, n := range neighbors {
 		nodes, ok := nodeids[n.ID]
 		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "company_inn" returned %v`, n.ID)
+			return fmt.Errorf(`unexpected foreign-key "company_id" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -456,7 +456,7 @@ func (uq *UserQuery) querySpec() *sqlgraph.QuerySpec {
 			}
 		}
 		if uq.withCompany != nil {
-			_spec.Node.AddColumnOnce(user.FieldCompanyInn)
+			_spec.Node.AddColumnOnce(user.FieldCompanyID)
 		}
 	}
 	if ps := uq.predicates; len(ps) > 0 {

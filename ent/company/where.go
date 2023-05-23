@@ -9,58 +9,53 @@ import (
 )
 
 // ID filters vertices based on their ID field.
-func ID(id string) predicate.Company {
+func ID(id int) predicate.Company {
 	return predicate.Company(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id string) predicate.Company {
+func IDEQ(id int) predicate.Company {
 	return predicate.Company(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id string) predicate.Company {
+func IDNEQ(id int) predicate.Company {
 	return predicate.Company(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...string) predicate.Company {
+func IDIn(ids ...int) predicate.Company {
 	return predicate.Company(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...string) predicate.Company {
+func IDNotIn(ids ...int) predicate.Company {
 	return predicate.Company(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id string) predicate.Company {
+func IDGT(id int) predicate.Company {
 	return predicate.Company(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id string) predicate.Company {
+func IDGTE(id int) predicate.Company {
 	return predicate.Company(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id string) predicate.Company {
+func IDLT(id int) predicate.Company {
 	return predicate.Company(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id string) predicate.Company {
+func IDLTE(id int) predicate.Company {
 	return predicate.Company(sql.FieldLTE(FieldID, id))
 }
 
-// IDEqualFold applies the EqualFold predicate on the ID field.
-func IDEqualFold(id string) predicate.Company {
-	return predicate.Company(sql.FieldEqualFold(FieldID, id))
-}
-
-// IDContainsFold applies the ContainsFold predicate on the ID field.
-func IDContainsFold(id string) predicate.Company {
-	return predicate.Company(sql.FieldContainsFold(FieldID, id))
+// Inn applies equality check predicate on the "inn" field. It's identical to InnEQ.
+func Inn(v string) predicate.Company {
+	return predicate.Company(sql.FieldEQ(FieldInn, v))
 }
 
 // Name applies equality check predicate on the "name" field. It's identical to NameEQ.
@@ -71,6 +66,71 @@ func Name(v string) predicate.Company {
 // Website applies equality check predicate on the "website" field. It's identical to WebsiteEQ.
 func Website(v string) predicate.Company {
 	return predicate.Company(sql.FieldEQ(FieldWebsite, v))
+}
+
+// InnEQ applies the EQ predicate on the "inn" field.
+func InnEQ(v string) predicate.Company {
+	return predicate.Company(sql.FieldEQ(FieldInn, v))
+}
+
+// InnNEQ applies the NEQ predicate on the "inn" field.
+func InnNEQ(v string) predicate.Company {
+	return predicate.Company(sql.FieldNEQ(FieldInn, v))
+}
+
+// InnIn applies the In predicate on the "inn" field.
+func InnIn(vs ...string) predicate.Company {
+	return predicate.Company(sql.FieldIn(FieldInn, vs...))
+}
+
+// InnNotIn applies the NotIn predicate on the "inn" field.
+func InnNotIn(vs ...string) predicate.Company {
+	return predicate.Company(sql.FieldNotIn(FieldInn, vs...))
+}
+
+// InnGT applies the GT predicate on the "inn" field.
+func InnGT(v string) predicate.Company {
+	return predicate.Company(sql.FieldGT(FieldInn, v))
+}
+
+// InnGTE applies the GTE predicate on the "inn" field.
+func InnGTE(v string) predicate.Company {
+	return predicate.Company(sql.FieldGTE(FieldInn, v))
+}
+
+// InnLT applies the LT predicate on the "inn" field.
+func InnLT(v string) predicate.Company {
+	return predicate.Company(sql.FieldLT(FieldInn, v))
+}
+
+// InnLTE applies the LTE predicate on the "inn" field.
+func InnLTE(v string) predicate.Company {
+	return predicate.Company(sql.FieldLTE(FieldInn, v))
+}
+
+// InnContains applies the Contains predicate on the "inn" field.
+func InnContains(v string) predicate.Company {
+	return predicate.Company(sql.FieldContains(FieldInn, v))
+}
+
+// InnHasPrefix applies the HasPrefix predicate on the "inn" field.
+func InnHasPrefix(v string) predicate.Company {
+	return predicate.Company(sql.FieldHasPrefix(FieldInn, v))
+}
+
+// InnHasSuffix applies the HasSuffix predicate on the "inn" field.
+func InnHasSuffix(v string) predicate.Company {
+	return predicate.Company(sql.FieldHasSuffix(FieldInn, v))
+}
+
+// InnEqualFold applies the EqualFold predicate on the "inn" field.
+func InnEqualFold(v string) predicate.Company {
+	return predicate.Company(sql.FieldEqualFold(FieldInn, v))
+}
+
+// InnContainsFold applies the ContainsFold predicate on the "inn" field.
+func InnContainsFold(v string) predicate.Company {
+	return predicate.Company(sql.FieldContainsFold(FieldInn, v))
 }
 
 // NameEQ applies the EQ predicate on the "name" field.

@@ -34,8 +34,8 @@ type User struct {
 	FirstName string `json:"firstName,omitempty" example:"Ivan"`
 	// LastName holds the value of the "last_name" field.
 	LastName string `json:"lastName,omitempty" example:"Ivanov"`
-	// CompanyInn holds the value of the "company_inn" field.
-	CompanyInn string `json:"inn,omitempty" example:"7707083893"`
+	// CompanyID holds the value of the "company_id" field.
+	CompanyID int `json:"-"`
 	// FatherName holds the value of the "father_name" field.
 	FatherName string `json:"fatherName,omitempty" example:"Ivanovich"`
 	// Position holds the value of the "position" field.
@@ -81,9 +81,9 @@ func (*User) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case user.FieldPasswordHash:
 			values[i] = new([]byte)
-		case user.FieldID:
+		case user.FieldID, user.FieldCompanyID:
 			values[i] = new(sql.NullInt64)
-		case user.FieldRole, user.FieldName, user.FieldEmail, user.FieldFirstName, user.FieldLastName, user.FieldCompanyInn, user.FieldFatherName, user.FieldPosition, user.FieldCountry, user.FieldCity, user.FieldBiography:
+		case user.FieldRole, user.FieldName, user.FieldEmail, user.FieldFirstName, user.FieldLastName, user.FieldFatherName, user.FieldPosition, user.FieldCountry, user.FieldCity, user.FieldBiography:
 			values[i] = new(sql.NullString)
 		case user.FieldCreateTime, user.FieldUpdateTime:
 			values[i] = new(sql.NullTime)
@@ -156,11 +156,11 @@ func (u *User) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				u.LastName = value.String
 			}
-		case user.FieldCompanyInn:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field company_inn", values[i])
+		case user.FieldCompanyID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field company_id", values[i])
 			} else if value.Valid {
-				u.CompanyInn = value.String
+				u.CompanyID = int(value.Int64)
 			}
 		case user.FieldFatherName:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -257,8 +257,8 @@ func (u *User) String() string {
 	builder.WriteString("last_name=")
 	builder.WriteString(u.LastName)
 	builder.WriteString(", ")
-	builder.WriteString("company_inn=")
-	builder.WriteString(u.CompanyInn)
+	builder.WriteString("company_id=")
+	builder.WriteString(fmt.Sprintf("%v", u.CompanyID))
 	builder.WriteString(", ")
 	builder.WriteString("father_name=")
 	builder.WriteString(u.FatherName)

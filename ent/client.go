@@ -15,6 +15,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"github.com/wtkeqrf0/while.act/ent/company"
+	"github.com/wtkeqrf0/while.act/ent/entrepreneurship"
+	"github.com/wtkeqrf0/while.act/ent/equipment"
 	"github.com/wtkeqrf0/while.act/ent/user"
 )
 
@@ -25,6 +27,10 @@ type Client struct {
 	Schema *migrate.Schema
 	// Company is the client for interacting with the Company builders.
 	Company *CompanyClient
+	// Entrepreneurship is the client for interacting with the Entrepreneurship builders.
+	Entrepreneurship *EntrepreneurshipClient
+	// Equipment is the client for interacting with the Equipment builders.
+	Equipment *EquipmentClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 }
@@ -41,6 +47,8 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Company = NewCompanyClient(c.config)
+	c.Entrepreneurship = NewEntrepreneurshipClient(c.config)
+	c.Equipment = NewEquipmentClient(c.config)
 	c.User = NewUserClient(c.config)
 }
 
@@ -122,10 +130,12 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	cfg := c.config
 	cfg.driver = tx
 	return &Tx{
-		ctx:     ctx,
-		config:  cfg,
-		Company: NewCompanyClient(cfg),
-		User:    NewUserClient(cfg),
+		ctx:              ctx,
+		config:           cfg,
+		Company:          NewCompanyClient(cfg),
+		Entrepreneurship: NewEntrepreneurshipClient(cfg),
+		Equipment:        NewEquipmentClient(cfg),
+		User:             NewUserClient(cfg),
 	}, nil
 }
 
@@ -143,10 +153,12 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	cfg := c.config
 	cfg.driver = &txDriver{tx: tx, drv: c.driver}
 	return &Tx{
-		ctx:     ctx,
-		config:  cfg,
-		Company: NewCompanyClient(cfg),
-		User:    NewUserClient(cfg),
+		ctx:              ctx,
+		config:           cfg,
+		Company:          NewCompanyClient(cfg),
+		Entrepreneurship: NewEntrepreneurshipClient(cfg),
+		Equipment:        NewEquipmentClient(cfg),
+		User:             NewUserClient(cfg),
 	}, nil
 }
 
@@ -176,6 +188,8 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	c.Company.Use(hooks...)
+	c.Entrepreneurship.Use(hooks...)
+	c.Equipment.Use(hooks...)
 	c.User.Use(hooks...)
 }
 
@@ -183,6 +197,8 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	c.Company.Intercept(interceptors...)
+	c.Entrepreneurship.Intercept(interceptors...)
+	c.Equipment.Intercept(interceptors...)
 	c.User.Intercept(interceptors...)
 }
 
@@ -191,6 +207,10 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
 	case *CompanyMutation:
 		return c.Company.mutate(ctx, m)
+	case *EntrepreneurshipMutation:
+		return c.Entrepreneurship.mutate(ctx, m)
+	case *EquipmentMutation:
+		return c.Equipment.mutate(ctx, m)
 	case *UserMutation:
 		return c.User.mutate(ctx, m)
 	default:
@@ -244,7 +264,7 @@ func (c *CompanyClient) UpdateOne(co *Company) *CompanyUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *CompanyClient) UpdateOneID(id string) *CompanyUpdateOne {
+func (c *CompanyClient) UpdateOneID(id int) *CompanyUpdateOne {
 	mutation := newCompanyMutation(c.config, OpUpdateOne, withCompanyID(id))
 	return &CompanyUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -261,7 +281,7 @@ func (c *CompanyClient) DeleteOne(co *Company) *CompanyDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *CompanyClient) DeleteOneID(id string) *CompanyDeleteOne {
+func (c *CompanyClient) DeleteOneID(id int) *CompanyDeleteOne {
 	builder := c.Delete().Where(company.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -278,12 +298,12 @@ func (c *CompanyClient) Query() *CompanyQuery {
 }
 
 // Get returns a Company entity by its id.
-func (c *CompanyClient) Get(ctx context.Context, id string) (*Company, error) {
+func (c *CompanyClient) Get(ctx context.Context, id int) (*Company, error) {
 	return c.Query().Where(company.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *CompanyClient) GetX(ctx context.Context, id string) *Company {
+func (c *CompanyClient) GetX(ctx context.Context, id int) *Company {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
@@ -329,6 +349,242 @@ func (c *CompanyClient) mutate(ctx context.Context, m *CompanyMutation) (Value, 
 		return (&CompanyDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Company mutation op: %q", m.Op())
+	}
+}
+
+// EntrepreneurshipClient is a client for the Entrepreneurship schema.
+type EntrepreneurshipClient struct {
+	config
+}
+
+// NewEntrepreneurshipClient returns a client for the Entrepreneurship from the given config.
+func NewEntrepreneurshipClient(c config) *EntrepreneurshipClient {
+	return &EntrepreneurshipClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `entrepreneurship.Hooks(f(g(h())))`.
+func (c *EntrepreneurshipClient) Use(hooks ...Hook) {
+	c.hooks.Entrepreneurship = append(c.hooks.Entrepreneurship, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `entrepreneurship.Intercept(f(g(h())))`.
+func (c *EntrepreneurshipClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Entrepreneurship = append(c.inters.Entrepreneurship, interceptors...)
+}
+
+// Create returns a builder for creating a Entrepreneurship entity.
+func (c *EntrepreneurshipClient) Create() *EntrepreneurshipCreate {
+	mutation := newEntrepreneurshipMutation(c.config, OpCreate)
+	return &EntrepreneurshipCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Entrepreneurship entities.
+func (c *EntrepreneurshipClient) CreateBulk(builders ...*EntrepreneurshipCreate) *EntrepreneurshipCreateBulk {
+	return &EntrepreneurshipCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Entrepreneurship.
+func (c *EntrepreneurshipClient) Update() *EntrepreneurshipUpdate {
+	mutation := newEntrepreneurshipMutation(c.config, OpUpdate)
+	return &EntrepreneurshipUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *EntrepreneurshipClient) UpdateOne(e *Entrepreneurship) *EntrepreneurshipUpdateOne {
+	mutation := newEntrepreneurshipMutation(c.config, OpUpdateOne, withEntrepreneurship(e))
+	return &EntrepreneurshipUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *EntrepreneurshipClient) UpdateOneID(id int) *EntrepreneurshipUpdateOne {
+	mutation := newEntrepreneurshipMutation(c.config, OpUpdateOne, withEntrepreneurshipID(id))
+	return &EntrepreneurshipUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Entrepreneurship.
+func (c *EntrepreneurshipClient) Delete() *EntrepreneurshipDelete {
+	mutation := newEntrepreneurshipMutation(c.config, OpDelete)
+	return &EntrepreneurshipDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *EntrepreneurshipClient) DeleteOne(e *Entrepreneurship) *EntrepreneurshipDeleteOne {
+	return c.DeleteOneID(e.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *EntrepreneurshipClient) DeleteOneID(id int) *EntrepreneurshipDeleteOne {
+	builder := c.Delete().Where(entrepreneurship.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &EntrepreneurshipDeleteOne{builder}
+}
+
+// Query returns a query builder for Entrepreneurship.
+func (c *EntrepreneurshipClient) Query() *EntrepreneurshipQuery {
+	return &EntrepreneurshipQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeEntrepreneurship},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Entrepreneurship entity by its id.
+func (c *EntrepreneurshipClient) Get(ctx context.Context, id int) (*Entrepreneurship, error) {
+	return c.Query().Where(entrepreneurship.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *EntrepreneurshipClient) GetX(ctx context.Context, id int) *Entrepreneurship {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *EntrepreneurshipClient) Hooks() []Hook {
+	return c.hooks.Entrepreneurship
+}
+
+// Interceptors returns the client interceptors.
+func (c *EntrepreneurshipClient) Interceptors() []Interceptor {
+	return c.inters.Entrepreneurship
+}
+
+func (c *EntrepreneurshipClient) mutate(ctx context.Context, m *EntrepreneurshipMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&EntrepreneurshipCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&EntrepreneurshipUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&EntrepreneurshipUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&EntrepreneurshipDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Entrepreneurship mutation op: %q", m.Op())
+	}
+}
+
+// EquipmentClient is a client for the Equipment schema.
+type EquipmentClient struct {
+	config
+}
+
+// NewEquipmentClient returns a client for the Equipment from the given config.
+func NewEquipmentClient(c config) *EquipmentClient {
+	return &EquipmentClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `equipment.Hooks(f(g(h())))`.
+func (c *EquipmentClient) Use(hooks ...Hook) {
+	c.hooks.Equipment = append(c.hooks.Equipment, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `equipment.Intercept(f(g(h())))`.
+func (c *EquipmentClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Equipment = append(c.inters.Equipment, interceptors...)
+}
+
+// Create returns a builder for creating a Equipment entity.
+func (c *EquipmentClient) Create() *EquipmentCreate {
+	mutation := newEquipmentMutation(c.config, OpCreate)
+	return &EquipmentCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Equipment entities.
+func (c *EquipmentClient) CreateBulk(builders ...*EquipmentCreate) *EquipmentCreateBulk {
+	return &EquipmentCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Equipment.
+func (c *EquipmentClient) Update() *EquipmentUpdate {
+	mutation := newEquipmentMutation(c.config, OpUpdate)
+	return &EquipmentUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *EquipmentClient) UpdateOne(e *Equipment) *EquipmentUpdateOne {
+	mutation := newEquipmentMutation(c.config, OpUpdateOne, withEquipment(e))
+	return &EquipmentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *EquipmentClient) UpdateOneID(id int) *EquipmentUpdateOne {
+	mutation := newEquipmentMutation(c.config, OpUpdateOne, withEquipmentID(id))
+	return &EquipmentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Equipment.
+func (c *EquipmentClient) Delete() *EquipmentDelete {
+	mutation := newEquipmentMutation(c.config, OpDelete)
+	return &EquipmentDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *EquipmentClient) DeleteOne(e *Equipment) *EquipmentDeleteOne {
+	return c.DeleteOneID(e.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *EquipmentClient) DeleteOneID(id int) *EquipmentDeleteOne {
+	builder := c.Delete().Where(equipment.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &EquipmentDeleteOne{builder}
+}
+
+// Query returns a query builder for Equipment.
+func (c *EquipmentClient) Query() *EquipmentQuery {
+	return &EquipmentQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeEquipment},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Equipment entity by its id.
+func (c *EquipmentClient) Get(ctx context.Context, id int) (*Equipment, error) {
+	return c.Query().Where(equipment.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *EquipmentClient) GetX(ctx context.Context, id int) *Equipment {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// Hooks returns the client hooks.
+func (c *EquipmentClient) Hooks() []Hook {
+	return c.hooks.Equipment
+}
+
+// Interceptors returns the client interceptors.
+func (c *EquipmentClient) Interceptors() []Interceptor {
+	return c.inters.Equipment
+}
+
+func (c *EquipmentClient) mutate(ctx context.Context, m *EquipmentMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&EquipmentCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&EquipmentUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&EquipmentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&EquipmentDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Equipment mutation op: %q", m.Op())
 	}
 }
 
@@ -470,9 +726,9 @@ func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error)
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Company, User []ent.Hook
+		Company, Entrepreneurship, Equipment, User []ent.Hook
 	}
 	inters struct {
-		Company, User []ent.Interceptor
+		Company, Entrepreneurship, Equipment, User []ent.Interceptor
 	}
 )

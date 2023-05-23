@@ -93,9 +93,9 @@ func (uc *UserCreate) SetLastName(s string) *UserCreate {
 	return uc
 }
 
-// SetCompanyInn sets the "company_inn" field.
-func (uc *UserCreate) SetCompanyInn(s string) *UserCreate {
-	uc.mutation.SetCompanyInn(s)
+// SetCompanyID sets the "company_id" field.
+func (uc *UserCreate) SetCompanyID(i int) *UserCreate {
+	uc.mutation.SetCompanyID(i)
 	return uc
 }
 
@@ -172,12 +172,6 @@ func (uc *UserCreate) SetNillableBiography(s *string) *UserCreate {
 // SetID sets the "id" field.
 func (uc *UserCreate) SetID(i int) *UserCreate {
 	uc.mutation.SetID(i)
-	return uc
-}
-
-// SetCompanyID sets the "company" edge to the Company entity by ID.
-func (uc *UserCreate) SetCompanyID(id string) *UserCreate {
-	uc.mutation.SetCompanyID(id)
 	return uc
 }
 
@@ -287,13 +281,8 @@ func (uc *UserCreate) check() error {
 			return &ValidationError{Name: "last_name", err: fmt.Errorf(`ent: validator failed for field "User.last_name": %w`, err)}
 		}
 	}
-	if _, ok := uc.mutation.CompanyInn(); !ok {
-		return &ValidationError{Name: "company_inn", err: errors.New(`ent: missing required field "User.company_inn"`)}
-	}
-	if v, ok := uc.mutation.CompanyInn(); ok {
-		if err := user.CompanyInnValidator(v); err != nil {
-			return &ValidationError{Name: "company_inn", err: fmt.Errorf(`ent: validator failed for field "User.company_inn": %w`, err)}
-		}
+	if _, ok := uc.mutation.CompanyID(); !ok {
+		return &ValidationError{Name: "company_id", err: errors.New(`ent: missing required field "User.company_id"`)}
 	}
 	if v, ok := uc.mutation.FatherName(); ok {
 		if err := user.FatherNameValidator(v); err != nil {
@@ -415,13 +404,13 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Columns: []string{user.CompanyColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(company.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(company.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
-		_node.CompanyInn = nodes[0]
+		_node.CompanyID = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

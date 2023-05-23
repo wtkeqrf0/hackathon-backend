@@ -31,8 +31,8 @@ const (
 	FieldFirstName = "first_name"
 	// FieldLastName holds the string denoting the last_name field in the database.
 	FieldLastName = "last_name"
-	// FieldCompanyInn holds the string denoting the company_inn field in the database.
-	FieldCompanyInn = "company_inn"
+	// FieldCompanyID holds the string denoting the company_id field in the database.
+	FieldCompanyID = "company_id"
 	// FieldFatherName holds the string denoting the father_name field in the database.
 	FieldFatherName = "father_name"
 	// FieldPosition holds the string denoting the position field in the database.
@@ -45,8 +45,6 @@ const (
 	FieldBiography = "biography"
 	// EdgeCompany holds the string denoting the company edge name in mutations.
 	EdgeCompany = "company"
-	// CompanyFieldID holds the string denoting the ID field of the Company.
-	CompanyFieldID = "inn"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// CompanyTable is the table that holds the company relation/edge.
@@ -55,7 +53,7 @@ const (
 	// It exists in this package in order to avoid circular dependency with the "company" package.
 	CompanyInverseTable = "companies"
 	// CompanyColumn is the table column denoting the company relation/edge.
-	CompanyColumn = "company_inn"
+	CompanyColumn = "company_id"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -69,7 +67,7 @@ var Columns = []string{
 	FieldEmail,
 	FieldFirstName,
 	FieldLastName,
-	FieldCompanyInn,
+	FieldCompanyID,
 	FieldFatherName,
 	FieldPosition,
 	FieldCountry,
@@ -110,8 +108,6 @@ var (
 	FirstNameValidator func(string) error
 	// LastNameValidator is a validator for the "last_name" field. It is called by the builders before save.
 	LastNameValidator func(string) error
-	// CompanyInnValidator is a validator for the "company_inn" field. It is called by the builders before save.
-	CompanyInnValidator func(string) error
 	// FatherNameValidator is a validator for the "father_name" field. It is called by the builders before save.
 	FatherNameValidator func(string) error
 	// PositionValidator is a validator for the "position" field. It is called by the builders before save.
@@ -167,9 +163,9 @@ func ByLastName(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldLastName, opts...).ToFunc()
 }
 
-// ByCompanyInn orders the results by the company_inn field.
-func ByCompanyInn(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCompanyInn, opts...).ToFunc()
+// ByCompanyID orders the results by the company_id field.
+func ByCompanyID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCompanyID, opts...).ToFunc()
 }
 
 // ByFatherName orders the results by the father_name field.
@@ -206,7 +202,7 @@ func ByCompanyField(field string, opts ...sql.OrderTermOption) OrderOption {
 func newCompanyStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(CompanyInverseTable, CompanyFieldID),
+		sqlgraph.To(CompanyInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2O, true, CompanyTable, CompanyColumn),
 	)
 }

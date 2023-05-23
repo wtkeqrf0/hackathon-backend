@@ -8,7 +8,7 @@ import (
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/mixin"
 	"fmt"
-	entc "github.com/wtkeqrf0/while.act/ent"
+	lib "github.com/wtkeqrf0/while.act/ent"
 	"github.com/wtkeqrf0/while.act/ent/hook"
 	"github.com/wtkeqrf0/while.act/pkg/bind"
 	"golang.org/x/crypto/bcrypt"
@@ -27,8 +27,7 @@ func (User) Fields() []ent.Field {
 		field.String("role").Default("USER").StructTag(`json:"role,omitempty" example:"USER"`),
 
 		field.String("name").Unique().Match(bind.NameRegexp).Annotations(
-			entsql.DefaultExpr("'user' || setval(pg_get_serial_sequence('users','id')," +
-				"nextval(pg_get_serial_sequence('users','id'))-1)")).
+			entsql.DefaultExpr(`'user' || setval(pg_get_serial_sequence('users','id'),nextval(pg_get_serial_sequence('users','id'))-1)`)).
 			StructTag(`json:"username,omitempty" example:"user94"`),
 
 		field.Bytes("password_hash").Sensitive(),
@@ -42,8 +41,7 @@ func (User) Fields() []ent.Field {
 		field.String("last_name").MinLen(2).MaxLen(30).
 			StructTag(`json:"lastName,omitempty" example:"Ivanov"`),
 
-		field.String("company_inn").Unique().Match(bind.InnRegexp).
-			StructTag(`json:"inn,omitempty" example:"7707083893"`),
+		field.Int("company_id").Unique().StructTag(`json:"-"`),
 
 		field.String("father_name").Optional().MinLen(2).MaxLen(30).
 			StructTag(`json:"fatherName,omitempty" example:"Ivanovich"`),
@@ -68,7 +66,7 @@ func (User) Edges() []ent.Edge {
 		edge.From("company", Company.Type).
 			Ref("users").
 			Unique().Required().
-			Field("company_inn"),
+			Field("company_id"),
 	}
 }
 
@@ -90,7 +88,7 @@ func (User) Hooks() []ent.Hook {
 }
 
 func bcryptUserPassword(next ent.Mutator) ent.Mutator {
-	return hook.UserFunc(func(ctx context.Context, m *entc.UserMutation) (ent.Value, error) {
+	return hook.UserFunc(func(ctx context.Context, m *lib.UserMutation) (ent.Value, error) {
 		password, ok := m.PasswordHash()
 		if !ok {
 			return nil, fmt.Errorf("password_hash is not set")

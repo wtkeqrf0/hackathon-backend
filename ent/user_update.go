@@ -79,9 +79,9 @@ func (uu *UserUpdate) SetLastName(s string) *UserUpdate {
 	return uu
 }
 
-// SetCompanyInn sets the "company_inn" field.
-func (uu *UserUpdate) SetCompanyInn(s string) *UserUpdate {
-	uu.mutation.SetCompanyInn(s)
+// SetCompanyID sets the "company_id" field.
+func (uu *UserUpdate) SetCompanyID(i int) *UserUpdate {
+	uu.mutation.SetCompanyID(i)
 	return uu
 }
 
@@ -185,12 +185,6 @@ func (uu *UserUpdate) ClearBiography() *UserUpdate {
 	return uu
 }
 
-// SetCompanyID sets the "company" edge to the Company entity by ID.
-func (uu *UserUpdate) SetCompanyID(id string) *UserUpdate {
-	uu.mutation.SetCompanyID(id)
-	return uu
-}
-
 // SetCompany sets the "company" edge to the Company entity.
 func (uu *UserUpdate) SetCompany(c *Company) *UserUpdate {
 	return uu.SetCompanyID(c.ID)
@@ -269,11 +263,6 @@ func (uu *UserUpdate) check() error {
 	if v, ok := uu.mutation.LastName(); ok {
 		if err := user.LastNameValidator(v); err != nil {
 			return &ValidationError{Name: "last_name", err: fmt.Errorf(`ent: validator failed for field "User.last_name": %w`, err)}
-		}
-	}
-	if v, ok := uu.mutation.CompanyInn(); ok {
-		if err := user.CompanyInnValidator(v); err != nil {
-			return &ValidationError{Name: "company_inn", err: fmt.Errorf(`ent: validator failed for field "User.company_inn": %w`, err)}
 		}
 	}
 	if v, ok := uu.mutation.FatherName(); ok {
@@ -378,7 +367,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{user.CompanyColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(company.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(company.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -391,7 +380,7 @@ func (uu *UserUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{user.CompanyColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(company.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(company.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -469,9 +458,9 @@ func (uuo *UserUpdateOne) SetLastName(s string) *UserUpdateOne {
 	return uuo
 }
 
-// SetCompanyInn sets the "company_inn" field.
-func (uuo *UserUpdateOne) SetCompanyInn(s string) *UserUpdateOne {
-	uuo.mutation.SetCompanyInn(s)
+// SetCompanyID sets the "company_id" field.
+func (uuo *UserUpdateOne) SetCompanyID(i int) *UserUpdateOne {
+	uuo.mutation.SetCompanyID(i)
 	return uuo
 }
 
@@ -575,12 +564,6 @@ func (uuo *UserUpdateOne) ClearBiography() *UserUpdateOne {
 	return uuo
 }
 
-// SetCompanyID sets the "company" edge to the Company entity by ID.
-func (uuo *UserUpdateOne) SetCompanyID(id string) *UserUpdateOne {
-	uuo.mutation.SetCompanyID(id)
-	return uuo
-}
-
 // SetCompany sets the "company" edge to the Company entity.
 func (uuo *UserUpdateOne) SetCompany(c *Company) *UserUpdateOne {
 	return uuo.SetCompanyID(c.ID)
@@ -672,11 +655,6 @@ func (uuo *UserUpdateOne) check() error {
 	if v, ok := uuo.mutation.LastName(); ok {
 		if err := user.LastNameValidator(v); err != nil {
 			return &ValidationError{Name: "last_name", err: fmt.Errorf(`ent: validator failed for field "User.last_name": %w`, err)}
-		}
-	}
-	if v, ok := uuo.mutation.CompanyInn(); ok {
-		if err := user.CompanyInnValidator(v); err != nil {
-			return &ValidationError{Name: "company_inn", err: fmt.Errorf(`ent: validator failed for field "User.company_inn": %w`, err)}
 		}
 	}
 	if v, ok := uuo.mutation.FatherName(); ok {
@@ -798,7 +776,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Columns: []string{user.CompanyColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(company.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(company.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -811,7 +789,7 @@ func (uuo *UserUpdateOne) sqlSave(ctx context.Context) (_node *User, err error) 
 			Columns: []string{user.CompanyColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(company.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(company.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
