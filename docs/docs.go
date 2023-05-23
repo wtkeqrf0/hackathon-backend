@@ -35,9 +35,9 @@ const docTemplate = `{
                 ],
                 "description": "Returns detail information about me",
                 "tags": [
-                    "User"
+                    "Session"
                 ],
-                "summary": "Get detail data about the user by jwt",
+                "summary": "Get detail data about the user by session",
                 "responses": {
                     "200": {
                         "description": "Info about session",
@@ -64,13 +64,34 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "delete": {
+                "description": "Get cookie and delete them from db",
+                "tags": [
+                    "Session"
+                ],
+                "summary": "Delete cookie session",
+                "responses": {
+                    "200": {
+                        "description": "deleted",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    }
+                }
             }
         },
         "/auth/sign-in": {
             "post": {
                 "description": "Compare the user's password with an existing user's password. If it matches, create session of this user",
                 "tags": [
-                    "Authorization"
+                    "Auth"
                 ],
                 "summary": "Sign in by password",
                 "parameters": [
@@ -110,7 +131,7 @@ const docTemplate = `{
             "post": {
                 "description": "Compare the user's password with an existing user's password. If it matches, create session of the user. If the user does not exist, create new user",
                 "tags": [
-                    "Authorization"
+                    "Auth"
                 ],
                 "summary": "Sign up by password",
                 "parameters": [
@@ -153,11 +174,11 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Returns information about company by jwt",
+                "description": "Returns information about company by session",
                 "tags": [
                     "Company"
                 ],
-                "summary": "Get data about company by jwt",
+                "summary": "Get data about company by session",
                 "responses": {
                     "200": {
                         "description": "Info about company",
@@ -203,10 +224,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dao.Company"
-                        }
+                        "description": "OK"
                     },
                     "401": {
                         "description": "User isn't logged in",
@@ -229,31 +247,33 @@ const docTemplate = `{
                 }
             }
         },
-        "/company/{inn}": {
-            "get": {
-                "description": "Returns information about company by INN",
+        "/email/send-code": {
+            "post": {
+                "description": "Generates secret code and sends it to specified email",
                 "tags": [
-                    "Company"
+                    "Auth"
                 ],
-                "summary": "Get data about company inn",
+                "summary": "Send code to specified email",
                 "parameters": [
                     {
-                        "type": "string",
-                        "description": "company's inn",
-                        "name": "inn",
-                        "in": "path",
-                        "required": true
+                        "description": "User's email",
+                        "name": "SignIn",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.Email"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Info about company",
+                        "description": "user's session",
                         "schema": {
-                            "$ref": "#/definitions/dao.Company"
+                            "type": "string"
                         }
                     },
-                    "404": {
-                        "description": "Company doesn't exist",
+                    "400": {
+                        "description": "Data is not valid",
                         "schema": {
                             "$ref": "#/definitions/errs.MyError"
                         }
@@ -315,13 +335,56 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/password": {
+        "/user/email": {
             "patch": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
+                "description": "Updates user's email",
+                "tags": [
+                    "User"
+                ],
+                "summary": "Update user's email",
+                "parameters": [
+                    {
+                        "description": "New email with password",
+                        "name": "updEmail",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateEmail"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully Updated"
+                    },
+                    "401": {
+                        "description": "User isn't logged in",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    },
+                    "404": {
+                        "description": "User doesn't exist",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/password": {
+            "patch": {
                 "description": "Updates user's password",
                 "tags": [
                     "User"
@@ -329,7 +392,7 @@ const docTemplate = `{
                 "summary": "Update user's password",
                 "parameters": [
                     {
-                        "description": "Passwords",
+                        "description": "Email with new password",
                         "name": "updPassword",
                         "in": "body",
                         "required": true,
@@ -377,6 +440,8 @@ const docTemplate = `{
                 },
                 "name": {
                     "type": "string",
+                    "maxLength": 150,
+                    "minLength": 2,
                     "example": "ООО 'Парк'"
                 },
                 "website": {
@@ -387,6 +452,13 @@ const docTemplate = `{
         },
         "dao.Me": {
             "type": "object",
+            "required": [
+                "email",
+                "firstName",
+                "lastName",
+                "name",
+                "role"
+            ],
             "properties": {
                 "biography": {
                     "type": "string",
@@ -412,10 +484,6 @@ const docTemplate = `{
                     "type": "string",
                     "example": "Ivan"
                 },
-                "inn": {
-                    "type": "string",
-                    "example": "7707083893"
-                },
                 "lastName": {
                     "type": "string",
                     "example": "Ivanov"
@@ -431,6 +499,18 @@ const docTemplate = `{
                 "role": {
                     "type": "string",
                     "example": "USER"
+                }
+            }
+        },
+        "dto.Email": {
+            "type": "object",
+            "required": [
+                "email"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "myemail@gmail.com"
                 }
             }
         },
@@ -464,6 +544,7 @@ const docTemplate = `{
             "properties": {
                 "biography": {
                     "type": "string",
+                    "maxLength": 1024,
                     "example": "I'd like to relax"
                 },
                 "city": {
@@ -483,6 +564,8 @@ const docTemplate = `{
                 },
                 "fatherName": {
                     "type": "string",
+                    "maxLength": 30,
+                    "minLength": 2,
                     "example": "Ivanovich"
                 },
                 "firstName": {
@@ -505,6 +588,8 @@ const docTemplate = `{
                 },
                 "position": {
                     "type": "string",
+                    "maxLength": 50,
+                    "minLength": 2,
                     "example": "Director"
                 }
             }
@@ -512,8 +597,14 @@ const docTemplate = `{
         "dto.UpdateCompany": {
             "type": "object",
             "properties": {
+                "inn": {
+                    "type": "string",
+                    "example": "7707083893"
+                },
                 "name": {
                     "type": "string",
+                    "maxLength": 150,
+                    "minLength": 2,
                     "example": "ООО 'Парк'"
                 },
                 "website": {
@@ -522,24 +613,46 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.UpdatePassword": {
+        "dto.UpdateEmail": {
             "type": "object",
             "required": [
-                "newPassword",
+                "newEmail",
                 "password"
             ],
             "properties": {
-                "newPassword": {
+                "newEmail": {
                     "type": "string",
-                    "maxLength": 20,
-                    "minLength": 4,
-                    "example": "mob126"
+                    "example": "myemail@gmail.com"
                 },
                 "password": {
                     "type": "string",
                     "maxLength": 20,
                     "minLength": 4,
-                    "example": "bob126"
+                    "example": "mob126"
+                }
+            }
+        },
+        "dto.UpdatePassword": {
+            "type": "object",
+            "required": [
+                "code",
+                "email",
+                "newPassword"
+            ],
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "N1OSP"
+                },
+                "email": {
+                    "type": "string",
+                    "example": "myemail@gmail.com"
+                },
+                "newPassword": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "minLength": 4,
+                    "example": "mob126"
                 }
             }
         },
@@ -548,6 +661,7 @@ const docTemplate = `{
             "properties": {
                 "biography": {
                     "type": "string",
+                    "maxLength": 1024,
                     "example": "I'd like to relax"
                 },
                 "city": {
@@ -560,18 +674,26 @@ const docTemplate = `{
                 },
                 "fatherName": {
                     "type": "string",
+                    "maxLength": 30,
+                    "minLength": 2,
                     "example": "Ivanovich"
                 },
                 "firstName": {
                     "type": "string",
+                    "maxLength": 30,
+                    "minLength": 2,
                     "example": "Ivan"
                 },
                 "lastName": {
                     "type": "string",
+                    "maxLength": 30,
+                    "minLength": 2,
                     "example": "Ivanov"
                 },
                 "position": {
                     "type": "string",
+                    "maxLength": 50,
+                    "minLength": 2,
                     "example": "Director"
                 }
             }
@@ -594,7 +716,7 @@ const docTemplate = `{
     "securityDefinitions": {
         "ApiKeyAuth": {
             "type": "apiKey",
-            "name": "Authorization",
+            "name": "session_id",
             "in": "header"
         }
     }

@@ -9,6 +9,8 @@ definitions:
         type: string
       name:
         example: ООО 'Парк'
+        maxLength: 150
+        minLength: 2
         type: string
       website:
         example: https://www.rusprofile.ru
@@ -36,9 +38,6 @@ definitions:
       firstName:
         example: Ivan
         type: string
-      inn:
-        example: "7707083893"
-        type: string
       lastName:
         example: Ivanov
         type: string
@@ -51,6 +50,20 @@ definitions:
       role:
         example: USER
         type: string
+    required:
+    - email
+    - firstName
+    - lastName
+    - name
+    - role
+    type: object
+  dto.Email:
+    properties:
+      email:
+        example: myemail@gmail.com
+        type: string
+    required:
+    - email
     type: object
   dto.SignIn:
     properties:
@@ -70,6 +83,7 @@ definitions:
     properties:
       biography:
         example: I'd like to relax
+        maxLength: 1024
         type: string
       city:
         example: Москва
@@ -84,6 +98,8 @@ definitions:
         type: string
       fatherName:
         example: Ivanovich
+        maxLength: 30
+        minLength: 2
         type: string
       firstName:
         example: Ivan
@@ -102,6 +118,8 @@ definitions:
         type: string
       position:
         example: Director
+        maxLength: 50
+        minLength: 2
         type: string
     required:
     - email
@@ -111,33 +129,55 @@ definitions:
     type: object
   dto.UpdateCompany:
     properties:
+      inn:
+        example: "7707083893"
+        type: string
       name:
         example: ООО 'Парк'
+        maxLength: 150
+        minLength: 2
         type: string
       website:
         example: https://www.rusprofile.ru
         type: string
     type: object
+  dto.UpdateEmail:
+    properties:
+      newEmail:
+        example: myemail@gmail.com
+        type: string
+      password:
+        example: mob126
+        maxLength: 20
+        minLength: 4
+        type: string
+    required:
+    - newEmail
+    - password
+    type: object
   dto.UpdatePassword:
     properties:
+      code:
+        example: N1OSP
+        type: string
+      email:
+        example: myemail@gmail.com
+        type: string
       newPassword:
         example: mob126
         maxLength: 20
         minLength: 4
         type: string
-      password:
-        example: bob126
-        maxLength: 20
-        minLength: 4
-        type: string
     required:
+    - code
+    - email
     - newPassword
-    - password
     type: object
   dto.UpdateUser:
     properties:
       biography:
         example: I'd like to relax
+        maxLength: 1024
         type: string
       city:
         example: Москва
@@ -147,15 +187,23 @@ definitions:
         type: string
       fatherName:
         example: Ivanovich
+        maxLength: 30
+        minLength: 2
         type: string
       firstName:
         example: Ivan
+        maxLength: 30
+        minLength: 2
         type: string
       lastName:
         example: Ivanov
+        maxLength: 30
+        minLength: 2
         type: string
       position:
         example: Director
+        maxLength: 50
+        minLength: 2
         type: string
     type: object
   errs.MyError:
@@ -178,6 +226,20 @@ info:
   version: "1.0"
 paths:
   /auth/session:
+    delete:
+      description: Get cookie and delete them from db
+      responses:
+        "200":
+          description: deleted
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+      summary: Delete cookie session
+      tags:
+      - Session
     get:
       description: Returns detail information about me
       responses:
@@ -199,9 +261,9 @@ paths:
             $ref: '#/definitions/errs.MyError'
       security:
       - ApiKeyAuth: []
-      summary: Get detail data about the user by jwt
+      summary: Get detail data about the user by session
       tags:
-      - User
+      - Session
   /auth/sign-in:
     post:
       description: Compare the user's password with an existing user's password. If
@@ -228,7 +290,7 @@ paths:
             $ref: '#/definitions/errs.MyError'
       summary: Sign in by password
       tags:
-      - Authorization
+      - Auth
   /auth/sign-up:
     post:
       description: Compare the user's password with an existing user's password. If
@@ -256,10 +318,10 @@ paths:
             $ref: '#/definitions/errs.MyError'
       summary: Sign up by password
       tags:
-      - Authorization
+      - Auth
   /company:
     get:
-      description: Returns information about company by jwt
+      description: Returns information about company by session
       responses:
         "200":
           description: Info about company
@@ -275,7 +337,7 @@ paths:
             $ref: '#/definitions/errs.MyError'
       security:
       - ApiKeyAuth: []
-      summary: Get data about company by jwt
+      summary: Get data about company by session
       tags:
       - Company
     patch:
@@ -290,8 +352,6 @@ paths:
       responses:
         "200":
           description: OK
-          schema:
-            $ref: '#/definitions/dao.Company'
         "401":
           description: User isn't logged in
           schema:
@@ -309,31 +369,32 @@ paths:
       summary: Update data about company
       tags:
       - Company
-  /company/{inn}:
-    get:
-      description: Returns information about company by INN
+  /email/send-code:
+    post:
+      description: Generates secret code and sends it to specified email
       parameters:
-      - description: company's inn
-        in: path
-        name: inn
+      - description: User's email
+        in: body
+        name: SignIn
         required: true
-        type: string
+        schema:
+          $ref: '#/definitions/dto.Email'
       responses:
         "200":
-          description: Info about company
+          description: user's session
           schema:
-            $ref: '#/definitions/dao.Company'
-        "404":
-          description: Company doesn't exist
+            type: string
+        "400":
+          description: Data is not valid
           schema:
             $ref: '#/definitions/errs.MyError'
         "500":
           description: Internal Server Error
           schema:
             $ref: '#/definitions/errs.MyError'
-      summary: Get data about company inn
+      summary: Send code to specified email
       tags:
-      - Company
+      - Auth
   /user:
     patch:
       description: Updates user's info
@@ -364,11 +425,41 @@ paths:
       summary: Update user's data
       tags:
       - User
+  /user/email:
+    patch:
+      description: Updates user's email
+      parameters:
+      - description: New email with password
+        in: body
+        name: updEmail
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateEmail'
+      responses:
+        "200":
+          description: Successfully Updated
+        "401":
+          description: User isn't logged in
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "404":
+          description: User doesn't exist
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+      security:
+      - ApiKeyAuth: []
+      summary: Update user's email
+      tags:
+      - User
   /user/password:
     patch:
       description: Updates user's password
       parameters:
-      - description: Passwords
+      - description: Email with new password
         in: body
         name: updPassword
         required: true
@@ -389,8 +480,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/errs.MyError'
-      security:
-      - ApiKeyAuth: []
       summary: Update user's password
       tags:
       - User
@@ -401,6 +490,6 @@ schemes:
 securityDefinitions:
   ApiKeyAuth:
     in: header
-    name: Authorization
+    name: session_id
     type: apiKey
 swagger: "2.0"
