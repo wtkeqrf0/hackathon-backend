@@ -129,6 +129,5 @@ func NewMiddleWares(erh ErrHandler, qh QueryHandler) *Middlewares {
 func (m *Middlewares) InitGlobalMiddleWares(r *gin.Engine) {
 	r.Use(cors.New(cors.Config{
 		AllowAllOrigins: true,
-		AllowOrigins:    []string{"*"},
 	}), m.qh.HandleQueries, gin.Recovery(), m.erh.HandleErrors)
 }
