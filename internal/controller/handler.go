@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -126,5 +127,8 @@ func NewMiddleWares(erh ErrHandler, qh QueryHandler) *Middlewares {
 }
 
 func (m *Middlewares) InitGlobalMiddleWares(r *gin.Engine) {
-	r.Use(m.qh.HandleQueries, gin.Recovery(), m.erh.HandleErrors)
+	r.Use(cors.New(cors.Config{
+		AllowAllOrigins: true,
+		AllowOrigins:    []string{"*"},
+	}), m.qh.HandleQueries, gin.Recovery(), m.erh.HandleErrors)
 }
