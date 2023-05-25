@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -153,11 +154,9 @@ func NewMiddleWares(erh ErrHandler, qh QueryHandler) *Middlewares {
 }
 
 func (m *Middlewares) InitGlobalMiddleWares(r *gin.Engine) {
-	r.Use(m.DisableCors, m.qh.HandleQueries, gin.Recovery(), m.erh.HandleErrors)
-}
-
-func (m *Middlewares) DisableCors(c *gin.Context) {
-	c.Header("Access-Control-Allow-Origin", "*")
-	c.Header("Access-Control-Allow-Methods", "*")
-	c.Header("Access-Control-Allow-Headers", "*")
+	c := cors.DefaultConfig()
+	c.AllowOrigins = []string{"http://localhost:3000"}
+	c.AllowMethods = []string{"GET", "POST", "PATCH", "DELETE", "OPTIONS"}
+	c.AllowOrigins = []string{"Origin", "Content-Type"}
+	r.Use(cors.New(c), m.qh.HandleQueries, gin.Recovery(), m.erh.HandleErrors)
 }
