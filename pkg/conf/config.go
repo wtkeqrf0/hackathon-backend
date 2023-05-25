@@ -13,8 +13,7 @@ type Config struct {
 	// can be specified by environment variable
 	Prod int `yaml:"prod" env:"PROD" env-default:"0"`
 
-	// specify the path where will the logs output be stored
-	LogsPath string `yaml:"logs_path" env:"LOGS_PATH" env-default:"cons"`
+	TemplatePath string `yaml:"template_path" env:"TEMPLATE_PATH" env-required:"true"`
 
 	Session struct {
 		CookieName string        `yaml:"cookie_name" env:"COOKIE_NAME" env-default:"session_id"`
@@ -53,6 +52,11 @@ type Config struct {
 		Host     string `yaml:"host" env:"EMAIL_STMP_HOST"`
 		Port     int    `yaml:"port" env:"EMAIL_PORT"`
 	} `yaml:"email"`
+
+	Insurance struct {
+		Contribution int `yaml:"contribution" env-required:"true"`
+		Medical      int `yaml:"medical" env-required:"true"`
+	} `yaml:"insurance"`
 }
 
 var (

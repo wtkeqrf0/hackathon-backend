@@ -1,2 +1,5 @@
-token:
-  access_name: "Authorization"
+insurance:
+  contribution: 22
+  medical: 5
+
+template_path: "configs/template.html"

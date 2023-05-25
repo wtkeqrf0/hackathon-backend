@@ -18,6 +18,22 @@ definitions:
     required:
     - inn
     type: object
+  dao.Industry:
+    properties:
+      avgSalary:
+        type: number
+      avgSalaryCad:
+        type: number
+      avgWorkersNum:
+        type: number
+      avgWorkersNumCad:
+        type: number
+    required:
+    - avgSalary
+    - avgSalaryCad
+    - avgWorkersNum
+    - avgWorkersNumCad
+    type: object
   dao.Me:
     properties:
       biography:
@@ -64,6 +80,56 @@ definitions:
         type: string
     required:
     - email
+    type: object
+  dto.History:
+    properties:
+      accountingServices:
+        type: boolean
+      companyName:
+        maxLength: 150
+        minLength: 2
+        type: string
+      constructionFacilitiesArea:
+        maximum: 0
+        type: integer
+      districtTitle:
+        type: string
+      equipmentType:
+        type: string
+      facilityType:
+        type: string
+      fullTimeEmployees:
+        maximum: 0
+        type: integer
+      industryBranch:
+        type: string
+      landArea:
+        maximum: 0
+        type: integer
+      other:
+        type: string
+      patent:
+        type: boolean
+    required:
+    - accountingServices
+    - companyName
+    - constructionFacilitiesArea
+    - districtTitle
+    - equipmentType
+    - facilityType
+    - fullTimeEmployees
+    - industryBranch
+    - landArea
+    - other
+    - patent
+    type: object
+  dto.IndustryType:
+    properties:
+      type:
+        maxLength: 150
+        type: string
+    required:
+    - type
     type: object
   dto.SignIn:
     properties:
@@ -247,6 +313,10 @@ paths:
           description: Info about session
           schema:
             $ref: '#/definitions/dao.Me'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/errs.MyError'
         "401":
           description: User isn't logged in
           schema:
@@ -284,6 +354,10 @@ paths:
           description: Data is not valid
           schema:
             $ref: '#/definitions/errs.MyError'
+        "404":
+          description: User doesn't exist
+          schema:
+            $ref: '#/definitions/errs.MyError'
         "500":
           description: Internal Server Error
           schema:
@@ -312,6 +386,10 @@ paths:
           description: Data is not valid
           schema:
             $ref: '#/definitions/errs.MyError'
+        "404":
+          description: User doesn't exist
+          schema:
+            $ref: '#/definitions/errs.MyError'
         "500":
           description: Internal Server Error
           schema:
@@ -319,6 +397,89 @@ paths:
       summary: Sign up by password
       tags:
       - Auth
+  /calc:
+    get:
+      description: Returns PDF file, gotten from body
+      parameters:
+      - description: Completed application form
+        in: body
+        name: from
+        required: true
+        schema:
+          $ref: '#/definitions/dto.History'
+      responses:
+        "200":
+          description: PDF file
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+      summary: Generate PDF from body
+      tags:
+      - Calc
+    post:
+      description: Saves given values to user's history
+      parameters:
+      - description: Completed application form
+        in: body
+        name: from
+        required: true
+        schema:
+          $ref: '#/definitions/dto.History'
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: User isn't logged in
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "404":
+          description: User doesn't exist
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+      security:
+      - ApiKeyAuth: []
+      summary: Save calc data to history
+      tags:
+      - Calc
+  /calc/industry:
+    get:
+      description: Returns detail information about industry
+      parameters:
+      - description: Industry Type
+        in: body
+        name: industry_name
+        required: true
+        schema:
+          $ref: '#/definitions/dto.IndustryType'
+      responses:
+        "200":
+          description: Info about industry
+          schema:
+            $ref: '#/definitions/dao.Industry'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "404":
+          description: Industry doesn't exist
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+      summary: Get data about industry
+      tags:
+      - Calc
   /company:
     get:
       description: Returns information about company by session
@@ -327,6 +488,10 @@ paths:
           description: Info about company
           schema:
             $ref: '#/definitions/dao.Company'
+        "401":
+          description: User isn't logged in
+          schema:
+            $ref: '#/definitions/errs.MyError'
         "404":
           description: Company doesn't exist
           schema:
@@ -352,6 +517,10 @@ paths:
       responses:
         "200":
           description: OK
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/errs.MyError'
         "401":
           description: User isn't logged in
           schema:
@@ -408,6 +577,10 @@ paths:
       responses:
         "200":
           description: Successfully Updated
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/errs.MyError'
         "401":
           description: User isn't logged in
           schema:
@@ -425,6 +598,39 @@ paths:
       summary: Update user's data
       tags:
       - User
+  /user/{company_name}:
+    get:
+      description: Returns PDF file got from user history
+      parameters:
+      - description: Unique company name from history
+        in: path
+        name: company_name
+        required: true
+        type: string
+      responses:
+        "200":
+          description: PDF file
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "401":
+          description: User isn't logged in
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "404":
+          description: User doesn't exist
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+      security:
+      - ApiKeyAuth: []
+      summary: Generate PDF file from user history
+      tags:
+      - User
   /user/email:
     patch:
       description: Updates user's email
@@ -438,6 +644,10 @@ paths:
       responses:
         "200":
           description: Successfully Updated
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/errs.MyError'
         "401":
           description: User isn't logged in
           schema:
@@ -468,8 +678,8 @@ paths:
       responses:
         "200":
           description: Successfully Updated
-        "401":
-          description: User isn't logged in
+        "400":
+          description: Validation error
           schema:
             $ref: '#/definitions/errs.MyError'
         "404":

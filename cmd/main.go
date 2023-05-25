@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -9,21 +8,20 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/redis/go-redis/v9"
 	"github.com/sirupsen/logrus"
-	"github.com/wtkeqrf0/while.act/docs"
-	"github.com/wtkeqrf0/while.act/ent"
-	"github.com/wtkeqrf0/while.act/internal/controller"
-	"github.com/wtkeqrf0/while.act/internal/repo/postgres"
-	redisRepo "github.com/wtkeqrf0/while.act/internal/repo/redis"
-	"github.com/wtkeqrf0/while.act/internal/service"
-	"github.com/wtkeqrf0/while.act/pkg/bind"
-	"github.com/wtkeqrf0/while.act/pkg/client/email"
-	"github.com/wtkeqrf0/while.act/pkg/client/postgresql"
-	redisInit "github.com/wtkeqrf0/while.act/pkg/client/redis"
-	"github.com/wtkeqrf0/while.act/pkg/conf"
-	"github.com/wtkeqrf0/while.act/pkg/middleware/errs"
-	"github.com/wtkeqrf0/while.act/pkg/middleware/logger"
-	"github.com/wtkeqrf0/while.act/pkg/middleware/sessions"
-	"io"
+	"github.com/while-act/hackathon-backend/docs"
+	"github.com/while-act/hackathon-backend/ent"
+	"github.com/while-act/hackathon-backend/internal/controller"
+	"github.com/while-act/hackathon-backend/internal/repo/postgres"
+	redisRepo "github.com/while-act/hackathon-backend/internal/repo/redis"
+	"github.com/while-act/hackathon-backend/internal/service"
+	"github.com/while-act/hackathon-backend/pkg/bind"
+	"github.com/while-act/hackathon-backend/pkg/client/email"
+	"github.com/while-act/hackathon-backend/pkg/client/postgresql"
+	redisInit "github.com/while-act/hackathon-backend/pkg/client/redis"
+	"github.com/while-act/hackathon-backend/pkg/conf"
+	"github.com/while-act/hackathon-backend/pkg/middleware/errs"
+	"github.com/while-act/hackathon-backend/pkg/middleware/logger"
+	"github.com/while-act/hackathon-backend/pkg/middleware/sessions"
 	"net/http"
 	"net/smtp"
 	"os"
@@ -69,34 +67,21 @@ func main() {
 	cfg := conf.GetConfig()
 	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%d", cfg.Listen.Host, cfg.Listen.Port)
 
-	out := getLogsOut(cfg.LogsPath)
 	pClient, rClient, mailClient := getClients(cfg)
 
-	h := initHandler(pClient, rClient, mailClient)
-	m := initMiddlewares(out)
+	h := initHandler(pClient, rClient, mailClient, cfg.TemplatePath)
+	m := initMiddlewares()
 
 	r := gin.New()
 
 	m.InitGlobalMiddleWares(r)
 	h.InitRoutes(r.Group(cfg.Listen.MainPath), mailClient != nil)
 
-	run(cfg.Listen.Port, r, pClient, rClient, mailClient, logrus.New())
+	run(cfg.Listen.Port, r, pClient, rClient, mailClient)
 }
 
 // run the Server with graceful shutdown
-func run(port int, r *gin.Engine, pClient *ent.Client, rClient *redis.Client, mailClient *smtp.Client, l *logrus.Logger) {
-	l.SetOutput(os.Stdout)
-	l.SetLevel(logrus.InfoLevel)
-	l.SetFormatter(&logrus.JSONFormatter{
-		TimestampFormat: "2006/01/02 15:32:05",
-		FieldMap: logrus.FieldMap{
-			logrus.FieldKeyLevel: "status",
-			logrus.FieldKeyFunc:  "caller",
-			logrus.FieldKeyMsg:   "message",
-		},
-	})
-	l.SetReportCaller(true)
-
+func run(port int, r *gin.Engine, pClient *ent.Client, rClient *redis.Client, mailClient *smtp.Client) {
 	srv := &http.Server{
 		Addr:           fmt.Sprintf(":%d", port),
 		Handler:        r,
@@ -141,19 +126,6 @@ func run(port int, r *gin.Engine, pClient *ent.Client, rClient *redis.Client, ma
 	logrus.Info("Server Exited Properly")
 }
 
-func getLogsOut(s string) io.Writer {
-	if s != "cons" {
-		file, err := os.OpenFile(s, os.O_WRONLY|os.O_CREATE|os.O_APPEND, os.ModePerm)
-		if err != nil {
-			logrus.WithError(err).Fatalf("can't write logs to %s", s)
-		}
-		writer := bufio.NewWriter(file)
-		logrus.SetOutput(writer)
-		return writer
-	}
-	return os.Stdout
-}
-
 func getClients(cfg *conf.Config) (*ent.Client, *redis.Client, *smtp.Client) {
 	pClient := postgresql.Open(cfg.DB.Postgres.Username, cfg.DB.Postgres.Password,
 		cfg.DB.Postgres.Host, cfg.DB.Postgres.Port, cfg.DB.Postgres.DBName)
@@ -165,28 +137,36 @@ func getClients(cfg *conf.Config) (*ent.Client, *redis.Client, *smtp.Client) {
 	return pClient, rClient, mailClient
 }
 
-func initHandler(pClient *ent.Client, rClient *redis.Client, mailClient *smtp.Client) *controller.Handler {
+func initHandler(pClient *ent.Client, rClient *redis.Client, mailClient *smtp.Client, tPath string) *controller.Handler {
 	pUser := postgres.NewUserStorage(pClient.User)
 	pComp := postgres.NewCompanyStorage(pClient.Company)
+	pHist := postgres.NewHistoryStorage(pClient.History)
+	pInd := postgres.NewIndustryStorage(pClient.Industry)
 	rConn := redisRepo.NewRClient(rClient)
-	mailConn := service.NewEmailSender(mailClient)
 
 	auth := service.NewAuthService(pUser, rConn)
+	history := service.NewHistoryService(pHist)
+	industry := service.NewIndustryService(pInd)
 	user := service.NewUserService(pUser, rConn)
+	pdf := service.NewPDF(tPath)
+	mail := service.NewEmailSender(mailClient)
 	company := service.NewCompanyService(pComp)
 
 	return controller.NewHandler(
 		user,
 		company,
 		auth,
+		history,
+		industry,
+		pdf,
 		sessions.NewAuth(auth),
-		mailConn,
+		mail,
 	)
 }
 
-func initMiddlewares(out io.Writer) *controller.Middlewares {
+func initMiddlewares() *controller.Middlewares {
 	return controller.NewMiddleWares(
-		errs.NewErrHandler(logrus.New(), out),
-		logger.NewQueryHandler(logrus.New(), out),
+		errs.NewErrHandler(logrus.New()),
+		logger.NewQueryHandler(logrus.New()),
 	)
 }
