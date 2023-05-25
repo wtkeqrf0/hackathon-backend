@@ -2,10 +2,10 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/wtkeqrf0/while.act/ent"
-	"github.com/wtkeqrf0/while.act/internal/controller/dto"
-	"github.com/wtkeqrf0/while.act/pkg/bind"
-	"github.com/wtkeqrf0/while.act/pkg/middleware/errs"
+	"github.com/while-act/hackathon-backend/ent"
+	"github.com/while-act/hackathon-backend/internal/controller/dto"
+	"github.com/while-act/hackathon-backend/pkg/bind"
+	"github.com/while-act/hackathon-backend/pkg/middleware/errs"
 	"golang.org/x/crypto/bcrypt"
 	"math/rand"
 	"net/http"
@@ -18,11 +18,12 @@ import (
 // @Tags Auth
 // @Success 200 {string} string "user's session"
 // @Failure 400 {object} errs.MyError "Data is not valid"
+// @Failure 404 {object} errs.MyError "User doesn't exist"
 // @Failure 500 {object} errs.MyError
 // @Router /auth/sign-up [post]
 func (h *Handler) signUp(c *gin.Context) {
-	auth, ok := bind.FillStruct[dto.SignUp](c)
-	if !ok {
+	auth := bind.FillStructJSON[dto.SignUp](c)
+	if auth == nil {
 		return
 	}
 
@@ -34,17 +35,17 @@ func (h *Handler) signUp(c *gin.Context) {
 		company, err = h.company.CreateCompany(
 			auth.Company.INN,
 			auth.Company.Name,
-			auth.Company.Website)
+			auth.Company.Website,
+		)
 
 		if err != nil {
-			c.Error(errs.ServerError.AddErr(err))
+			c.Error(errs.ValidError.AddErr(err))
 			return
 		}
 
 		user, err = h.auth.CreateUserWithPassword(auth, company)
-
 		if err != nil {
-			c.Error(errs.ServerError.AddErr(err))
+			c.Error(errs.ValidError.AddErr(err))
 			return
 		}
 	}
@@ -54,7 +55,7 @@ func (h *Handler) signUp(c *gin.Context) {
 		return
 	}
 
-	h.session.SetNewCookie(user.ID, c.GetHeader("User-Agent"), c)
+	h.session.SetNewCookie(user.ID, c)
 
 	c.Status(http.StatusOK)
 }
@@ -66,11 +67,12 @@ func (h *Handler) signUp(c *gin.Context) {
 // @Tags Auth
 // @Success 200 {string} string "user's session"
 // @Failure 400 {object} errs.MyError "Data is not valid"
+// @Failure 404 {object} errs.MyError "User doesn't exist"
 // @Failure 500 {object} errs.MyError
 // @Router /auth/sign-in [post]
 func (h *Handler) signIn(c *gin.Context) {
-	auth, ok := bind.FillStruct[dto.SignIn](c)
-	if !ok {
+	auth := bind.FillStructJSON[dto.SignIn](c)
+	if auth == nil {
 		return
 	}
 
@@ -86,7 +88,7 @@ func (h *Handler) signIn(c *gin.Context) {
 		return
 	}
 
-	h.session.SetNewCookie(user.ID, c.GetHeader("User-Agent"), c)
+	h.session.SetNewCookie(user.ID, c)
 
 	c.Status(http.StatusOK)
 }
@@ -101,8 +103,8 @@ func (h *Handler) signIn(c *gin.Context) {
 // @Failure 500 {object} errs.MyError
 // @Router /email/send-code [post]
 func (h *Handler) sendCodeToEmail(c *gin.Context) {
-	to, ok := bind.FillStruct[dto.Email](c)
-	if !ok {
+	to := bind.FillStructJSON[dto.Email](c)
+	if to == nil {
 		return
 	}
 
@@ -112,8 +114,9 @@ func (h *Handler) sendCodeToEmail(c *gin.Context) {
 		return
 	}
 
-	if err := h.mail.SendEmail("Verify email for you-together account", code, cfg.Email.From, to.Email); err != nil {
+	if err := h.mail.SendEmail("Verify email for while.act account", code, cfg.Email.From, to.Email); err != nil {
 		c.Error(errs.EmailError.AddErr(err))
+		return
 	}
 
 	c.Status(http.StatusOK)

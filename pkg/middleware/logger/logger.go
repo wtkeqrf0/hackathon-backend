@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-	"io"
+	"os"
 	"time"
 )
 
@@ -30,10 +30,10 @@ type QueryHandler struct {
 	log *logrus.Logger
 }
 
-func NewQueryHandler(log *logrus.Logger, out io.Writer) *QueryHandler {
+func NewQueryHandler(log *logrus.Logger) *QueryHandler {
 	log.SetLevel(logrus.InfoLevel)
 	log.SetFormatter(&PlainFormatter{TimestampFormat: "2006/01/02 15:32:05"})
-	log.SetOutput(out)
+	log.SetOutput(os.Stdout)
 	return &QueryHandler{log: log}
 }
 

@@ -3,8 +3,8 @@ package redis
 import (
 	"context"
 	"github.com/redis/go-redis/v9"
-	"github.com/wtkeqrf0/while.act/internal/controller/dao"
-	"github.com/wtkeqrf0/while.act/pkg/conf"
+	"github.com/while-act/hackathon-backend/internal/controller/dao"
+	"github.com/while-act/hackathon-backend/pkg/conf"
 	"reflect"
 	"time"
 )

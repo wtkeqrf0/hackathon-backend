@@ -5,9 +5,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/mssola/useragent"
-	"github.com/wtkeqrf0/while.act/internal/controller/dao"
-	"github.com/wtkeqrf0/while.act/pkg/bind"
-	"github.com/wtkeqrf0/while.act/pkg/middleware/errs"
+	"github.com/while-act/hackathon-backend/internal/controller/dao"
+	"github.com/while-act/hackathon-backend/pkg/bind"
+	"github.com/while-act/hackathon-backend/pkg/middleware/errs"
 	"net/http"
 	"time"
 )
@@ -80,10 +80,10 @@ func (a Auth) GetSession(c *gin.Context) (*dao.Session, error) {
 	return res, nil
 }
 
-func (a Auth) SetNewCookie(id int, userAgent string, c *gin.Context) {
+func (a Auth) SetNewCookie(id int, c *gin.Context) {
 	a.PopCookie(c)
 
-	session, err := a.GenerateSession(id, c.ClientIP(), userAgent)
+	session, err := a.GenerateSession(id, c.ClientIP(), c.Request.UserAgent())
 	if err != nil {
 		c.Error(errs.ServerError.AddErr(err))
 		return

@@ -2,14 +2,14 @@ package service
 
 import (
 	"context"
-	"github.com/wtkeqrf0/while.act/ent"
-	"github.com/wtkeqrf0/while.act/internal/controller/dao"
-	"github.com/wtkeqrf0/while.act/internal/controller/dto"
+	"github.com/while-act/hackathon-backend/ent"
+	"github.com/while-act/hackathon-backend/internal/controller/dao"
+	"github.com/while-act/hackathon-backend/internal/controller/dto"
 )
 
 type AuthPostgres interface {
 	IDExist(ctx context.Context, id int) (bool, error)
-	CreateUserWithPassword(ctx context.Context, auth dto.SignUp, company *ent.Company) (*ent.User, error)
+	CreateUserWithPassword(ctx context.Context, auth *dto.SignUp, company *ent.Company) (*ent.User, error)
 	AuthUserByEmail(ctx context.Context, email string) (*ent.User, error)
 }
 
@@ -28,7 +28,7 @@ func (a *AuthService) IDExist(id int) (bool, error) {
 }
 
 // CreateUserWithPassword without verified email and returns it (only on registration)
-func (a *AuthService) CreateUserWithPassword(auth dto.SignUp, company *ent.Company) (*ent.User, error) {
+func (a *AuthService) CreateUserWithPassword(auth *dto.SignUp, company *ent.Company) (*ent.User, error) {
 	return a.postgres.CreateUserWithPassword(context.Background(), auth, company)
 }
 

@@ -2,10 +2,10 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/wtkeqrf0/while.act/ent"
-	"github.com/wtkeqrf0/while.act/internal/controller/dto"
-	"github.com/wtkeqrf0/while.act/pkg/bind"
-	"github.com/wtkeqrf0/while.act/pkg/middleware/errs"
+	"github.com/while-act/hackathon-backend/ent"
+	"github.com/while-act/hackathon-backend/internal/controller/dto"
+	"github.com/while-act/hackathon-backend/pkg/bind"
+	"github.com/while-act/hackathon-backend/pkg/middleware/errs"
 	"net/http"
 )
 
@@ -15,34 +15,25 @@ import (
 // @Description Returns information about company by session
 // @Tags Company
 // @Success 200 {object} dao.Company "Info about company"
+// @Failure 401 {object} errs.MyError "User isn't logged in"
 // @Failure 404 {object} errs.MyError "Company doesn't exist"
 // @Failure 500 {object} errs.MyError
 // @Router /company [get]
 func (h *Handler) getMyCompany(c *gin.Context) {
 	s, err := h.session.GetSession(c)
 	if err != nil {
-		c.Error(errs.UnAuthorized.AddErr(err))
 		return
 	}
 
 	user, err := h.user.FindUserByID(s.ID)
 	if err != nil {
-		switch {
-		case ent.IsNotFound(err):
-			c.Error(errs.NoSuchUser.AddErr(err))
-		default:
-			c.Error(errs.ServerError.AddErr(err))
-		}
+		c.Error(errs.ValidError.AddErr(err))
 		return
 	}
 
 	company, err := h.company.GetCompanyDTO(user.CompanyID)
 	if err != nil {
-		if company == nil {
-			c.Error(errs.NoSuchCompany.AddErr(err))
-		} else {
-			c.Error(errs.ServerError.AddErr(err))
-		}
+		c.Error(errs.NoSuchCompany.AddErr(err))
 		return
 	}
 
@@ -56,6 +47,7 @@ func (h *Handler) getMyCompany(c *gin.Context) {
 // @Security ApiKeyAuth
 // @Param updCompany body dto.UpdateCompany true "Company"
 // @Success 200 "OK"
+// @Failure 400 {object} errs.MyError "Validation error"
 // @Failure 401 {object} errs.MyError "User isn't logged in"
 // @Failure 404 {object} errs.MyError "Something doesn't exist"
 // @Failure 500 {object} errs.MyError
@@ -63,30 +55,22 @@ func (h *Handler) getMyCompany(c *gin.Context) {
 func (h *Handler) updateCompany(c *gin.Context) {
 	s, err := h.session.GetSession(c)
 	if err != nil {
-		c.Error(errs.UnAuthorized.AddErr(err))
 		return
 	}
 
-	updCompany, ok := bind.FillStruct[dto.UpdateCompany](c)
-	if !ok {
+	updCompany := bind.FillStructJSON[dto.UpdateCompany](c)
+	if updCompany == nil {
 		return
 	}
 
 	user, err := h.user.FindUserByID(s.ID)
 	if err != nil {
-		switch {
-		case ent.IsNotFound(err):
-			c.Error(errs.NoSuchUser.AddErr(err))
-		default:
-			c.Error(errs.ServerError.AddErr(err))
-		}
+		c.Error(errs.ValidError.AddErr(err))
 		return
 	}
 
 	if err = h.company.UpdateCompany(updCompany, user.CompanyID); err != nil {
 		switch {
-		case ent.IsNotFound(err):
-			c.Error(errs.NoSuchUser.AddErr(err))
 		case ent.IsValidationError(err):
 			c.Error(errs.ValidError.AddErr(err))
 		default:

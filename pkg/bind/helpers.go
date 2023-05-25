@@ -3,7 +3,7 @@ package bind
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
-	"github.com/wtkeqrf0/while.act/pkg/middleware/errs"
+	"github.com/while-act/hackathon-backend/pkg/middleware/errs"
 	"regexp"
 )
 
@@ -16,13 +16,13 @@ var (
 	UUID4       = regexp.MustCompile(`^[0-9A-F]{8}-[0-9A-F]{4}-4[0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$`)
 )
 
-// FillStruct of given generic type by request JSON body
-func FillStruct[T any](c *gin.Context) (t T, ok bool) {
+// FillStructJSON of given generic type by request JSON body
+func FillStructJSON[T any](c *gin.Context) (t *T) {
 	if err := c.ShouldBindJSON(&t); err != nil {
 		c.Error(errs.ValidError.AddErr(err))
 		return
 	}
-	return t, true
+	return
 }
 
 func validateName(fl validator.FieldLevel) bool {

@@ -2,16 +2,16 @@ package postgres
 
 import (
 	"context"
-	"github.com/wtkeqrf0/while.act/ent"
-	"github.com/wtkeqrf0/while.act/ent/user"
-	"github.com/wtkeqrf0/while.act/internal/controller/dto"
+	"github.com/while-act/hackathon-backend/ent"
+	"github.com/while-act/hackathon-backend/ent/user"
+	"github.com/while-act/hackathon-backend/internal/controller/dto"
 )
 
 func (r *UserStorage) IDExist(ctx context.Context, id int) (bool, error) {
 	return r.userClient.Query().Where(user.ID(id)).Exist(ctx)
 }
 
-func (r *UserStorage) CreateUserWithPassword(ctx context.Context, auth dto.SignUp, company *ent.Company) (*ent.User, error) {
+func (r *UserStorage) CreateUserWithPassword(ctx context.Context, auth *dto.SignUp, company *ent.Company) (*ent.User, error) {
 	return r.userClient.Create().
 		SetNillableBiography(auth.Biography).
 		SetNillableCountry(auth.Country).

@@ -2,10 +2,10 @@ package postgres
 
 import (
 	"context"
-	"github.com/wtkeqrf0/while.act/ent"
-	"github.com/wtkeqrf0/while.act/ent/company"
-	"github.com/wtkeqrf0/while.act/internal/controller/dao"
-	"github.com/wtkeqrf0/while.act/internal/controller/dto"
+	"github.com/while-act/hackathon-backend/ent"
+	"github.com/while-act/hackathon-backend/ent/company"
+	"github.com/while-act/hackathon-backend/internal/controller/dao"
+	"github.com/while-act/hackathon-backend/internal/controller/dto"
 )
 
 type CompanyStorage struct {
@@ -37,7 +37,7 @@ func (r *CompanyStorage) GetCompany(ctx context.Context, id int) (*ent.Company, 
 	return r.companyClient.Get(ctx, id)
 }
 
-func (r *CompanyStorage) UpdateCompany(ctx context.Context, updateCompany dto.UpdateCompany, id int) error {
+func (r *CompanyStorage) UpdateCompany(ctx context.Context, updateCompany *dto.UpdateCompany, id int) error {
 	return r.companyClient.UpdateOneID(id).
 		SetNillableName(updateCompany.Name).
 		SetNillableWebsite(updateCompany.Website).Exec(ctx)
