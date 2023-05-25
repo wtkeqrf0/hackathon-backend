@@ -8,8 +8,8 @@ import (
 	"fmt"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/sirupsen/logrus"
-	"github.com/wtkeqrf0/while.act/ent"
-	_ "github.com/wtkeqrf0/while.act/ent/runtime"
+	"github.com/while-act/hackathon-backend/ent"
+	_ "github.com/while-act/hackathon-backend/ent/runtime"
 	"log"
 	"time"
 )

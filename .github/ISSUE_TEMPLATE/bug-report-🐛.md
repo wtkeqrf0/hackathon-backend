@@ -10,7 +10,7 @@ assignees: wtkeqrf0
 <!--You can create an issue only if you confirm the checkboxes below. To confirm, enter [x] into the check box-->
 
 - [] The issue is present in the latest release.
-- [] I have searched the [issues](https://github.com/wtkeqrf0/while.act/issues) of this repository and believe that this is not a duplicate.
+- [] I have searched the [issues](https://github.com/while-act/hackathon-backend/issues) of this repository and believe that this is not a duplicate.
 
 ## Expected Behavior 🤔
 

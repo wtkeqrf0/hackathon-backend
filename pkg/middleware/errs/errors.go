@@ -5,9 +5,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
-	"github.com/wtkeqrf0/while.act/ent"
-	"io"
+	"github.com/while-act/hackathon-backend/ent"
 	"net/http"
+	"os"
 )
 
 // Sign-in errors
@@ -18,7 +18,6 @@ var (
 
 // Auth errors
 var (
-	NoSuchUser   = newError(http.StatusNotFound, "There is no such user", "But you can still find another existing user!")
 	UnAuthorized = newError(http.StatusUnauthorized, "You are not logged in", "Click on the button below to sign in!")
 )
 
@@ -27,9 +26,11 @@ var (
 	ValidError = newError(http.StatusBadRequest, "Validation error", "Try to enter the correct data")
 )
 
-// Enity errors
+// Entity errors
 var (
-	NoSuchCompany = newError(http.StatusBadRequest, "There is no such company inn", "But you can still find another existing company!")
+	NoSuchUser     = newError(http.StatusNotFound, "There is no such user", "But you can still find another existing user!")
+	NoSuchCompany  = newError(http.StatusBadRequest, "There is no such industry branch", "But you can still find another existing industry!")
+	NoSuchIndustry = newError(http.StatusBadRequest, "There is no such company inn", "But you can still find another existing company!")
 )
 
 // ServerError errors
@@ -42,7 +43,7 @@ type ErrHandler struct {
 	log *logrus.Logger
 }
 
-func NewErrHandler(log *logrus.Logger, out io.Writer) *ErrHandler {
+func NewErrHandler(log *logrus.Logger) *ErrHandler {
 	log.SetLevel(logrus.ErrorLevel)
 	log.SetReportCaller(true)
 	log.SetFormatter(&logrus.JSONFormatter{
@@ -53,7 +54,7 @@ func NewErrHandler(log *logrus.Logger, out io.Writer) *ErrHandler {
 			logrus.FieldKeyMsg:   "message",
 		},
 	})
-	log.SetOutput(out)
+	log.SetOutput(os.Stderr)
 
 	return &ErrHandler{log: log}
 }
@@ -72,7 +73,9 @@ func (e ErrHandler) HandleErrors(c *gin.Context) {
 			e.log.WithError(my.Err).Errorf("%02d# %s", i+1, my.Msg)
 			res := gin.H{"error": my.Msg, "advice": my.Advice}
 
-			if vErrs, ok := my.Err.(validator.ValidationErrors); ok {
+			vErrs, oki := my.Err.(validator.ValidationErrors)
+			switch {
+			case oki:
 				fields := make(gin.H)
 
 				for _, vErr := range vErrs {
@@ -115,9 +118,20 @@ func (e ErrHandler) HandleErrors(c *gin.Context) {
 				}
 				res["fields"] = fields
 
-			} else if ent.IsValidationError(err.Err) {
+			case ent.IsValidationError(my.Err):
 				my.Status = http.StatusBadRequest
-				res["fields"] = gin.H{"FieldName": err.Err.Error()}
+				my.Msg = "That's not a correct value"
+				my.Advice = "Try to write another value"
+
+			case ent.IsConstraintError(my.Err):
+				my.Status = http.StatusBadRequest
+				my.Msg = "This value doesn't exist"
+				my.Advice = "Try to write another value"
+
+			case ent.IsNotFound(err):
+				my.Status = http.StatusNotFound
+				my.Msg = "There is no such object"
+				my.Advice = "But you can still find another existing object!"
 			}
 
 			if i == 0 {
