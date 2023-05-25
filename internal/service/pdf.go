@@ -26,6 +26,7 @@ func (r *PDF) GeneratePDF(out io.Writer, data any) error {
 	if err := r.t.Execute(buf, data); err != nil {
 		return err
 	}
+
 	pdf, err := gen.NewPDFGenerator()
 	if err != nil {
 		return err
