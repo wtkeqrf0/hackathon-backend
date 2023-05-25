@@ -2,10 +2,10 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/wtkeqrf0/while.act/ent"
-	"github.com/wtkeqrf0/while.act/internal/controller/dto"
-	"github.com/wtkeqrf0/while.act/pkg/bind"
-	"github.com/wtkeqrf0/while.act/pkg/middleware/errs"
+	"github.com/while-act/hackathon-backend/ent"
+	"github.com/while-act/hackathon-backend/internal/controller/dto"
+	"github.com/while-act/hackathon-backend/pkg/bind"
+	"github.com/while-act/hackathon-backend/pkg/middleware/errs"
 	"net/http"
 )
 
@@ -15,6 +15,7 @@ import (
 // @Description Returns detail information about me
 // @Tags Session
 // @Success 200 {object} dao.Me "Info about session"
+// @Failure 400 {object} errs.MyError "Validation error"
 // @Failure 401 {object} errs.MyError "User isn't logged in"
 // @Failure 404 {object} errs.MyError "User doesn't exist"
 // @Failure 500 {object} errs.MyError
@@ -22,17 +23,12 @@ import (
 func (h *Handler) getMe(c *gin.Context) {
 	s, err := h.session.GetSession(c)
 	if err != nil {
-		c.Error(errs.UnAuthorized.AddErr(err))
 		return
 	}
 
 	user, err := h.user.FindUserByID(s.ID)
 	if err != nil {
-		if myErr, ok := err.(errs.MyError); ok {
-			c.Error(myErr)
-		} else {
-			c.Error(errs.ServerError.AddErr(err))
-		}
+		c.Error(errs.ValidError.AddErr(err))
 		return
 	}
 
@@ -46,6 +42,7 @@ func (h *Handler) getMe(c *gin.Context) {
 // @Tags User
 // @Param updFields body dto.UpdateUser true "Fields to update"
 // @Success 200 "Successfully Updated"
+// @Failure 400 {object} errs.MyError "Validation error"
 // @Failure 401 {object} errs.MyError "User isn't logged in"
 // @Failure 404 {object} errs.MyError "User doesn't exist"
 // @Failure 500 {object} errs.MyError
@@ -53,12 +50,11 @@ func (h *Handler) getMe(c *gin.Context) {
 func (h *Handler) updateMe(c *gin.Context) {
 	s, err := h.session.GetSession(c)
 	if err != nil {
-		c.Error(errs.UnAuthorized.AddErr(err))
 		return
 	}
 
-	updFields, ok := bind.FillStruct[dto.UpdateUser](c)
-	if !ok {
+	updFields := bind.FillStructJSON[dto.UpdateUser](c)
+	if updFields == nil {
 		return
 	}
 
@@ -83,13 +79,13 @@ func (h *Handler) updateMe(c *gin.Context) {
 // @Tags User
 // @Param updPassword body dto.UpdatePassword true "Email with new password"
 // @Success 200 "Successfully Updated"
-// @Failure 401 {object} errs.MyError "User isn't logged in"
+// @Failure 400 {object} errs.MyError "Validation error"
 // @Failure 404 {object} errs.MyError "User doesn't exist"
 // @Failure 500 {object} errs.MyError
 // @Router /user/password [patch]
 func (h *Handler) updatePassword(c *gin.Context) {
-	updPassword, ok := bind.FillStruct[dto.UpdatePassword](c)
-	if !ok {
+	updPassword := bind.FillStructJSON[dto.UpdatePassword](c)
+	if updPassword == nil {
 		return
 	}
 
@@ -123,6 +119,7 @@ func (h *Handler) updatePassword(c *gin.Context) {
 // @Tags User
 // @Param updEmail body dto.UpdateEmail true "New email with password"
 // @Success 200 "Successfully Updated"
+// @Failure 400 {object} errs.MyError "Validation error"
 // @Failure 401 {object} errs.MyError "User isn't logged in"
 // @Failure 404 {object} errs.MyError "User doesn't exist"
 // @Failure 500 {object} errs.MyError
@@ -130,12 +127,11 @@ func (h *Handler) updatePassword(c *gin.Context) {
 func (h *Handler) updateEmail(c *gin.Context) {
 	s, err := h.session.GetSession(c)
 	if err != nil {
-		c.Error(errs.UnAuthorized.AddErr(err))
 		return
 	}
 
-	updEmail, ok := bind.FillStruct[dto.UpdateEmail](c)
-	if !ok {
+	updEmail := bind.FillStructJSON[dto.UpdateEmail](c)
+	if updEmail == nil {
 		return
 	}
 
@@ -152,4 +148,30 @@ func (h *Handler) updateEmail(c *gin.Context) {
 	}
 
 	c.Status(http.StatusOK)
+}
+
+// GetHistory godoc
+// @Summary Generate PDF file from user history
+// @Description Returns PDF file got from user history
+// @Security ApiKeyAuth
+// @Tags User
+// @Param company_name path string true "Unique company name from history"
+// @Success 200 "PDF file"
+// @Failure 400 {object} errs.MyError "Validation error"
+// @Failure 401 {object} errs.MyError "User isn't logged in"
+// @Failure 404 {object} errs.MyError "User doesn't exist"
+// @Failure 500 {object} errs.MyError
+// @Router /user/{company_name} [get]
+func (h *Handler) getHistory(c *gin.Context) {
+	s, err := h.session.GetSession(c)
+	if err != nil {
+		return
+	}
+
+	_, err = h.user.GetOneHistory(c.Param("company_name"), s.ID)
+	if err != nil {
+		return
+	}
+
+	c.Status(http.StatusNotModified)
 }

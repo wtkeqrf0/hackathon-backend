@@ -2,11 +2,11 @@ package postgres
 
 import (
 	"context"
-	"github.com/wtkeqrf0/while.act/ent"
-	"github.com/wtkeqrf0/while.act/ent/user"
-	"github.com/wtkeqrf0/while.act/internal/controller/dao"
-	"github.com/wtkeqrf0/while.act/internal/controller/dto"
-	"github.com/wtkeqrf0/while.act/pkg/middleware/errs"
+	"github.com/while-act/hackathon-backend/ent"
+	"github.com/while-act/hackathon-backend/ent/history"
+	"github.com/while-act/hackathon-backend/ent/user"
+	"github.com/while-act/hackathon-backend/internal/controller/dao"
+	"github.com/while-act/hackathon-backend/internal/controller/dto"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -25,12 +25,12 @@ func (r *UserStorage) FindUserByID(ctx context.Context, id int) (*dao.Me, error)
 		user.FieldFirstName, user.FieldFatherName, user.FieldEmail,
 		user.FieldPosition, user.FieldRole, user.FieldCompanyID).Scan(ctx, &me)
 	if me != nil {
-		return me[0], err
+		return me[0], nil
 	}
-	return nil, errs.NoSuchUser.AddErr(err)
+	return nil, err
 }
 
-func (r *UserStorage) UpdateUser(ctx context.Context, updateUser dto.UpdateUser, id int) error {
+func (r *UserStorage) UpdateUser(ctx context.Context, updateUser *dto.UpdateUser, id int) error {
 	return r.userClient.UpdateOneID(id).
 		SetNillableFatherName(updateUser.FatherName).
 		SetNillableCountry(updateUser.Country).
@@ -55,4 +55,22 @@ func (r *UserStorage) UpdateEmail(ctx context.Context, password []byte, newEmail
 	}
 
 	return r.userClient.UpdateOneID(id).SetEmail(newEmail).Exec(ctx)
+}
+
+func (r *UserStorage) GetAllHistory(ctx context.Context, userId int) ([]string, error) {
+	customer, err := r.userClient.Get(ctx, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	return customer.QueryHistories().IDs(ctx)
+}
+
+func (r *UserStorage) GetOneHistory(ctx context.Context, companyName string, userId int) (*ent.History, error) {
+	customer, err := r.userClient.Get(ctx, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	return customer.QueryHistories().Where(history.ID(companyName)).Only(ctx)
 }

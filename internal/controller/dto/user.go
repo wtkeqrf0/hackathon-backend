@@ -1,6 +1,6 @@
 package dto
 
-import "github.com/wtkeqrf0/while.act/internal/controller/dao"
+import "github.com/while-act/hackathon-backend/internal/controller/dao"
 
 type SignUp struct {
 	Email      string      `json:"email,omitempty" validate:"required,email" required:"true" example:"myemail@gmail.com"`

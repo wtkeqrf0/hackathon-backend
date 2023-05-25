@@ -2,16 +2,19 @@ package service
 
 import (
 	"context"
-	"github.com/wtkeqrf0/while.act/internal/controller/dao"
-	"github.com/wtkeqrf0/while.act/internal/controller/dto"
+	"github.com/while-act/hackathon-backend/ent"
+	"github.com/while-act/hackathon-backend/internal/controller/dao"
+	"github.com/while-act/hackathon-backend/internal/controller/dto"
 	"time"
 )
 
 type UserPostgres interface {
 	FindUserByID(ctx context.Context, id int) (*dao.Me, error)
-	UpdateUser(ctx context.Context, updateUser dto.UpdateUser, id int) error
+	UpdateUser(ctx context.Context, updateUser *dto.UpdateUser, id int) error
 	UpdatePassword(ctx context.Context, newPassword []byte, email string) error
 	UpdateEmail(ctx context.Context, password []byte, newEmail string, id int) error
+	GetAllHistory(ctx context.Context, userId int) ([]string, error)
+	GetOneHistory(ctx context.Context, companyName string, userId int) (*ent.History, error)
 }
 
 type UserService struct {
@@ -27,7 +30,7 @@ func (u *UserService) FindUserByID(id int) (*dao.Me, error) {
 	return u.postgres.FindUserByID(context.Background(), id)
 }
 
-func (u *UserService) UpdateUser(updateUser dto.UpdateUser, id int) error {
+func (u *UserService) UpdateUser(updateUser *dto.UpdateUser, id int) error {
 	return u.postgres.UpdateUser(context.Background(), updateUser, id)
 }
 
@@ -37,6 +40,14 @@ func (u *UserService) UpdatePassword(newPassword []byte, email string) error {
 
 func (u *UserService) UpdateEmail(password []byte, newEmail string, id int) error {
 	return u.postgres.UpdateEmail(context.Background(), password, newEmail, id)
+}
+
+func (u *UserService) GetAllHistory(userId int) ([]string, error) {
+	return u.postgres.GetAllHistory(context.Background(), userId)
+}
+
+func (u *UserService) GetOneHistory(companyName string, userId int) (*ent.History, error) {
+	return u.postgres.GetOneHistory(context.Background(), companyName, userId)
 }
 
 type UserRedis interface {
