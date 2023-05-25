@@ -4,7 +4,7 @@ package entrepreneurship
 
 import (
 	"entgo.io/ent/dialect/sql"
-	"github.com/wtkeqrf0/while.act/ent/predicate"
+	"github.com/while-act/hackathon-backend/ent/predicate"
 )
 
 // ID filters vertices based on their ID field.
@@ -52,74 +52,74 @@ func IDLTE(id int) predicate.Entrepreneurship {
 	return predicate.Entrepreneurship(sql.FieldLTE(FieldID, id))
 }
 
-// Types applies equality check predicate on the "types" field. It's identical to TypesEQ.
-func Types(v string) predicate.Entrepreneurship {
-	return predicate.Entrepreneurship(sql.FieldEQ(FieldTypes, v))
+// Type applies equality check predicate on the "type" field. It's identical to TypeEQ.
+func Type(v string) predicate.Entrepreneurship {
+	return predicate.Entrepreneurship(sql.FieldEQ(FieldType, v))
 }
 
-// TypesEQ applies the EQ predicate on the "types" field.
-func TypesEQ(v string) predicate.Entrepreneurship {
-	return predicate.Entrepreneurship(sql.FieldEQ(FieldTypes, v))
+// TypeEQ applies the EQ predicate on the "type" field.
+func TypeEQ(v string) predicate.Entrepreneurship {
+	return predicate.Entrepreneurship(sql.FieldEQ(FieldType, v))
 }
 
-// TypesNEQ applies the NEQ predicate on the "types" field.
-func TypesNEQ(v string) predicate.Entrepreneurship {
-	return predicate.Entrepreneurship(sql.FieldNEQ(FieldTypes, v))
+// TypeNEQ applies the NEQ predicate on the "type" field.
+func TypeNEQ(v string) predicate.Entrepreneurship {
+	return predicate.Entrepreneurship(sql.FieldNEQ(FieldType, v))
 }
 
-// TypesIn applies the In predicate on the "types" field.
-func TypesIn(vs ...string) predicate.Entrepreneurship {
-	return predicate.Entrepreneurship(sql.FieldIn(FieldTypes, vs...))
+// TypeIn applies the In predicate on the "type" field.
+func TypeIn(vs ...string) predicate.Entrepreneurship {
+	return predicate.Entrepreneurship(sql.FieldIn(FieldType, vs...))
 }
 
-// TypesNotIn applies the NotIn predicate on the "types" field.
-func TypesNotIn(vs ...string) predicate.Entrepreneurship {
-	return predicate.Entrepreneurship(sql.FieldNotIn(FieldTypes, vs...))
+// TypeNotIn applies the NotIn predicate on the "type" field.
+func TypeNotIn(vs ...string) predicate.Entrepreneurship {
+	return predicate.Entrepreneurship(sql.FieldNotIn(FieldType, vs...))
 }
 
-// TypesGT applies the GT predicate on the "types" field.
-func TypesGT(v string) predicate.Entrepreneurship {
-	return predicate.Entrepreneurship(sql.FieldGT(FieldTypes, v))
+// TypeGT applies the GT predicate on the "type" field.
+func TypeGT(v string) predicate.Entrepreneurship {
+	return predicate.Entrepreneurship(sql.FieldGT(FieldType, v))
 }
 
-// TypesGTE applies the GTE predicate on the "types" field.
-func TypesGTE(v string) predicate.Entrepreneurship {
-	return predicate.Entrepreneurship(sql.FieldGTE(FieldTypes, v))
+// TypeGTE applies the GTE predicate on the "type" field.
+func TypeGTE(v string) predicate.Entrepreneurship {
+	return predicate.Entrepreneurship(sql.FieldGTE(FieldType, v))
 }
 
-// TypesLT applies the LT predicate on the "types" field.
-func TypesLT(v string) predicate.Entrepreneurship {
-	return predicate.Entrepreneurship(sql.FieldLT(FieldTypes, v))
+// TypeLT applies the LT predicate on the "type" field.
+func TypeLT(v string) predicate.Entrepreneurship {
+	return predicate.Entrepreneurship(sql.FieldLT(FieldType, v))
 }
 
-// TypesLTE applies the LTE predicate on the "types" field.
-func TypesLTE(v string) predicate.Entrepreneurship {
-	return predicate.Entrepreneurship(sql.FieldLTE(FieldTypes, v))
+// TypeLTE applies the LTE predicate on the "type" field.
+func TypeLTE(v string) predicate.Entrepreneurship {
+	return predicate.Entrepreneurship(sql.FieldLTE(FieldType, v))
 }
 
-// TypesContains applies the Contains predicate on the "types" field.
-func TypesContains(v string) predicate.Entrepreneurship {
-	return predicate.Entrepreneurship(sql.FieldContains(FieldTypes, v))
+// TypeContains applies the Contains predicate on the "type" field.
+func TypeContains(v string) predicate.Entrepreneurship {
+	return predicate.Entrepreneurship(sql.FieldContains(FieldType, v))
 }
 
-// TypesHasPrefix applies the HasPrefix predicate on the "types" field.
-func TypesHasPrefix(v string) predicate.Entrepreneurship {
-	return predicate.Entrepreneurship(sql.FieldHasPrefix(FieldTypes, v))
+// TypeHasPrefix applies the HasPrefix predicate on the "type" field.
+func TypeHasPrefix(v string) predicate.Entrepreneurship {
+	return predicate.Entrepreneurship(sql.FieldHasPrefix(FieldType, v))
 }
 
-// TypesHasSuffix applies the HasSuffix predicate on the "types" field.
-func TypesHasSuffix(v string) predicate.Entrepreneurship {
-	return predicate.Entrepreneurship(sql.FieldHasSuffix(FieldTypes, v))
+// TypeHasSuffix applies the HasSuffix predicate on the "type" field.
+func TypeHasSuffix(v string) predicate.Entrepreneurship {
+	return predicate.Entrepreneurship(sql.FieldHasSuffix(FieldType, v))
 }
 
-// TypesEqualFold applies the EqualFold predicate on the "types" field.
-func TypesEqualFold(v string) predicate.Entrepreneurship {
-	return predicate.Entrepreneurship(sql.FieldEqualFold(FieldTypes, v))
+// TypeEqualFold applies the EqualFold predicate on the "type" field.
+func TypeEqualFold(v string) predicate.Entrepreneurship {
+	return predicate.Entrepreneurship(sql.FieldEqualFold(FieldType, v))
 }
 
-// TypesContainsFold applies the ContainsFold predicate on the "types" field.
-func TypesContainsFold(v string) predicate.Entrepreneurship {
-	return predicate.Entrepreneurship(sql.FieldContainsFold(FieldTypes, v))
+// TypeContainsFold applies the ContainsFold predicate on the "type" field.
+func TypeContainsFold(v string) predicate.Entrepreneurship {
+	return predicate.Entrepreneurship(sql.FieldContainsFold(FieldType, v))
 }
 
 // And groups predicates with the AND operator between them.

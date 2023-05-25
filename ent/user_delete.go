@@ -8,8 +8,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/wtkeqrf0/while.act/ent/predicate"
-	"github.com/wtkeqrf0/while.act/ent/user"
+	"github.com/while-act/hackathon-backend/ent/predicate"
+	"github.com/while-act/hackathon-backend/ent/user"
 )
 
 // UserDelete is the builder for deleting a User entity.

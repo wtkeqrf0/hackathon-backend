@@ -45,6 +45,10 @@ const (
 	FieldBiography = "biography"
 	// EdgeCompany holds the string denoting the company edge name in mutations.
 	EdgeCompany = "company"
+	// EdgeHistories holds the string denoting the histories edge name in mutations.
+	EdgeHistories = "histories"
+	// HistoryFieldID holds the string denoting the ID field of the History.
+	HistoryFieldID = "company_name"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// CompanyTable is the table that holds the company relation/edge.
@@ -54,6 +58,13 @@ const (
 	CompanyInverseTable = "companies"
 	// CompanyColumn is the table column denoting the company relation/edge.
 	CompanyColumn = "company_id"
+	// HistoriesTable is the table that holds the histories relation/edge.
+	HistoriesTable = "histories"
+	// HistoriesInverseTable is the table name for the History entity.
+	// It exists in this package in order to avoid circular dependency with the "history" package.
+	HistoriesInverseTable = "histories"
+	// HistoriesColumn is the table column denoting the histories relation/edge.
+	HistoriesColumn = "user_id"
 )
 
 // Columns holds all SQL columns for user fields.
@@ -89,7 +100,7 @@ func ValidColumn(column string) bool {
 // package on the initialization of the application. Therefore,
 // it should be imported in the main as follows:
 //
-//	import _ "github.com/wtkeqrf0/while.act/ent/runtime"
+//	import _ "github.com/while-act/hackathon-backend/ent/runtime"
 var (
 	Hooks [1]ent.Hook
 	// DefaultCreateTime holds the default value on creation for the "create_time" field.
@@ -199,10 +210,31 @@ func ByCompanyField(field string, opts ...sql.OrderTermOption) OrderOption {
 		sqlgraph.OrderByNeighborTerms(s, newCompanyStep(), sql.OrderByField(field, opts...))
 	}
 }
+
+// ByHistoriesCount orders the results by histories count.
+func ByHistoriesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newHistoriesStep(), opts...)
+	}
+}
+
+// ByHistories orders the results by histories terms.
+func ByHistories(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newHistoriesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
 func newCompanyStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(CompanyInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2O, true, CompanyTable, CompanyColumn),
+	)
+}
+func newHistoriesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(HistoriesInverseTable, HistoryFieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, HistoriesTable, HistoriesColumn),
 	)
 }

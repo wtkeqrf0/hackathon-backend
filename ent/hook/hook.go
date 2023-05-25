@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/wtkeqrf0/while.act/ent"
+	"github.com/while-act/hackathon-backend/ent"
 )
 
 // The CompanyFunc type is an adapter to allow the use of ordinary
@@ -19,6 +19,18 @@ func (f CompanyFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, err
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.CompanyMutation", m)
+}
+
+// The DistrictFunc type is an adapter to allow the use of ordinary
+// function as District mutator.
+type DistrictFunc func(context.Context, *ent.DistrictMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f DistrictFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.DistrictMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DistrictMutation", m)
 }
 
 // The EntrepreneurshipFunc type is an adapter to allow the use of ordinary
@@ -43,6 +55,30 @@ func (f EquipmentFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, e
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.EquipmentMutation", m)
+}
+
+// The HistoryFunc type is an adapter to allow the use of ordinary
+// function as History mutator.
+type HistoryFunc func(context.Context, *ent.HistoryMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f HistoryFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.HistoryMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.HistoryMutation", m)
+}
+
+// The IndustryFunc type is an adapter to allow the use of ordinary
+// function as Industry mutator.
+type IndustryFunc func(context.Context, *ent.IndustryMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f IndustryFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.IndustryMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.IndustryMutation", m)
 }
 
 // The UserFunc type is an adapter to allow the use of ordinary

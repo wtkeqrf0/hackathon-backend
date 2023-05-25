@@ -9,8 +9,8 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/wtkeqrf0/while.act/ent/company"
-	"github.com/wtkeqrf0/while.act/ent/user"
+	"github.com/while-act/hackathon-backend/ent/company"
+	"github.com/while-act/hackathon-backend/ent/user"
 )
 
 // User is the model entity for the User schema.
@@ -56,9 +56,11 @@ type User struct {
 type UserEdges struct {
 	// Company holds the value of the company edge.
 	Company *Company `json:"company,omitempty"`
+	// Histories holds the value of the histories edge.
+	Histories []*History `json:"histories,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [1]bool
+	loadedTypes [2]bool
 }
 
 // CompanyOrErr returns the Company value or an error if the edge
@@ -72,6 +74,15 @@ func (e UserEdges) CompanyOrErr() (*Company, error) {
 		return e.Company, nil
 	}
 	return nil, &NotLoadedError{edge: "company"}
+}
+
+// HistoriesOrErr returns the Histories value or an error if the edge
+// was not loaded in eager-loading.
+func (e UserEdges) HistoriesOrErr() ([]*History, error) {
+	if e.loadedTypes[1] {
+		return e.Histories, nil
+	}
+	return nil, &NotLoadedError{edge: "histories"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -209,6 +220,11 @@ func (u *User) Value(name string) (ent.Value, error) {
 // QueryCompany queries the "company" edge of the User entity.
 func (u *User) QueryCompany() *CompanyQuery {
 	return NewUserClient(u.config).QueryCompany(u)
+}
+
+// QueryHistories queries the "histories" edge of the User entity.
+func (u *User) QueryHistories() *HistoryQuery {
+	return NewUserClient(u.config).QueryHistories(u)
 }
 
 // Update returns a builder for updating this User.

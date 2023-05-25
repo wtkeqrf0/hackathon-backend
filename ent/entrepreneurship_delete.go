@@ -8,8 +8,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/wtkeqrf0/while.act/ent/entrepreneurship"
-	"github.com/wtkeqrf0/while.act/ent/predicate"
+	"github.com/while-act/hackathon-backend/ent/entrepreneurship"
+	"github.com/while-act/hackathon-backend/ent/predicate"
 )
 
 // EntrepreneurshipDelete is the builder for deleting a Entrepreneurship entity.

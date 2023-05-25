@@ -4,212 +4,176 @@ package equipment
 
 import (
 	"entgo.io/ent/dialect/sql"
-	"github.com/wtkeqrf0/while.act/ent/predicate"
+	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/while-act/hackathon-backend/ent/predicate"
 )
 
 // ID filters vertices based on their ID field.
-func ID(id int) predicate.Equipment {
+func ID(id string) predicate.Equipment {
 	return predicate.Equipment(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id int) predicate.Equipment {
+func IDEQ(id string) predicate.Equipment {
 	return predicate.Equipment(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id int) predicate.Equipment {
+func IDNEQ(id string) predicate.Equipment {
 	return predicate.Equipment(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...int) predicate.Equipment {
+func IDIn(ids ...string) predicate.Equipment {
 	return predicate.Equipment(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...int) predicate.Equipment {
+func IDNotIn(ids ...string) predicate.Equipment {
 	return predicate.Equipment(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id int) predicate.Equipment {
+func IDGT(id string) predicate.Equipment {
 	return predicate.Equipment(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id int) predicate.Equipment {
+func IDGTE(id string) predicate.Equipment {
 	return predicate.Equipment(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id int) predicate.Equipment {
+func IDLT(id string) predicate.Equipment {
 	return predicate.Equipment(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id int) predicate.Equipment {
+func IDLTE(id string) predicate.Equipment {
 	return predicate.Equipment(sql.FieldLTE(FieldID, id))
 }
 
-// Type applies equality check predicate on the "type" field. It's identical to TypeEQ.
-func Type(v string) predicate.Equipment {
-	return predicate.Equipment(sql.FieldEQ(FieldType, v))
+// IDEqualFold applies the EqualFold predicate on the ID field.
+func IDEqualFold(id string) predicate.Equipment {
+	return predicate.Equipment(sql.FieldEqualFold(FieldID, id))
+}
+
+// IDContainsFold applies the ContainsFold predicate on the ID field.
+func IDContainsFold(id string) predicate.Equipment {
+	return predicate.Equipment(sql.FieldContainsFold(FieldID, id))
 }
 
 // AvgPriceDol applies equality check predicate on the "avg_price_dol" field. It's identical to AvgPriceDolEQ.
-func AvgPriceDol(v int) predicate.Equipment {
+func AvgPriceDol(v float64) predicate.Equipment {
 	return predicate.Equipment(sql.FieldEQ(FieldAvgPriceDol, v))
 }
 
 // AvgPriceRub applies equality check predicate on the "avg_price_rub" field. It's identical to AvgPriceRubEQ.
-func AvgPriceRub(v int) predicate.Equipment {
+func AvgPriceRub(v float64) predicate.Equipment {
 	return predicate.Equipment(sql.FieldEQ(FieldAvgPriceRub, v))
 }
 
-// TypeEQ applies the EQ predicate on the "type" field.
-func TypeEQ(v string) predicate.Equipment {
-	return predicate.Equipment(sql.FieldEQ(FieldType, v))
-}
-
-// TypeNEQ applies the NEQ predicate on the "type" field.
-func TypeNEQ(v string) predicate.Equipment {
-	return predicate.Equipment(sql.FieldNEQ(FieldType, v))
-}
-
-// TypeIn applies the In predicate on the "type" field.
-func TypeIn(vs ...string) predicate.Equipment {
-	return predicate.Equipment(sql.FieldIn(FieldType, vs...))
-}
-
-// TypeNotIn applies the NotIn predicate on the "type" field.
-func TypeNotIn(vs ...string) predicate.Equipment {
-	return predicate.Equipment(sql.FieldNotIn(FieldType, vs...))
-}
-
-// TypeGT applies the GT predicate on the "type" field.
-func TypeGT(v string) predicate.Equipment {
-	return predicate.Equipment(sql.FieldGT(FieldType, v))
-}
-
-// TypeGTE applies the GTE predicate on the "type" field.
-func TypeGTE(v string) predicate.Equipment {
-	return predicate.Equipment(sql.FieldGTE(FieldType, v))
-}
-
-// TypeLT applies the LT predicate on the "type" field.
-func TypeLT(v string) predicate.Equipment {
-	return predicate.Equipment(sql.FieldLT(FieldType, v))
-}
-
-// TypeLTE applies the LTE predicate on the "type" field.
-func TypeLTE(v string) predicate.Equipment {
-	return predicate.Equipment(sql.FieldLTE(FieldType, v))
-}
-
-// TypeContains applies the Contains predicate on the "type" field.
-func TypeContains(v string) predicate.Equipment {
-	return predicate.Equipment(sql.FieldContains(FieldType, v))
-}
-
-// TypeHasPrefix applies the HasPrefix predicate on the "type" field.
-func TypeHasPrefix(v string) predicate.Equipment {
-	return predicate.Equipment(sql.FieldHasPrefix(FieldType, v))
-}
-
-// TypeHasSuffix applies the HasSuffix predicate on the "type" field.
-func TypeHasSuffix(v string) predicate.Equipment {
-	return predicate.Equipment(sql.FieldHasSuffix(FieldType, v))
-}
-
-// TypeEqualFold applies the EqualFold predicate on the "type" field.
-func TypeEqualFold(v string) predicate.Equipment {
-	return predicate.Equipment(sql.FieldEqualFold(FieldType, v))
-}
-
-// TypeContainsFold applies the ContainsFold predicate on the "type" field.
-func TypeContainsFold(v string) predicate.Equipment {
-	return predicate.Equipment(sql.FieldContainsFold(FieldType, v))
-}
-
 // AvgPriceDolEQ applies the EQ predicate on the "avg_price_dol" field.
-func AvgPriceDolEQ(v int) predicate.Equipment {
+func AvgPriceDolEQ(v float64) predicate.Equipment {
 	return predicate.Equipment(sql.FieldEQ(FieldAvgPriceDol, v))
 }
 
 // AvgPriceDolNEQ applies the NEQ predicate on the "avg_price_dol" field.
-func AvgPriceDolNEQ(v int) predicate.Equipment {
+func AvgPriceDolNEQ(v float64) predicate.Equipment {
 	return predicate.Equipment(sql.FieldNEQ(FieldAvgPriceDol, v))
 }
 
 // AvgPriceDolIn applies the In predicate on the "avg_price_dol" field.
-func AvgPriceDolIn(vs ...int) predicate.Equipment {
+func AvgPriceDolIn(vs ...float64) predicate.Equipment {
 	return predicate.Equipment(sql.FieldIn(FieldAvgPriceDol, vs...))
 }
 
 // AvgPriceDolNotIn applies the NotIn predicate on the "avg_price_dol" field.
-func AvgPriceDolNotIn(vs ...int) predicate.Equipment {
+func AvgPriceDolNotIn(vs ...float64) predicate.Equipment {
 	return predicate.Equipment(sql.FieldNotIn(FieldAvgPriceDol, vs...))
 }
 
 // AvgPriceDolGT applies the GT predicate on the "avg_price_dol" field.
-func AvgPriceDolGT(v int) predicate.Equipment {
+func AvgPriceDolGT(v float64) predicate.Equipment {
 	return predicate.Equipment(sql.FieldGT(FieldAvgPriceDol, v))
 }
 
 // AvgPriceDolGTE applies the GTE predicate on the "avg_price_dol" field.
-func AvgPriceDolGTE(v int) predicate.Equipment {
+func AvgPriceDolGTE(v float64) predicate.Equipment {
 	return predicate.Equipment(sql.FieldGTE(FieldAvgPriceDol, v))
 }
 
 // AvgPriceDolLT applies the LT predicate on the "avg_price_dol" field.
-func AvgPriceDolLT(v int) predicate.Equipment {
+func AvgPriceDolLT(v float64) predicate.Equipment {
 	return predicate.Equipment(sql.FieldLT(FieldAvgPriceDol, v))
 }
 
 // AvgPriceDolLTE applies the LTE predicate on the "avg_price_dol" field.
-func AvgPriceDolLTE(v int) predicate.Equipment {
+func AvgPriceDolLTE(v float64) predicate.Equipment {
 	return predicate.Equipment(sql.FieldLTE(FieldAvgPriceDol, v))
 }
 
 // AvgPriceRubEQ applies the EQ predicate on the "avg_price_rub" field.
-func AvgPriceRubEQ(v int) predicate.Equipment {
+func AvgPriceRubEQ(v float64) predicate.Equipment {
 	return predicate.Equipment(sql.FieldEQ(FieldAvgPriceRub, v))
 }
 
 // AvgPriceRubNEQ applies the NEQ predicate on the "avg_price_rub" field.
-func AvgPriceRubNEQ(v int) predicate.Equipment {
+func AvgPriceRubNEQ(v float64) predicate.Equipment {
 	return predicate.Equipment(sql.FieldNEQ(FieldAvgPriceRub, v))
 }
 
 // AvgPriceRubIn applies the In predicate on the "avg_price_rub" field.
-func AvgPriceRubIn(vs ...int) predicate.Equipment {
+func AvgPriceRubIn(vs ...float64) predicate.Equipment {
 	return predicate.Equipment(sql.FieldIn(FieldAvgPriceRub, vs...))
 }
 
 // AvgPriceRubNotIn applies the NotIn predicate on the "avg_price_rub" field.
-func AvgPriceRubNotIn(vs ...int) predicate.Equipment {
+func AvgPriceRubNotIn(vs ...float64) predicate.Equipment {
 	return predicate.Equipment(sql.FieldNotIn(FieldAvgPriceRub, vs...))
 }
 
 // AvgPriceRubGT applies the GT predicate on the "avg_price_rub" field.
-func AvgPriceRubGT(v int) predicate.Equipment {
+func AvgPriceRubGT(v float64) predicate.Equipment {
 	return predicate.Equipment(sql.FieldGT(FieldAvgPriceRub, v))
 }
 
 // AvgPriceRubGTE applies the GTE predicate on the "avg_price_rub" field.
-func AvgPriceRubGTE(v int) predicate.Equipment {
+func AvgPriceRubGTE(v float64) predicate.Equipment {
 	return predicate.Equipment(sql.FieldGTE(FieldAvgPriceRub, v))
 }
 
 // AvgPriceRubLT applies the LT predicate on the "avg_price_rub" field.
-func AvgPriceRubLT(v int) predicate.Equipment {
+func AvgPriceRubLT(v float64) predicate.Equipment {
 	return predicate.Equipment(sql.FieldLT(FieldAvgPriceRub, v))
 }
 
 // AvgPriceRubLTE applies the LTE predicate on the "avg_price_rub" field.
-func AvgPriceRubLTE(v int) predicate.Equipment {
+func AvgPriceRubLTE(v float64) predicate.Equipment {
 	return predicate.Equipment(sql.FieldLTE(FieldAvgPriceRub, v))
+}
+
+// HasHistories applies the HasEdge predicate on the "histories" edge.
+func HasHistories() predicate.Equipment {
+	return predicate.Equipment(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, HistoriesTable, HistoriesColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasHistoriesWith applies the HasEdge predicate on the "histories" edge with a given conditions (other predicates).
+func HasHistoriesWith(preds ...predicate.History) predicate.Equipment {
+	return predicate.Equipment(func(s *sql.Selector) {
+		step := newHistoriesStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
 }
 
 // And groups predicates with the AND operator between them.

@@ -10,8 +10,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/wtkeqrf0/while.act/ent/entrepreneurship"
-	"github.com/wtkeqrf0/while.act/ent/predicate"
+	"github.com/while-act/hackathon-backend/ent/entrepreneurship"
+	"github.com/while-act/hackathon-backend/ent/predicate"
 )
 
 // EntrepreneurshipUpdate is the builder for updating Entrepreneurship entities.
@@ -27,9 +27,9 @@ func (eu *EntrepreneurshipUpdate) Where(ps ...predicate.Entrepreneurship) *Entre
 	return eu
 }
 
-// SetTypes sets the "types" field.
-func (eu *EntrepreneurshipUpdate) SetTypes(s string) *EntrepreneurshipUpdate {
-	eu.mutation.SetTypes(s)
+// SetType sets the "type" field.
+func (eu *EntrepreneurshipUpdate) SetType(s string) *EntrepreneurshipUpdate {
+	eu.mutation.SetType(s)
 	return eu
 }
 
@@ -74,8 +74,8 @@ func (eu *EntrepreneurshipUpdate) sqlSave(ctx context.Context) (n int, err error
 			}
 		}
 	}
-	if value, ok := eu.mutation.Types(); ok {
-		_spec.SetField(entrepreneurship.FieldTypes, field.TypeString, value)
+	if value, ok := eu.mutation.GetType(); ok {
+		_spec.SetField(entrepreneurship.FieldType, field.TypeString, value)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, eu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -97,9 +97,9 @@ type EntrepreneurshipUpdateOne struct {
 	mutation *EntrepreneurshipMutation
 }
 
-// SetTypes sets the "types" field.
-func (euo *EntrepreneurshipUpdateOne) SetTypes(s string) *EntrepreneurshipUpdateOne {
-	euo.mutation.SetTypes(s)
+// SetType sets the "type" field.
+func (euo *EntrepreneurshipUpdateOne) SetType(s string) *EntrepreneurshipUpdateOne {
+	euo.mutation.SetType(s)
 	return euo
 }
 
@@ -174,8 +174,8 @@ func (euo *EntrepreneurshipUpdateOne) sqlSave(ctx context.Context) (_node *Entre
 			}
 		}
 	}
-	if value, ok := euo.mutation.Types(); ok {
-		_spec.SetField(entrepreneurship.FieldTypes, field.TypeString, value)
+	if value, ok := euo.mutation.GetType(); ok {
+		_spec.SetField(entrepreneurship.FieldType, field.TypeString, value)
 	}
 	_node = &Entrepreneurship{config: euo.config}
 	_spec.Assign = _node.assignValues

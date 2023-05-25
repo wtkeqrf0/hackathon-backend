@@ -5,12 +5,12 @@ package enttest
 import (
 	"context"
 
-	"github.com/wtkeqrf0/while.act/ent"
+	"github.com/while-act/hackathon-backend/ent"
 	// required by schema hooks.
-	_ "github.com/wtkeqrf0/while.act/ent/runtime"
+	_ "github.com/while-act/hackathon-backend/ent/runtime"
 
 	"entgo.io/ent/dialect/sql/schema"
-	"github.com/wtkeqrf0/while.act/ent/migrate"
+	"github.com/while-act/hackathon-backend/ent/migrate"
 )
 
 type (

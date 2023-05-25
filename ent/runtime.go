@@ -2,4 +2,4 @@
 
 package ent
 
-// The schema-stitching logic is generated in github.com/wtkeqrf0/while.act/ent/runtime/runtime.go
+// The schema-stitching logic is generated in github.com/while-act/hackathon-backend/ent/runtime/runtime.go

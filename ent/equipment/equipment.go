@@ -4,27 +4,36 @@ package equipment
 
 import (
 	"entgo.io/ent/dialect/sql"
+	"entgo.io/ent/dialect/sql/sqlgraph"
 )
 
 const (
 	// Label holds the string label denoting the equipment type in the database.
 	Label = "equipment"
 	// FieldID holds the string denoting the id field in the database.
-	FieldID = "id"
-	// FieldType holds the string denoting the type field in the database.
-	FieldType = "type"
+	FieldID = "type"
 	// FieldAvgPriceDol holds the string denoting the avg_price_dol field in the database.
 	FieldAvgPriceDol = "avg_price_dol"
 	// FieldAvgPriceRub holds the string denoting the avg_price_rub field in the database.
 	FieldAvgPriceRub = "avg_price_rub"
+	// EdgeHistories holds the string denoting the histories edge name in mutations.
+	EdgeHistories = "histories"
+	// HistoryFieldID holds the string denoting the ID field of the History.
+	HistoryFieldID = "company_name"
 	// Table holds the table name of the equipment in the database.
 	Table = "equipment"
+	// HistoriesTable is the table that holds the histories relation/edge.
+	HistoriesTable = "histories"
+	// HistoriesInverseTable is the table name for the History entity.
+	// It exists in this package in order to avoid circular dependency with the "history" package.
+	HistoriesInverseTable = "histories"
+	// HistoriesColumn is the table column denoting the histories relation/edge.
+	HistoriesColumn = "equipment_type"
 )
 
 // Columns holds all SQL columns for equipment fields.
 var Columns = []string{
 	FieldID,
-	FieldType,
 	FieldAvgPriceDol,
 	FieldAvgPriceRub,
 }
@@ -39,17 +48,19 @@ func ValidColumn(column string) bool {
 	return false
 }
 
+var (
+	// AvgPriceDolValidator is a validator for the "avg_price_dol" field. It is called by the builders before save.
+	AvgPriceDolValidator func(float64) error
+	// AvgPriceRubValidator is a validator for the "avg_price_rub" field. It is called by the builders before save.
+	AvgPriceRubValidator func(float64) error
+)
+
 // OrderOption defines the ordering options for the Equipment queries.
 type OrderOption func(*sql.Selector)
 
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
-}
-
-// ByType orders the results by the type field.
-func ByType(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldType, opts...).ToFunc()
 }
 
 // ByAvgPriceDol orders the results by the avg_price_dol field.
@@ -60,4 +71,25 @@ func ByAvgPriceDol(opts ...sql.OrderTermOption) OrderOption {
 // ByAvgPriceRub orders the results by the avg_price_rub field.
 func ByAvgPriceRub(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldAvgPriceRub, opts...).ToFunc()
+}
+
+// ByHistoriesCount orders the results by histories count.
+func ByHistoriesCount(opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborsCount(s, newHistoriesStep(), opts...)
+	}
+}
+
+// ByHistories orders the results by histories terms.
+func ByHistories(term sql.OrderTerm, terms ...sql.OrderTerm) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newHistoriesStep(), append([]sql.OrderTerm{term}, terms...)...)
+	}
+}
+func newHistoriesStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(HistoriesInverseTable, HistoryFieldID),
+		sqlgraph.Edge(sqlgraph.O2M, false, HistoriesTable, HistoriesColumn),
+	)
 }

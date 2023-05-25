@@ -9,7 +9,7 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/wtkeqrf0/while.act/ent/entrepreneurship"
+	"github.com/while-act/hackathon-backend/ent/entrepreneurship"
 )
 
 // EntrepreneurshipCreate is the builder for creating a Entrepreneurship entity.
@@ -19,9 +19,9 @@ type EntrepreneurshipCreate struct {
 	hooks    []Hook
 }
 
-// SetTypes sets the "types" field.
-func (ec *EntrepreneurshipCreate) SetTypes(s string) *EntrepreneurshipCreate {
-	ec.mutation.SetTypes(s)
+// SetType sets the "type" field.
+func (ec *EntrepreneurshipCreate) SetType(s string) *EntrepreneurshipCreate {
+	ec.mutation.SetType(s)
 	return ec
 }
 
@@ -59,8 +59,8 @@ func (ec *EntrepreneurshipCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (ec *EntrepreneurshipCreate) check() error {
-	if _, ok := ec.mutation.Types(); !ok {
-		return &ValidationError{Name: "types", err: errors.New(`ent: missing required field "Entrepreneurship.types"`)}
+	if _, ok := ec.mutation.GetType(); !ok {
+		return &ValidationError{Name: "type", err: errors.New(`ent: missing required field "Entrepreneurship.type"`)}
 	}
 	return nil
 }
@@ -88,9 +88,9 @@ func (ec *EntrepreneurshipCreate) createSpec() (*Entrepreneurship, *sqlgraph.Cre
 		_node = &Entrepreneurship{config: ec.config}
 		_spec = sqlgraph.NewCreateSpec(entrepreneurship.Table, sqlgraph.NewFieldSpec(entrepreneurship.FieldID, field.TypeInt))
 	)
-	if value, ok := ec.mutation.Types(); ok {
-		_spec.SetField(entrepreneurship.FieldTypes, field.TypeString, value)
-		_node.Types = value
+	if value, ok := ec.mutation.GetType(); ok {
+		_spec.SetField(entrepreneurship.FieldType, field.TypeString, value)
+		_node.Type = value
 	}
 	return _node, _spec
 }

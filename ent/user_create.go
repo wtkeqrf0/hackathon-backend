@@ -10,8 +10,9 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/wtkeqrf0/while.act/ent/company"
-	"github.com/wtkeqrf0/while.act/ent/user"
+	"github.com/while-act/hackathon-backend/ent/company"
+	"github.com/while-act/hackathon-backend/ent/history"
+	"github.com/while-act/hackathon-backend/ent/user"
 )
 
 // UserCreate is the builder for creating a User entity.
@@ -178,6 +179,21 @@ func (uc *UserCreate) SetID(i int) *UserCreate {
 // SetCompany sets the "company" edge to the Company entity.
 func (uc *UserCreate) SetCompany(c *Company) *UserCreate {
 	return uc.SetCompanyID(c.ID)
+}
+
+// AddHistoryIDs adds the "histories" edge to the History entity by IDs.
+func (uc *UserCreate) AddHistoryIDs(ids ...string) *UserCreate {
+	uc.mutation.AddHistoryIDs(ids...)
+	return uc
+}
+
+// AddHistories adds the "histories" edges to the History entity.
+func (uc *UserCreate) AddHistories(h ...*History) *UserCreate {
+	ids := make([]string, len(h))
+	for i := range h {
+		ids[i] = h[i].ID
+	}
+	return uc.AddHistoryIDs(ids...)
 }
 
 // Mutation returns the UserMutation object of the builder.
@@ -411,6 +427,22 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.CompanyID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := uc.mutation.HistoriesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   user.HistoriesTable,
+			Columns: []string{user.HistoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec

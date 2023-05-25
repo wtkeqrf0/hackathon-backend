@@ -8,8 +8,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/wtkeqrf0/while.act/ent/equipment"
-	"github.com/wtkeqrf0/while.act/ent/predicate"
+	"github.com/while-act/hackathon-backend/ent/equipment"
+	"github.com/while-act/hackathon-backend/ent/predicate"
 )
 
 // EquipmentDelete is the builder for deleting a Equipment entity.
@@ -40,7 +40,7 @@ func (ed *EquipmentDelete) ExecX(ctx context.Context) int {
 }
 
 func (ed *EquipmentDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := sqlgraph.NewDeleteSpec(equipment.Table, sqlgraph.NewFieldSpec(equipment.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewDeleteSpec(equipment.Table, sqlgraph.NewFieldSpec(equipment.FieldID, field.TypeString))
 	if ps := ed.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {

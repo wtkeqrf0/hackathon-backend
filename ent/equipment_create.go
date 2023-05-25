@@ -9,7 +9,8 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/wtkeqrf0/while.act/ent/equipment"
+	"github.com/while-act/hackathon-backend/ent/equipment"
+	"github.com/while-act/hackathon-backend/ent/history"
 )
 
 // EquipmentCreate is the builder for creating a Equipment entity.
@@ -19,22 +20,37 @@ type EquipmentCreate struct {
 	hooks    []Hook
 }
 
-// SetType sets the "type" field.
-func (ec *EquipmentCreate) SetType(s string) *EquipmentCreate {
-	ec.mutation.SetType(s)
-	return ec
-}
-
 // SetAvgPriceDol sets the "avg_price_dol" field.
-func (ec *EquipmentCreate) SetAvgPriceDol(i int) *EquipmentCreate {
-	ec.mutation.SetAvgPriceDol(i)
+func (ec *EquipmentCreate) SetAvgPriceDol(f float64) *EquipmentCreate {
+	ec.mutation.SetAvgPriceDol(f)
 	return ec
 }
 
 // SetAvgPriceRub sets the "avg_price_rub" field.
-func (ec *EquipmentCreate) SetAvgPriceRub(i int) *EquipmentCreate {
-	ec.mutation.SetAvgPriceRub(i)
+func (ec *EquipmentCreate) SetAvgPriceRub(f float64) *EquipmentCreate {
+	ec.mutation.SetAvgPriceRub(f)
 	return ec
+}
+
+// SetID sets the "id" field.
+func (ec *EquipmentCreate) SetID(s string) *EquipmentCreate {
+	ec.mutation.SetID(s)
+	return ec
+}
+
+// AddHistoryIDs adds the "histories" edge to the History entity by IDs.
+func (ec *EquipmentCreate) AddHistoryIDs(ids ...string) *EquipmentCreate {
+	ec.mutation.AddHistoryIDs(ids...)
+	return ec
+}
+
+// AddHistories adds the "histories" edges to the History entity.
+func (ec *EquipmentCreate) AddHistories(h ...*History) *EquipmentCreate {
+	ids := make([]string, len(h))
+	for i := range h {
+		ids[i] = h[i].ID
+	}
+	return ec.AddHistoryIDs(ids...)
 }
 
 // Mutation returns the EquipmentMutation object of the builder.
@@ -71,14 +87,21 @@ func (ec *EquipmentCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (ec *EquipmentCreate) check() error {
-	if _, ok := ec.mutation.GetType(); !ok {
-		return &ValidationError{Name: "type", err: errors.New(`ent: missing required field "Equipment.type"`)}
-	}
 	if _, ok := ec.mutation.AvgPriceDol(); !ok {
 		return &ValidationError{Name: "avg_price_dol", err: errors.New(`ent: missing required field "Equipment.avg_price_dol"`)}
 	}
+	if v, ok := ec.mutation.AvgPriceDol(); ok {
+		if err := equipment.AvgPriceDolValidator(v); err != nil {
+			return &ValidationError{Name: "avg_price_dol", err: fmt.Errorf(`ent: validator failed for field "Equipment.avg_price_dol": %w`, err)}
+		}
+	}
 	if _, ok := ec.mutation.AvgPriceRub(); !ok {
 		return &ValidationError{Name: "avg_price_rub", err: errors.New(`ent: missing required field "Equipment.avg_price_rub"`)}
+	}
+	if v, ok := ec.mutation.AvgPriceRub(); ok {
+		if err := equipment.AvgPriceRubValidator(v); err != nil {
+			return &ValidationError{Name: "avg_price_rub", err: fmt.Errorf(`ent: validator failed for field "Equipment.avg_price_rub": %w`, err)}
+		}
 	}
 	return nil
 }
@@ -94,8 +117,13 @@ func (ec *EquipmentCreate) sqlSave(ctx context.Context) (*Equipment, error) {
 		}
 		return nil, err
 	}
-	id := _spec.ID.Value.(int64)
-	_node.ID = int(id)
+	if _spec.ID.Value != nil {
+		if id, ok := _spec.ID.Value.(string); ok {
+			_node.ID = id
+		} else {
+			return nil, fmt.Errorf("unexpected Equipment.ID type: %T", _spec.ID.Value)
+		}
+	}
 	ec.mutation.id = &_node.ID
 	ec.mutation.done = true
 	return _node, nil
@@ -104,19 +132,35 @@ func (ec *EquipmentCreate) sqlSave(ctx context.Context) (*Equipment, error) {
 func (ec *EquipmentCreate) createSpec() (*Equipment, *sqlgraph.CreateSpec) {
 	var (
 		_node = &Equipment{config: ec.config}
-		_spec = sqlgraph.NewCreateSpec(equipment.Table, sqlgraph.NewFieldSpec(equipment.FieldID, field.TypeInt))
+		_spec = sqlgraph.NewCreateSpec(equipment.Table, sqlgraph.NewFieldSpec(equipment.FieldID, field.TypeString))
 	)
-	if value, ok := ec.mutation.GetType(); ok {
-		_spec.SetField(equipment.FieldType, field.TypeString, value)
-		_node.Type = value
+	if id, ok := ec.mutation.ID(); ok {
+		_node.ID = id
+		_spec.ID.Value = id
 	}
 	if value, ok := ec.mutation.AvgPriceDol(); ok {
-		_spec.SetField(equipment.FieldAvgPriceDol, field.TypeInt, value)
+		_spec.SetField(equipment.FieldAvgPriceDol, field.TypeFloat64, value)
 		_node.AvgPriceDol = value
 	}
 	if value, ok := ec.mutation.AvgPriceRub(); ok {
-		_spec.SetField(equipment.FieldAvgPriceRub, field.TypeInt, value)
+		_spec.SetField(equipment.FieldAvgPriceRub, field.TypeFloat64, value)
 		_node.AvgPriceRub = value
+	}
+	if nodes := ec.mutation.HistoriesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   equipment.HistoriesTable,
+			Columns: []string{equipment.HistoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges = append(_spec.Edges, edge)
 	}
 	return _node, _spec
 }
@@ -161,10 +205,6 @@ func (ecb *EquipmentCreateBulk) Save(ctx context.Context) ([]*Equipment, error) 
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
-				if specs[i].ID.Value != nil {
-					id := specs[i].ID.Value.(int64)
-					nodes[i].ID = int(id)
-				}
 				mutation.done = true
 				return nodes[i], nil
 			})

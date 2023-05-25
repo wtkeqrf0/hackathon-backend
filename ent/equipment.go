@@ -8,21 +8,40 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/wtkeqrf0/while.act/ent/equipment"
+	"github.com/while-act/hackathon-backend/ent/equipment"
 )
 
 // Equipment is the model entity for the Equipment schema.
 type Equipment struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID int `json:"id,omitempty"`
-	// Type holds the value of the "type" field.
-	Type string `json:"type,omitempty"`
+	ID string `json:"id,omitempty"`
 	// AvgPriceDol holds the value of the "avg_price_dol" field.
-	AvgPriceDol int `json:"avg_price_dol,omitempty"`
+	AvgPriceDol float64 `json:"avg_price_dol,omitempty"`
 	// AvgPriceRub holds the value of the "avg_price_rub" field.
-	AvgPriceRub  int `json:"avg_price_rub,omitempty"`
+	AvgPriceRub float64 `json:"avg_price_rub,omitempty"`
+	// Edges holds the relations/edges for other nodes in the graph.
+	// The values are being populated by the EquipmentQuery when eager-loading is set.
+	Edges        EquipmentEdges `json:"edges"`
 	selectValues sql.SelectValues
+}
+
+// EquipmentEdges holds the relations/edges for other nodes in the graph.
+type EquipmentEdges struct {
+	// Histories holds the value of the histories edge.
+	Histories []*History `json:"histories,omitempty"`
+	// loadedTypes holds the information for reporting if a
+	// type was loaded (or requested) in eager-loading or not.
+	loadedTypes [1]bool
+}
+
+// HistoriesOrErr returns the Histories value or an error if the edge
+// was not loaded in eager-loading.
+func (e EquipmentEdges) HistoriesOrErr() ([]*History, error) {
+	if e.loadedTypes[0] {
+		return e.Histories, nil
+	}
+	return nil, &NotLoadedError{edge: "histories"}
 }
 
 // scanValues returns the types for scanning values from sql.Rows.
@@ -30,9 +49,9 @@ func (*Equipment) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case equipment.FieldID, equipment.FieldAvgPriceDol, equipment.FieldAvgPriceRub:
-			values[i] = new(sql.NullInt64)
-		case equipment.FieldType:
+		case equipment.FieldAvgPriceDol, equipment.FieldAvgPriceRub:
+			values[i] = new(sql.NullFloat64)
+		case equipment.FieldID:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -50,28 +69,22 @@ func (e *Equipment) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case equipment.FieldID:
-			value, ok := values[i].(*sql.NullInt64)
-			if !ok {
-				return fmt.Errorf("unexpected type %T for field id", value)
-			}
-			e.ID = int(value.Int64)
-		case equipment.FieldType:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field type", values[i])
+				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value.Valid {
-				e.Type = value.String
+				e.ID = value.String
 			}
 		case equipment.FieldAvgPriceDol:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field avg_price_dol", values[i])
 			} else if value.Valid {
-				e.AvgPriceDol = int(value.Int64)
+				e.AvgPriceDol = value.Float64
 			}
 		case equipment.FieldAvgPriceRub:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field avg_price_rub", values[i])
 			} else if value.Valid {
-				e.AvgPriceRub = int(value.Int64)
+				e.AvgPriceRub = value.Float64
 			}
 		default:
 			e.selectValues.Set(columns[i], values[i])
@@ -84,6 +97,11 @@ func (e *Equipment) assignValues(columns []string, values []any) error {
 // This includes values selected through modifiers, order, etc.
 func (e *Equipment) Value(name string) (ent.Value, error) {
 	return e.selectValues.Get(name)
+}
+
+// QueryHistories queries the "histories" edge of the Equipment entity.
+func (e *Equipment) QueryHistories() *HistoryQuery {
+	return NewEquipmentClient(e.config).QueryHistories(e)
 }
 
 // Update returns a builder for updating this Equipment.
@@ -109,9 +127,6 @@ func (e *Equipment) String() string {
 	var builder strings.Builder
 	builder.WriteString("Equipment(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", e.ID))
-	builder.WriteString("type=")
-	builder.WriteString(e.Type)
-	builder.WriteString(", ")
 	builder.WriteString("avg_price_dol=")
 	builder.WriteString(fmt.Sprintf("%v", e.AvgPriceDol))
 	builder.WriteString(", ")

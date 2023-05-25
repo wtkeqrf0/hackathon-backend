@@ -8,16 +8,19 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/wtkeqrf0/while.act/ent/migrate"
+	"github.com/while-act/hackathon-backend/ent/migrate"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/wtkeqrf0/while.act/ent/company"
-	"github.com/wtkeqrf0/while.act/ent/entrepreneurship"
-	"github.com/wtkeqrf0/while.act/ent/equipment"
-	"github.com/wtkeqrf0/while.act/ent/user"
+	"github.com/while-act/hackathon-backend/ent/company"
+	"github.com/while-act/hackathon-backend/ent/district"
+	"github.com/while-act/hackathon-backend/ent/entrepreneurship"
+	"github.com/while-act/hackathon-backend/ent/equipment"
+	"github.com/while-act/hackathon-backend/ent/history"
+	"github.com/while-act/hackathon-backend/ent/industry"
+	"github.com/while-act/hackathon-backend/ent/user"
 )
 
 // Client is the client that holds all ent builders.
@@ -27,10 +30,16 @@ type Client struct {
 	Schema *migrate.Schema
 	// Company is the client for interacting with the Company builders.
 	Company *CompanyClient
+	// District is the client for interacting with the District builders.
+	District *DistrictClient
 	// Entrepreneurship is the client for interacting with the Entrepreneurship builders.
 	Entrepreneurship *EntrepreneurshipClient
 	// Equipment is the client for interacting with the Equipment builders.
 	Equipment *EquipmentClient
+	// History is the client for interacting with the History builders.
+	History *HistoryClient
+	// Industry is the client for interacting with the Industry builders.
+	Industry *IndustryClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 }
@@ -47,8 +56,11 @@ func NewClient(opts ...Option) *Client {
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
 	c.Company = NewCompanyClient(c.config)
+	c.District = NewDistrictClient(c.config)
 	c.Entrepreneurship = NewEntrepreneurshipClient(c.config)
 	c.Equipment = NewEquipmentClient(c.config)
+	c.History = NewHistoryClient(c.config)
+	c.Industry = NewIndustryClient(c.config)
 	c.User = NewUserClient(c.config)
 }
 
@@ -133,8 +145,11 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 		ctx:              ctx,
 		config:           cfg,
 		Company:          NewCompanyClient(cfg),
+		District:         NewDistrictClient(cfg),
 		Entrepreneurship: NewEntrepreneurshipClient(cfg),
 		Equipment:        NewEquipmentClient(cfg),
+		History:          NewHistoryClient(cfg),
+		Industry:         NewIndustryClient(cfg),
 		User:             NewUserClient(cfg),
 	}, nil
 }
@@ -156,8 +171,11 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 		ctx:              ctx,
 		config:           cfg,
 		Company:          NewCompanyClient(cfg),
+		District:         NewDistrictClient(cfg),
 		Entrepreneurship: NewEntrepreneurshipClient(cfg),
 		Equipment:        NewEquipmentClient(cfg),
+		History:          NewHistoryClient(cfg),
+		Industry:         NewIndustryClient(cfg),
 		User:             NewUserClient(cfg),
 	}, nil
 }
@@ -187,19 +205,23 @@ func (c *Client) Close() error {
 // Use adds the mutation hooks to all the entity clients.
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
-	c.Company.Use(hooks...)
-	c.Entrepreneurship.Use(hooks...)
-	c.Equipment.Use(hooks...)
-	c.User.Use(hooks...)
+	for _, n := range []interface{ Use(...Hook) }{
+		c.Company, c.District, c.Entrepreneurship, c.Equipment, c.History, c.Industry,
+		c.User,
+	} {
+		n.Use(hooks...)
+	}
 }
 
 // Intercept adds the query interceptors to all the entity clients.
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
-	c.Company.Intercept(interceptors...)
-	c.Entrepreneurship.Intercept(interceptors...)
-	c.Equipment.Intercept(interceptors...)
-	c.User.Intercept(interceptors...)
+	for _, n := range []interface{ Intercept(...Interceptor) }{
+		c.Company, c.District, c.Entrepreneurship, c.Equipment, c.History, c.Industry,
+		c.User,
+	} {
+		n.Intercept(interceptors...)
+	}
 }
 
 // Mutate implements the ent.Mutator interface.
@@ -207,10 +229,16 @@ func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
 	case *CompanyMutation:
 		return c.Company.mutate(ctx, m)
+	case *DistrictMutation:
+		return c.District.mutate(ctx, m)
 	case *EntrepreneurshipMutation:
 		return c.Entrepreneurship.mutate(ctx, m)
 	case *EquipmentMutation:
 		return c.Equipment.mutate(ctx, m)
+	case *HistoryMutation:
+		return c.History.mutate(ctx, m)
+	case *IndustryMutation:
+		return c.Industry.mutate(ctx, m)
 	case *UserMutation:
 		return c.User.mutate(ctx, m)
 	default:
@@ -349,6 +377,140 @@ func (c *CompanyClient) mutate(ctx context.Context, m *CompanyMutation) (Value, 
 		return (&CompanyDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Company mutation op: %q", m.Op())
+	}
+}
+
+// DistrictClient is a client for the District schema.
+type DistrictClient struct {
+	config
+}
+
+// NewDistrictClient returns a client for the District from the given config.
+func NewDistrictClient(c config) *DistrictClient {
+	return &DistrictClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `district.Hooks(f(g(h())))`.
+func (c *DistrictClient) Use(hooks ...Hook) {
+	c.hooks.District = append(c.hooks.District, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `district.Intercept(f(g(h())))`.
+func (c *DistrictClient) Intercept(interceptors ...Interceptor) {
+	c.inters.District = append(c.inters.District, interceptors...)
+}
+
+// Create returns a builder for creating a District entity.
+func (c *DistrictClient) Create() *DistrictCreate {
+	mutation := newDistrictMutation(c.config, OpCreate)
+	return &DistrictCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of District entities.
+func (c *DistrictClient) CreateBulk(builders ...*DistrictCreate) *DistrictCreateBulk {
+	return &DistrictCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for District.
+func (c *DistrictClient) Update() *DistrictUpdate {
+	mutation := newDistrictMutation(c.config, OpUpdate)
+	return &DistrictUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *DistrictClient) UpdateOne(d *District) *DistrictUpdateOne {
+	mutation := newDistrictMutation(c.config, OpUpdateOne, withDistrict(d))
+	return &DistrictUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *DistrictClient) UpdateOneID(id string) *DistrictUpdateOne {
+	mutation := newDistrictMutation(c.config, OpUpdateOne, withDistrictID(id))
+	return &DistrictUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for District.
+func (c *DistrictClient) Delete() *DistrictDelete {
+	mutation := newDistrictMutation(c.config, OpDelete)
+	return &DistrictDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *DistrictClient) DeleteOne(d *District) *DistrictDeleteOne {
+	return c.DeleteOneID(d.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *DistrictClient) DeleteOneID(id string) *DistrictDeleteOne {
+	builder := c.Delete().Where(district.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &DistrictDeleteOne{builder}
+}
+
+// Query returns a query builder for District.
+func (c *DistrictClient) Query() *DistrictQuery {
+	return &DistrictQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeDistrict},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a District entity by its id.
+func (c *DistrictClient) Get(ctx context.Context, id string) (*District, error) {
+	return c.Query().Where(district.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *DistrictClient) GetX(ctx context.Context, id string) *District {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryHistories queries the histories edge of a District.
+func (c *DistrictClient) QueryHistories(d *District) *HistoryQuery {
+	query := (&HistoryClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := d.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(district.Table, district.FieldID, id),
+			sqlgraph.To(history.Table, history.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, district.HistoriesTable, district.HistoriesColumn),
+		)
+		fromV = sqlgraph.Neighbors(d.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *DistrictClient) Hooks() []Hook {
+	return c.hooks.District
+}
+
+// Interceptors returns the client interceptors.
+func (c *DistrictClient) Interceptors() []Interceptor {
+	return c.inters.District
+}
+
+func (c *DistrictClient) mutate(ctx context.Context, m *DistrictMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&DistrictCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&DistrictUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&DistrictUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&DistrictDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown District mutation op: %q", m.Op())
 	}
 }
 
@@ -516,7 +678,7 @@ func (c *EquipmentClient) UpdateOne(e *Equipment) *EquipmentUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *EquipmentClient) UpdateOneID(id int) *EquipmentUpdateOne {
+func (c *EquipmentClient) UpdateOneID(id string) *EquipmentUpdateOne {
 	mutation := newEquipmentMutation(c.config, OpUpdateOne, withEquipmentID(id))
 	return &EquipmentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -533,7 +695,7 @@ func (c *EquipmentClient) DeleteOne(e *Equipment) *EquipmentDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *EquipmentClient) DeleteOneID(id int) *EquipmentDeleteOne {
+func (c *EquipmentClient) DeleteOneID(id string) *EquipmentDeleteOne {
 	builder := c.Delete().Where(equipment.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -550,17 +712,33 @@ func (c *EquipmentClient) Query() *EquipmentQuery {
 }
 
 // Get returns a Equipment entity by its id.
-func (c *EquipmentClient) Get(ctx context.Context, id int) (*Equipment, error) {
+func (c *EquipmentClient) Get(ctx context.Context, id string) (*Equipment, error) {
 	return c.Query().Where(equipment.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *EquipmentClient) GetX(ctx context.Context, id int) *Equipment {
+func (c *EquipmentClient) GetX(ctx context.Context, id string) *Equipment {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)
 	}
 	return obj
+}
+
+// QueryHistories queries the histories edge of a Equipment.
+func (c *EquipmentClient) QueryHistories(e *Equipment) *HistoryQuery {
+	query := (&HistoryClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := e.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(equipment.Table, equipment.FieldID, id),
+			sqlgraph.To(history.Table, history.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, equipment.HistoriesTable, equipment.HistoriesColumn),
+		)
+		fromV = sqlgraph.Neighbors(e.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
 }
 
 // Hooks returns the client hooks.
@@ -585,6 +763,322 @@ func (c *EquipmentClient) mutate(ctx context.Context, m *EquipmentMutation) (Val
 		return (&EquipmentDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
 		return nil, fmt.Errorf("ent: unknown Equipment mutation op: %q", m.Op())
+	}
+}
+
+// HistoryClient is a client for the History schema.
+type HistoryClient struct {
+	config
+}
+
+// NewHistoryClient returns a client for the History from the given config.
+func NewHistoryClient(c config) *HistoryClient {
+	return &HistoryClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `history.Hooks(f(g(h())))`.
+func (c *HistoryClient) Use(hooks ...Hook) {
+	c.hooks.History = append(c.hooks.History, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `history.Intercept(f(g(h())))`.
+func (c *HistoryClient) Intercept(interceptors ...Interceptor) {
+	c.inters.History = append(c.inters.History, interceptors...)
+}
+
+// Create returns a builder for creating a History entity.
+func (c *HistoryClient) Create() *HistoryCreate {
+	mutation := newHistoryMutation(c.config, OpCreate)
+	return &HistoryCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of History entities.
+func (c *HistoryClient) CreateBulk(builders ...*HistoryCreate) *HistoryCreateBulk {
+	return &HistoryCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for History.
+func (c *HistoryClient) Update() *HistoryUpdate {
+	mutation := newHistoryMutation(c.config, OpUpdate)
+	return &HistoryUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *HistoryClient) UpdateOne(h *History) *HistoryUpdateOne {
+	mutation := newHistoryMutation(c.config, OpUpdateOne, withHistory(h))
+	return &HistoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *HistoryClient) UpdateOneID(id string) *HistoryUpdateOne {
+	mutation := newHistoryMutation(c.config, OpUpdateOne, withHistoryID(id))
+	return &HistoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for History.
+func (c *HistoryClient) Delete() *HistoryDelete {
+	mutation := newHistoryMutation(c.config, OpDelete)
+	return &HistoryDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *HistoryClient) DeleteOne(h *History) *HistoryDeleteOne {
+	return c.DeleteOneID(h.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *HistoryClient) DeleteOneID(id string) *HistoryDeleteOne {
+	builder := c.Delete().Where(history.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &HistoryDeleteOne{builder}
+}
+
+// Query returns a query builder for History.
+func (c *HistoryClient) Query() *HistoryQuery {
+	return &HistoryQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeHistory},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a History entity by its id.
+func (c *HistoryClient) Get(ctx context.Context, id string) (*History, error) {
+	return c.Query().Where(history.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *HistoryClient) GetX(ctx context.Context, id string) *History {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryIndustry queries the industry edge of a History.
+func (c *HistoryClient) QueryIndustry(h *History) *IndustryQuery {
+	query := (&IndustryClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := h.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(history.Table, history.FieldID, id),
+			sqlgraph.To(industry.Table, industry.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, history.IndustryTable, history.IndustryColumn),
+		)
+		fromV = sqlgraph.Neighbors(h.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryDistrict queries the district edge of a History.
+func (c *HistoryClient) QueryDistrict(h *History) *DistrictQuery {
+	query := (&DistrictClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := h.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(history.Table, history.FieldID, id),
+			sqlgraph.To(district.Table, district.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, history.DistrictTable, history.DistrictColumn),
+		)
+		fromV = sqlgraph.Neighbors(h.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryEquipment queries the equipment edge of a History.
+func (c *HistoryClient) QueryEquipment(h *History) *EquipmentQuery {
+	query := (&EquipmentClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := h.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(history.Table, history.FieldID, id),
+			sqlgraph.To(equipment.Table, equipment.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, history.EquipmentTable, history.EquipmentColumn),
+		)
+		fromV = sqlgraph.Neighbors(h.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryUsers queries the users edge of a History.
+func (c *HistoryClient) QueryUsers(h *History) *UserQuery {
+	query := (&UserClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := h.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(history.Table, history.FieldID, id),
+			sqlgraph.To(user.Table, user.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, history.UsersTable, history.UsersColumn),
+		)
+		fromV = sqlgraph.Neighbors(h.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *HistoryClient) Hooks() []Hook {
+	return c.hooks.History
+}
+
+// Interceptors returns the client interceptors.
+func (c *HistoryClient) Interceptors() []Interceptor {
+	return c.inters.History
+}
+
+func (c *HistoryClient) mutate(ctx context.Context, m *HistoryMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&HistoryCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&HistoryUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&HistoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&HistoryDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown History mutation op: %q", m.Op())
+	}
+}
+
+// IndustryClient is a client for the Industry schema.
+type IndustryClient struct {
+	config
+}
+
+// NewIndustryClient returns a client for the Industry from the given config.
+func NewIndustryClient(c config) *IndustryClient {
+	return &IndustryClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `industry.Hooks(f(g(h())))`.
+func (c *IndustryClient) Use(hooks ...Hook) {
+	c.hooks.Industry = append(c.hooks.Industry, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `industry.Intercept(f(g(h())))`.
+func (c *IndustryClient) Intercept(interceptors ...Interceptor) {
+	c.inters.Industry = append(c.inters.Industry, interceptors...)
+}
+
+// Create returns a builder for creating a Industry entity.
+func (c *IndustryClient) Create() *IndustryCreate {
+	mutation := newIndustryMutation(c.config, OpCreate)
+	return &IndustryCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of Industry entities.
+func (c *IndustryClient) CreateBulk(builders ...*IndustryCreate) *IndustryCreateBulk {
+	return &IndustryCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for Industry.
+func (c *IndustryClient) Update() *IndustryUpdate {
+	mutation := newIndustryMutation(c.config, OpUpdate)
+	return &IndustryUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *IndustryClient) UpdateOne(i *Industry) *IndustryUpdateOne {
+	mutation := newIndustryMutation(c.config, OpUpdateOne, withIndustry(i))
+	return &IndustryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *IndustryClient) UpdateOneID(id string) *IndustryUpdateOne {
+	mutation := newIndustryMutation(c.config, OpUpdateOne, withIndustryID(id))
+	return &IndustryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for Industry.
+func (c *IndustryClient) Delete() *IndustryDelete {
+	mutation := newIndustryMutation(c.config, OpDelete)
+	return &IndustryDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *IndustryClient) DeleteOne(i *Industry) *IndustryDeleteOne {
+	return c.DeleteOneID(i.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *IndustryClient) DeleteOneID(id string) *IndustryDeleteOne {
+	builder := c.Delete().Where(industry.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &IndustryDeleteOne{builder}
+}
+
+// Query returns a query builder for Industry.
+func (c *IndustryClient) Query() *IndustryQuery {
+	return &IndustryQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeIndustry},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a Industry entity by its id.
+func (c *IndustryClient) Get(ctx context.Context, id string) (*Industry, error) {
+	return c.Query().Where(industry.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *IndustryClient) GetX(ctx context.Context, id string) *Industry {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryHistories queries the histories edge of a Industry.
+func (c *IndustryClient) QueryHistories(i *Industry) *HistoryQuery {
+	query := (&HistoryClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := i.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(industry.Table, industry.FieldID, id),
+			sqlgraph.To(history.Table, history.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, industry.HistoriesTable, industry.HistoriesColumn),
+		)
+		fromV = sqlgraph.Neighbors(i.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *IndustryClient) Hooks() []Hook {
+	return c.hooks.Industry
+}
+
+// Interceptors returns the client interceptors.
+func (c *IndustryClient) Interceptors() []Interceptor {
+	return c.inters.Industry
+}
+
+func (c *IndustryClient) mutate(ctx context.Context, m *IndustryMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&IndustryCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&IndustryUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&IndustryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&IndustryDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown Industry mutation op: %q", m.Op())
 	}
 }
 
@@ -697,6 +1191,22 @@ func (c *UserClient) QueryCompany(u *User) *CompanyQuery {
 	return query
 }
 
+// QueryHistories queries the histories edge of a User.
+func (c *UserClient) QueryHistories(u *User) *HistoryQuery {
+	query := (&HistoryClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := u.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, id),
+			sqlgraph.To(history.Table, history.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.HistoriesTable, user.HistoriesColumn),
+		)
+		fromV = sqlgraph.Neighbors(u.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // Hooks returns the client hooks.
 func (c *UserClient) Hooks() []Hook {
 	hooks := c.hooks.User
@@ -726,9 +1236,11 @@ func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error)
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Company, Entrepreneurship, Equipment, User []ent.Hook
+		Company, District, Entrepreneurship, Equipment, History, Industry,
+		User []ent.Hook
 	}
 	inters struct {
-		Company, Entrepreneurship, Equipment, User []ent.Interceptor
+		Company, District, Entrepreneurship, Equipment, History, Industry,
+		User []ent.Interceptor
 	}
 )

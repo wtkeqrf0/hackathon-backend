@@ -8,7 +8,7 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/wtkeqrf0/while.act/ent/entrepreneurship"
+	"github.com/while-act/hackathon-backend/ent/entrepreneurship"
 )
 
 // Entrepreneurship is the model entity for the Entrepreneurship schema.
@@ -16,8 +16,8 @@ type Entrepreneurship struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
-	// Types holds the value of the "types" field.
-	Types        string `json:"types,omitempty"`
+	// Type holds the value of the "type" field.
+	Type         string `json:"type,omitempty"`
 	selectValues sql.SelectValues
 }
 
@@ -28,7 +28,7 @@ func (*Entrepreneurship) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case entrepreneurship.FieldID:
 			values[i] = new(sql.NullInt64)
-		case entrepreneurship.FieldTypes:
+		case entrepreneurship.FieldType:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -51,11 +51,11 @@ func (e *Entrepreneurship) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			e.ID = int(value.Int64)
-		case entrepreneurship.FieldTypes:
+		case entrepreneurship.FieldType:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field types", values[i])
+				return fmt.Errorf("unexpected type %T for field type", values[i])
 			} else if value.Valid {
-				e.Types = value.String
+				e.Type = value.String
 			}
 		default:
 			e.selectValues.Set(columns[i], values[i])
@@ -93,8 +93,8 @@ func (e *Entrepreneurship) String() string {
 	var builder strings.Builder
 	builder.WriteString("Entrepreneurship(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", e.ID))
-	builder.WriteString("types=")
-	builder.WriteString(e.Types)
+	builder.WriteString("type=")
+	builder.WriteString(e.Type)
 	builder.WriteByte(')')
 	return builder.String()
 }

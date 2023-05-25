@@ -5,9 +5,13 @@ package runtime
 import (
 	"time"
 
-	"github.com/wtkeqrf0/while.act/ent/company"
-	"github.com/wtkeqrf0/while.act/ent/schema"
-	"github.com/wtkeqrf0/while.act/ent/user"
+	"github.com/while-act/hackathon-backend/ent/company"
+	"github.com/while-act/hackathon-backend/ent/district"
+	"github.com/while-act/hackathon-backend/ent/equipment"
+	"github.com/while-act/hackathon-backend/ent/history"
+	"github.com/while-act/hackathon-backend/ent/industry"
+	"github.com/while-act/hackathon-backend/ent/schema"
+	"github.com/while-act/hackathon-backend/ent/user"
 )
 
 // The init function reads all schema descriptors with runtime code
@@ -42,6 +46,72 @@ func init() {
 	companyDescWebsite := companyFields[3].Descriptor()
 	// company.WebsiteValidator is a validator for the "website" field. It is called by the builders before save.
 	company.WebsiteValidator = companyDescWebsite.Validators[0].(func(string) error)
+	districtFields := schema.District{}.Fields()
+	_ = districtFields
+	// districtDescAvgCadastralVal is the schema descriptor for avg_cadastral_val field.
+	districtDescAvgCadastralVal := districtFields[1].Descriptor()
+	// district.AvgCadastralValValidator is a validator for the "avg_cadastral_val" field. It is called by the builders before save.
+	district.AvgCadastralValValidator = districtDescAvgCadastralVal.Validators[0].(func(float64) error)
+	equipmentFields := schema.Equipment{}.Fields()
+	_ = equipmentFields
+	// equipmentDescAvgPriceDol is the schema descriptor for avg_price_dol field.
+	equipmentDescAvgPriceDol := equipmentFields[1].Descriptor()
+	// equipment.AvgPriceDolValidator is a validator for the "avg_price_dol" field. It is called by the builders before save.
+	equipment.AvgPriceDolValidator = equipmentDescAvgPriceDol.Validators[0].(func(float64) error)
+	// equipmentDescAvgPriceRub is the schema descriptor for avg_price_rub field.
+	equipmentDescAvgPriceRub := equipmentFields[2].Descriptor()
+	// equipment.AvgPriceRubValidator is a validator for the "avg_price_rub" field. It is called by the builders before save.
+	equipment.AvgPriceRubValidator = equipmentDescAvgPriceRub.Validators[0].(func(float64) error)
+	historyFields := schema.History{}.Fields()
+	_ = historyFields
+	// historyDescFullTimeEmployees is the schema descriptor for full_time_employees field.
+	historyDescFullTimeEmployees := historyFields[2].Descriptor()
+	// history.FullTimeEmployeesValidator is a validator for the "full_time_employees" field. It is called by the builders before save.
+	history.FullTimeEmployeesValidator = historyDescFullTimeEmployees.Validators[0].(func(int) error)
+	// historyDescLandArea is the schema descriptor for land_area field.
+	historyDescLandArea := historyFields[4].Descriptor()
+	// history.LandAreaValidator is a validator for the "land_area" field. It is called by the builders before save.
+	history.LandAreaValidator = historyDescLandArea.Validators[0].(func(int) error)
+	// historyDescConstructionFacilitiesArea is the schema descriptor for construction_facilities_area field.
+	historyDescConstructionFacilitiesArea := historyFields[5].Descriptor()
+	// history.ConstructionFacilitiesAreaValidator is a validator for the "construction_facilities_area" field. It is called by the builders before save.
+	history.ConstructionFacilitiesAreaValidator = historyDescConstructionFacilitiesArea.Validators[0].(func(int) error)
+	// historyDescID is the schema descriptor for id field.
+	historyDescID := historyFields[0].Descriptor()
+	// history.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	history.IDValidator = func() func(string) error {
+		validators := historyDescID.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(id string) error {
+			for _, fn := range fns {
+				if err := fn(id); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
+	industryFields := schema.Industry{}.Fields()
+	_ = industryFields
+	// industryDescAvgWorkersNum is the schema descriptor for avg_workers_num field.
+	industryDescAvgWorkersNum := industryFields[1].Descriptor()
+	// industry.AvgWorkersNumValidator is a validator for the "avg_workers_num" field. It is called by the builders before save.
+	industry.AvgWorkersNumValidator = industryDescAvgWorkersNum.Validators[0].(func(float64) error)
+	// industryDescAvgWorkersNumCad is the schema descriptor for avg_workers_num_cad field.
+	industryDescAvgWorkersNumCad := industryFields[2].Descriptor()
+	// industry.AvgWorkersNumCadValidator is a validator for the "avg_workers_num_cad" field. It is called by the builders before save.
+	industry.AvgWorkersNumCadValidator = industryDescAvgWorkersNumCad.Validators[0].(func(float64) error)
+	// industryDescAvgSalary is the schema descriptor for avg_salary field.
+	industryDescAvgSalary := industryFields[3].Descriptor()
+	// industry.AvgSalaryValidator is a validator for the "avg_salary" field. It is called by the builders before save.
+	industry.AvgSalaryValidator = industryDescAvgSalary.Validators[0].(func(float64) error)
+	// industryDescAvgSalaryCad is the schema descriptor for avg_salary_cad field.
+	industryDescAvgSalaryCad := industryFields[4].Descriptor()
+	// industry.AvgSalaryCadValidator is a validator for the "avg_salary_cad" field. It is called by the builders before save.
+	industry.AvgSalaryCadValidator = industryDescAvgSalaryCad.Validators[0].(func(float64) error)
 	userMixin := schema.User{}.Mixin()
 	userHooks := schema.User{}.Hooks()
 	user.Hooks[0] = userHooks[0]

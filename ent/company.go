@@ -8,8 +8,8 @@ import (
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
-	"github.com/wtkeqrf0/while.act/ent/company"
-	"github.com/wtkeqrf0/while.act/ent/user"
+	"github.com/while-act/hackathon-backend/ent/company"
+	"github.com/while-act/hackathon-backend/ent/user"
 )
 
 // Company is the model entity for the Company schema.
@@ -20,7 +20,7 @@ type Company struct {
 	// Inn holds the value of the "inn" field.
 	Inn string `json:"inn,omitempty" example:"7707083893"`
 	// Name holds the value of the "name" field.
-	Name *string `json:"company_name,omitempty" example:"ООО 'Парк'"`
+	Name *string `json:"companyName,omitempty" example:"ООО 'Парк'"`
 	// Website holds the value of the "website" field.
 	Website *string `json:"website,omitempty" example:"https://www.rusprofile.ru"`
 	// Edges holds the relations/edges for other nodes in the graph.

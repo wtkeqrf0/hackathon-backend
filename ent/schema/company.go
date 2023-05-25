@@ -4,7 +4,7 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
-	"github.com/wtkeqrf0/while.act/pkg/bind"
+	"github.com/while-act/hackathon-backend/pkg/bind"
 )
 
 // Company holds the schema definition for the Company entity.
@@ -21,7 +21,7 @@ func (Company) Fields() []ent.Field {
 			StructTag(`json:"inn,omitempty" example:"7707083893"`),
 
 		field.String("name").Optional().Unique().MinLen(2).MaxLen(150).Nillable().
-			StructTag(`json:"company_name,omitempty" example:"ООО 'Парк'"`),
+			StructTag(`json:"companyName,omitempty" example:"ООО 'Парк'"`),
 
 		field.String("website").Optional().Match(bind.LinkRegexp).Nillable().
 			StructTag(`json:"website,omitempty" example:"https://www.rusprofile.ru"`),

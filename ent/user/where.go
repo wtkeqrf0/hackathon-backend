@@ -7,7 +7,7 @@ import (
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/wtkeqrf0/while.act/ent/predicate"
+	"github.com/while-act/hackathon-backend/ent/predicate"
 )
 
 // ID filters vertices based on their ID field.
@@ -980,6 +980,29 @@ func HasCompany() predicate.User {
 func HasCompanyWith(preds ...predicate.Company) predicate.User {
 	return predicate.User(func(s *sql.Selector) {
 		step := newCompanyStep()
+		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
+			for _, p := range preds {
+				p(s)
+			}
+		})
+	})
+}
+
+// HasHistories applies the HasEdge predicate on the "histories" edge.
+func HasHistories() predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := sqlgraph.NewStep(
+			sqlgraph.From(Table, FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, HistoriesTable, HistoriesColumn),
+		)
+		sqlgraph.HasNeighbors(s, step)
+	})
+}
+
+// HasHistoriesWith applies the HasEdge predicate on the "histories" edge with a given conditions (other predicates).
+func HasHistoriesWith(preds ...predicate.History) predicate.User {
+	return predicate.User(func(s *sql.Selector) {
+		step := newHistoriesStep()
 		sqlgraph.HasNeighborsWith(s, step, func(s *sql.Selector) {
 			for _, p := range preds {
 				p(s)

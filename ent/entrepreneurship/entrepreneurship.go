@@ -11,8 +11,8 @@ const (
 	Label = "entrepreneurship"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldTypes holds the string denoting the types field in the database.
-	FieldTypes = "types"
+	// FieldType holds the string denoting the type field in the database.
+	FieldType = "type"
 	// Table holds the table name of the entrepreneurship in the database.
 	Table = "entrepreneurships"
 )
@@ -20,7 +20,7 @@ const (
 // Columns holds all SQL columns for entrepreneurship fields.
 var Columns = []string{
 	FieldID,
-	FieldTypes,
+	FieldType,
 }
 
 // ValidColumn reports if the column name is valid (part of the table columns).
@@ -41,7 +41,7 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
 }
 
-// ByTypes orders the results by the types field.
-func ByTypes(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldTypes, opts...).ToFunc()
+// ByType orders the results by the type field.
+func ByType(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldType, opts...).ToFunc()
 }

@@ -12,10 +12,13 @@ import (
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
-	"github.com/wtkeqrf0/while.act/ent/company"
-	"github.com/wtkeqrf0/while.act/ent/entrepreneurship"
-	"github.com/wtkeqrf0/while.act/ent/equipment"
-	"github.com/wtkeqrf0/while.act/ent/user"
+	"github.com/while-act/hackathon-backend/ent/company"
+	"github.com/while-act/hackathon-backend/ent/district"
+	"github.com/while-act/hackathon-backend/ent/entrepreneurship"
+	"github.com/while-act/hackathon-backend/ent/equipment"
+	"github.com/while-act/hackathon-backend/ent/history"
+	"github.com/while-act/hackathon-backend/ent/industry"
+	"github.com/while-act/hackathon-backend/ent/user"
 )
 
 // ent aliases to avoid import conflicts in user's code.
@@ -77,8 +80,11 @@ func checkColumn(table, column string) error {
 	initCheck.Do(func() {
 		columnCheck = sql.NewColumnCheck(map[string]func(string) bool{
 			company.Table:          company.ValidColumn,
+			district.Table:         district.ValidColumn,
 			entrepreneurship.Table: entrepreneurship.ValidColumn,
 			equipment.Table:        equipment.ValidColumn,
+			history.Table:          history.ValidColumn,
+			industry.Table:         industry.ValidColumn,
 			user.Table:             user.ValidColumn,
 		})
 	})

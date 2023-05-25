@@ -14,10 +14,16 @@ type Tx struct {
 	config
 	// Company is the client for interacting with the Company builders.
 	Company *CompanyClient
+	// District is the client for interacting with the District builders.
+	District *DistrictClient
 	// Entrepreneurship is the client for interacting with the Entrepreneurship builders.
 	Entrepreneurship *EntrepreneurshipClient
 	// Equipment is the client for interacting with the Equipment builders.
 	Equipment *EquipmentClient
+	// History is the client for interacting with the History builders.
+	History *HistoryClient
+	// Industry is the client for interacting with the Industry builders.
+	Industry *IndustryClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 
@@ -152,8 +158,11 @@ func (tx *Tx) Client() *Client {
 
 func (tx *Tx) init() {
 	tx.Company = NewCompanyClient(tx.config)
+	tx.District = NewDistrictClient(tx.config)
 	tx.Entrepreneurship = NewEntrepreneurshipClient(tx.config)
 	tx.Equipment = NewEquipmentClient(tx.config)
+	tx.History = NewHistoryClient(tx.config)
+	tx.Industry = NewIndustryClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 }
 

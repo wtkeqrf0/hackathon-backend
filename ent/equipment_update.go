@@ -10,8 +10,9 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/wtkeqrf0/while.act/ent/equipment"
-	"github.com/wtkeqrf0/while.act/ent/predicate"
+	"github.com/while-act/hackathon-backend/ent/equipment"
+	"github.com/while-act/hackathon-backend/ent/history"
+	"github.com/while-act/hackathon-backend/ent/predicate"
 )
 
 // EquipmentUpdate is the builder for updating Equipment entities.
@@ -27,41 +28,71 @@ func (eu *EquipmentUpdate) Where(ps ...predicate.Equipment) *EquipmentUpdate {
 	return eu
 }
 
-// SetType sets the "type" field.
-func (eu *EquipmentUpdate) SetType(s string) *EquipmentUpdate {
-	eu.mutation.SetType(s)
-	return eu
-}
-
 // SetAvgPriceDol sets the "avg_price_dol" field.
-func (eu *EquipmentUpdate) SetAvgPriceDol(i int) *EquipmentUpdate {
+func (eu *EquipmentUpdate) SetAvgPriceDol(f float64) *EquipmentUpdate {
 	eu.mutation.ResetAvgPriceDol()
-	eu.mutation.SetAvgPriceDol(i)
+	eu.mutation.SetAvgPriceDol(f)
 	return eu
 }
 
-// AddAvgPriceDol adds i to the "avg_price_dol" field.
-func (eu *EquipmentUpdate) AddAvgPriceDol(i int) *EquipmentUpdate {
-	eu.mutation.AddAvgPriceDol(i)
+// AddAvgPriceDol adds f to the "avg_price_dol" field.
+func (eu *EquipmentUpdate) AddAvgPriceDol(f float64) *EquipmentUpdate {
+	eu.mutation.AddAvgPriceDol(f)
 	return eu
 }
 
 // SetAvgPriceRub sets the "avg_price_rub" field.
-func (eu *EquipmentUpdate) SetAvgPriceRub(i int) *EquipmentUpdate {
+func (eu *EquipmentUpdate) SetAvgPriceRub(f float64) *EquipmentUpdate {
 	eu.mutation.ResetAvgPriceRub()
-	eu.mutation.SetAvgPriceRub(i)
+	eu.mutation.SetAvgPriceRub(f)
 	return eu
 }
 
-// AddAvgPriceRub adds i to the "avg_price_rub" field.
-func (eu *EquipmentUpdate) AddAvgPriceRub(i int) *EquipmentUpdate {
-	eu.mutation.AddAvgPriceRub(i)
+// AddAvgPriceRub adds f to the "avg_price_rub" field.
+func (eu *EquipmentUpdate) AddAvgPriceRub(f float64) *EquipmentUpdate {
+	eu.mutation.AddAvgPriceRub(f)
 	return eu
+}
+
+// AddHistoryIDs adds the "histories" edge to the History entity by IDs.
+func (eu *EquipmentUpdate) AddHistoryIDs(ids ...string) *EquipmentUpdate {
+	eu.mutation.AddHistoryIDs(ids...)
+	return eu
+}
+
+// AddHistories adds the "histories" edges to the History entity.
+func (eu *EquipmentUpdate) AddHistories(h ...*History) *EquipmentUpdate {
+	ids := make([]string, len(h))
+	for i := range h {
+		ids[i] = h[i].ID
+	}
+	return eu.AddHistoryIDs(ids...)
 }
 
 // Mutation returns the EquipmentMutation object of the builder.
 func (eu *EquipmentUpdate) Mutation() *EquipmentMutation {
 	return eu.mutation
+}
+
+// ClearHistories clears all "histories" edges to the History entity.
+func (eu *EquipmentUpdate) ClearHistories() *EquipmentUpdate {
+	eu.mutation.ClearHistories()
+	return eu
+}
+
+// RemoveHistoryIDs removes the "histories" edge to History entities by IDs.
+func (eu *EquipmentUpdate) RemoveHistoryIDs(ids ...string) *EquipmentUpdate {
+	eu.mutation.RemoveHistoryIDs(ids...)
+	return eu
+}
+
+// RemoveHistories removes "histories" edges to History entities.
+func (eu *EquipmentUpdate) RemoveHistories(h ...*History) *EquipmentUpdate {
+	ids := make([]string, len(h))
+	for i := range h {
+		ids[i] = h[i].ID
+	}
+	return eu.RemoveHistoryIDs(ids...)
 }
 
 // Save executes the query and returns the number of nodes affected by the update operation.
@@ -91,8 +122,26 @@ func (eu *EquipmentUpdate) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (eu *EquipmentUpdate) check() error {
+	if v, ok := eu.mutation.AvgPriceDol(); ok {
+		if err := equipment.AvgPriceDolValidator(v); err != nil {
+			return &ValidationError{Name: "avg_price_dol", err: fmt.Errorf(`ent: validator failed for field "Equipment.avg_price_dol": %w`, err)}
+		}
+	}
+	if v, ok := eu.mutation.AvgPriceRub(); ok {
+		if err := equipment.AvgPriceRubValidator(v); err != nil {
+			return &ValidationError{Name: "avg_price_rub", err: fmt.Errorf(`ent: validator failed for field "Equipment.avg_price_rub": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (eu *EquipmentUpdate) sqlSave(ctx context.Context) (n int, err error) {
-	_spec := sqlgraph.NewUpdateSpec(equipment.Table, equipment.Columns, sqlgraph.NewFieldSpec(equipment.FieldID, field.TypeInt))
+	if err := eu.check(); err != nil {
+		return n, err
+	}
+	_spec := sqlgraph.NewUpdateSpec(equipment.Table, equipment.Columns, sqlgraph.NewFieldSpec(equipment.FieldID, field.TypeString))
 	if ps := eu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
@@ -100,20 +149,62 @@ func (eu *EquipmentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
-	if value, ok := eu.mutation.GetType(); ok {
-		_spec.SetField(equipment.FieldType, field.TypeString, value)
-	}
 	if value, ok := eu.mutation.AvgPriceDol(); ok {
-		_spec.SetField(equipment.FieldAvgPriceDol, field.TypeInt, value)
+		_spec.SetField(equipment.FieldAvgPriceDol, field.TypeFloat64, value)
 	}
 	if value, ok := eu.mutation.AddedAvgPriceDol(); ok {
-		_spec.AddField(equipment.FieldAvgPriceDol, field.TypeInt, value)
+		_spec.AddField(equipment.FieldAvgPriceDol, field.TypeFloat64, value)
 	}
 	if value, ok := eu.mutation.AvgPriceRub(); ok {
-		_spec.SetField(equipment.FieldAvgPriceRub, field.TypeInt, value)
+		_spec.SetField(equipment.FieldAvgPriceRub, field.TypeFloat64, value)
 	}
 	if value, ok := eu.mutation.AddedAvgPriceRub(); ok {
-		_spec.AddField(equipment.FieldAvgPriceRub, field.TypeInt, value)
+		_spec.AddField(equipment.FieldAvgPriceRub, field.TypeFloat64, value)
+	}
+	if eu.mutation.HistoriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   equipment.HistoriesTable,
+			Columns: []string{equipment.HistoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := eu.mutation.RemovedHistoriesIDs(); len(nodes) > 0 && !eu.mutation.HistoriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   equipment.HistoriesTable,
+			Columns: []string{equipment.HistoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := eu.mutation.HistoriesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   equipment.HistoriesTable,
+			Columns: []string{equipment.HistoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, eu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -135,41 +226,71 @@ type EquipmentUpdateOne struct {
 	mutation *EquipmentMutation
 }
 
-// SetType sets the "type" field.
-func (euo *EquipmentUpdateOne) SetType(s string) *EquipmentUpdateOne {
-	euo.mutation.SetType(s)
-	return euo
-}
-
 // SetAvgPriceDol sets the "avg_price_dol" field.
-func (euo *EquipmentUpdateOne) SetAvgPriceDol(i int) *EquipmentUpdateOne {
+func (euo *EquipmentUpdateOne) SetAvgPriceDol(f float64) *EquipmentUpdateOne {
 	euo.mutation.ResetAvgPriceDol()
-	euo.mutation.SetAvgPriceDol(i)
+	euo.mutation.SetAvgPriceDol(f)
 	return euo
 }
 
-// AddAvgPriceDol adds i to the "avg_price_dol" field.
-func (euo *EquipmentUpdateOne) AddAvgPriceDol(i int) *EquipmentUpdateOne {
-	euo.mutation.AddAvgPriceDol(i)
+// AddAvgPriceDol adds f to the "avg_price_dol" field.
+func (euo *EquipmentUpdateOne) AddAvgPriceDol(f float64) *EquipmentUpdateOne {
+	euo.mutation.AddAvgPriceDol(f)
 	return euo
 }
 
 // SetAvgPriceRub sets the "avg_price_rub" field.
-func (euo *EquipmentUpdateOne) SetAvgPriceRub(i int) *EquipmentUpdateOne {
+func (euo *EquipmentUpdateOne) SetAvgPriceRub(f float64) *EquipmentUpdateOne {
 	euo.mutation.ResetAvgPriceRub()
-	euo.mutation.SetAvgPriceRub(i)
+	euo.mutation.SetAvgPriceRub(f)
 	return euo
 }
 
-// AddAvgPriceRub adds i to the "avg_price_rub" field.
-func (euo *EquipmentUpdateOne) AddAvgPriceRub(i int) *EquipmentUpdateOne {
-	euo.mutation.AddAvgPriceRub(i)
+// AddAvgPriceRub adds f to the "avg_price_rub" field.
+func (euo *EquipmentUpdateOne) AddAvgPriceRub(f float64) *EquipmentUpdateOne {
+	euo.mutation.AddAvgPriceRub(f)
 	return euo
+}
+
+// AddHistoryIDs adds the "histories" edge to the History entity by IDs.
+func (euo *EquipmentUpdateOne) AddHistoryIDs(ids ...string) *EquipmentUpdateOne {
+	euo.mutation.AddHistoryIDs(ids...)
+	return euo
+}
+
+// AddHistories adds the "histories" edges to the History entity.
+func (euo *EquipmentUpdateOne) AddHistories(h ...*History) *EquipmentUpdateOne {
+	ids := make([]string, len(h))
+	for i := range h {
+		ids[i] = h[i].ID
+	}
+	return euo.AddHistoryIDs(ids...)
 }
 
 // Mutation returns the EquipmentMutation object of the builder.
 func (euo *EquipmentUpdateOne) Mutation() *EquipmentMutation {
 	return euo.mutation
+}
+
+// ClearHistories clears all "histories" edges to the History entity.
+func (euo *EquipmentUpdateOne) ClearHistories() *EquipmentUpdateOne {
+	euo.mutation.ClearHistories()
+	return euo
+}
+
+// RemoveHistoryIDs removes the "histories" edge to History entities by IDs.
+func (euo *EquipmentUpdateOne) RemoveHistoryIDs(ids ...string) *EquipmentUpdateOne {
+	euo.mutation.RemoveHistoryIDs(ids...)
+	return euo
+}
+
+// RemoveHistories removes "histories" edges to History entities.
+func (euo *EquipmentUpdateOne) RemoveHistories(h ...*History) *EquipmentUpdateOne {
+	ids := make([]string, len(h))
+	for i := range h {
+		ids[i] = h[i].ID
+	}
+	return euo.RemoveHistoryIDs(ids...)
 }
 
 // Where appends a list predicates to the EquipmentUpdate builder.
@@ -212,8 +333,26 @@ func (euo *EquipmentUpdateOne) ExecX(ctx context.Context) {
 	}
 }
 
+// check runs all checks and user-defined validators on the builder.
+func (euo *EquipmentUpdateOne) check() error {
+	if v, ok := euo.mutation.AvgPriceDol(); ok {
+		if err := equipment.AvgPriceDolValidator(v); err != nil {
+			return &ValidationError{Name: "avg_price_dol", err: fmt.Errorf(`ent: validator failed for field "Equipment.avg_price_dol": %w`, err)}
+		}
+	}
+	if v, ok := euo.mutation.AvgPriceRub(); ok {
+		if err := equipment.AvgPriceRubValidator(v); err != nil {
+			return &ValidationError{Name: "avg_price_rub", err: fmt.Errorf(`ent: validator failed for field "Equipment.avg_price_rub": %w`, err)}
+		}
+	}
+	return nil
+}
+
 func (euo *EquipmentUpdateOne) sqlSave(ctx context.Context) (_node *Equipment, err error) {
-	_spec := sqlgraph.NewUpdateSpec(equipment.Table, equipment.Columns, sqlgraph.NewFieldSpec(equipment.FieldID, field.TypeInt))
+	if err := euo.check(); err != nil {
+		return _node, err
+	}
+	_spec := sqlgraph.NewUpdateSpec(equipment.Table, equipment.Columns, sqlgraph.NewFieldSpec(equipment.FieldID, field.TypeString))
 	id, ok := euo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "Equipment.id" for update`)}
@@ -238,20 +377,62 @@ func (euo *EquipmentUpdateOne) sqlSave(ctx context.Context) (_node *Equipment, e
 			}
 		}
 	}
-	if value, ok := euo.mutation.GetType(); ok {
-		_spec.SetField(equipment.FieldType, field.TypeString, value)
-	}
 	if value, ok := euo.mutation.AvgPriceDol(); ok {
-		_spec.SetField(equipment.FieldAvgPriceDol, field.TypeInt, value)
+		_spec.SetField(equipment.FieldAvgPriceDol, field.TypeFloat64, value)
 	}
 	if value, ok := euo.mutation.AddedAvgPriceDol(); ok {
-		_spec.AddField(equipment.FieldAvgPriceDol, field.TypeInt, value)
+		_spec.AddField(equipment.FieldAvgPriceDol, field.TypeFloat64, value)
 	}
 	if value, ok := euo.mutation.AvgPriceRub(); ok {
-		_spec.SetField(equipment.FieldAvgPriceRub, field.TypeInt, value)
+		_spec.SetField(equipment.FieldAvgPriceRub, field.TypeFloat64, value)
 	}
 	if value, ok := euo.mutation.AddedAvgPriceRub(); ok {
-		_spec.AddField(equipment.FieldAvgPriceRub, field.TypeInt, value)
+		_spec.AddField(equipment.FieldAvgPriceRub, field.TypeFloat64, value)
+	}
+	if euo.mutation.HistoriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   equipment.HistoriesTable,
+			Columns: []string{equipment.HistoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeString),
+			},
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := euo.mutation.RemovedHistoriesIDs(); len(nodes) > 0 && !euo.mutation.HistoriesCleared() {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   equipment.HistoriesTable,
+			Columns: []string{equipment.HistoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
+	}
+	if nodes := euo.mutation.HistoriesIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.O2M,
+			Inverse: false,
+			Table:   equipment.HistoriesTable,
+			Columns: []string{equipment.HistoriesColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeString),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_spec.Edges.Add = append(_spec.Edges.Add, edge)
 	}
 	_node = &Equipment{config: euo.config}
 	_spec.Assign = _node.assignValues

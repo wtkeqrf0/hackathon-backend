@@ -8,9 +8,9 @@ import (
 	"entgo.io/ent/schema/field"
 	"entgo.io/ent/schema/mixin"
 	"fmt"
-	lib "github.com/wtkeqrf0/while.act/ent"
-	"github.com/wtkeqrf0/while.act/ent/hook"
-	"github.com/wtkeqrf0/while.act/pkg/bind"
+	lib "github.com/while-act/hackathon-backend/ent"
+	"github.com/while-act/hackathon-backend/ent/hook"
+	"github.com/while-act/hackathon-backend/pkg/bind"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -67,6 +67,8 @@ func (User) Edges() []ent.Edge {
 			Ref("users").
 			Unique().Required().
 			Field("company_id"),
+
+		edge.To("histories", History.Type),
 	}
 }
 

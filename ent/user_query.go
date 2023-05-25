@@ -4,25 +4,28 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/wtkeqrf0/while.act/ent/company"
-	"github.com/wtkeqrf0/while.act/ent/predicate"
-	"github.com/wtkeqrf0/while.act/ent/user"
+	"github.com/while-act/hackathon-backend/ent/company"
+	"github.com/while-act/hackathon-backend/ent/history"
+	"github.com/while-act/hackathon-backend/ent/predicate"
+	"github.com/while-act/hackathon-backend/ent/user"
 )
 
 // UserQuery is the builder for querying User entities.
 type UserQuery struct {
 	config
-	ctx         *QueryContext
-	order       []user.OrderOption
-	inters      []Interceptor
-	predicates  []predicate.User
-	withCompany *CompanyQuery
+	ctx           *QueryContext
+	order         []user.OrderOption
+	inters        []Interceptor
+	predicates    []predicate.User
+	withCompany   *CompanyQuery
+	withHistories *HistoryQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -74,6 +77,28 @@ func (uq *UserQuery) QueryCompany() *CompanyQuery {
 			sqlgraph.From(user.Table, user.FieldID, selector),
 			sqlgraph.To(company.Table, company.FieldID),
 			sqlgraph.Edge(sqlgraph.O2O, true, user.CompanyTable, user.CompanyColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryHistories chains the current query on the "histories" edge.
+func (uq *UserQuery) QueryHistories() *HistoryQuery {
+	query := (&HistoryClient{config: uq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := uq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := uq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(user.Table, user.FieldID, selector),
+			sqlgraph.To(history.Table, history.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, user.HistoriesTable, user.HistoriesColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(uq.driver.Dialect(), step)
 		return fromU, nil
@@ -268,12 +293,13 @@ func (uq *UserQuery) Clone() *UserQuery {
 		return nil
 	}
 	return &UserQuery{
-		config:      uq.config,
-		ctx:         uq.ctx.Clone(),
-		order:       append([]user.OrderOption{}, uq.order...),
-		inters:      append([]Interceptor{}, uq.inters...),
-		predicates:  append([]predicate.User{}, uq.predicates...),
-		withCompany: uq.withCompany.Clone(),
+		config:        uq.config,
+		ctx:           uq.ctx.Clone(),
+		order:         append([]user.OrderOption{}, uq.order...),
+		inters:        append([]Interceptor{}, uq.inters...),
+		predicates:    append([]predicate.User{}, uq.predicates...),
+		withCompany:   uq.withCompany.Clone(),
+		withHistories: uq.withHistories.Clone(),
 		// clone intermediate query.
 		sql:  uq.sql.Clone(),
 		path: uq.path,
@@ -288,6 +314,17 @@ func (uq *UserQuery) WithCompany(opts ...func(*CompanyQuery)) *UserQuery {
 		opt(query)
 	}
 	uq.withCompany = query
+	return uq
+}
+
+// WithHistories tells the query-builder to eager-load the nodes that are connected to
+// the "histories" edge. The optional arguments are used to configure the query builder of the edge.
+func (uq *UserQuery) WithHistories(opts ...func(*HistoryQuery)) *UserQuery {
+	query := (&HistoryClient{config: uq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	uq.withHistories = query
 	return uq
 }
 
@@ -369,8 +406,9 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	var (
 		nodes       = []*User{}
 		_spec       = uq.querySpec()
-		loadedTypes = [1]bool{
+		loadedTypes = [2]bool{
 			uq.withCompany != nil,
+			uq.withHistories != nil,
 		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
@@ -394,6 +432,13 @@ func (uq *UserQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*User, e
 	if query := uq.withCompany; query != nil {
 		if err := uq.loadCompany(ctx, query, nodes, nil,
 			func(n *User, e *Company) { n.Edges.Company = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := uq.withHistories; query != nil {
+		if err := uq.loadHistories(ctx, query, nodes,
+			func(n *User) { n.Edges.Histories = []*History{} },
+			func(n *User, e *History) { n.Edges.Histories = append(n.Edges.Histories, e) }); err != nil {
 			return nil, err
 		}
 	}
@@ -426,6 +471,36 @@ func (uq *UserQuery) loadCompany(ctx context.Context, query *CompanyQuery, nodes
 		for i := range nodes {
 			assign(nodes[i], n)
 		}
+	}
+	return nil
+}
+func (uq *UserQuery) loadHistories(ctx context.Context, query *HistoryQuery, nodes []*User, init func(*User), assign func(*User, *History)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[int]*User)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(history.FieldUserID)
+	}
+	query.Where(predicate.History(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(user.HistoriesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.UserID
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "user_id" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
 	}
 	return nil
 }

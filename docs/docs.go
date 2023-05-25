@@ -45,6 +45,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/dao.Me"
                         }
                     },
+                    "400": {
+                        "description": "Validation error",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    },
                     "401": {
                         "description": "User isn't logged in",
                         "schema": {
@@ -118,6 +124,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/errs.MyError"
                         }
                     },
+                    "404": {
+                        "description": "User doesn't exist",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -158,6 +170,141 @@ const docTemplate = `{
                             "$ref": "#/definitions/errs.MyError"
                         }
                     },
+                    "404": {
+                        "description": "User doesn't exist",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    }
+                }
+            }
+        },
+        "/calc": {
+            "get": {
+                "description": "Returns PDF file, gotten from body",
+                "tags": [
+                    "Calc"
+                ],
+                "summary": "Generate PDF from body",
+                "parameters": [
+                    {
+                        "description": "Completed application form",
+                        "name": "from",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.History"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "PDF file"
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Saves given values to user's history",
+                "tags": [
+                    "Calc"
+                ],
+                "summary": "Save calc data to history",
+                "parameters": [
+                    {
+                        "description": "Completed application form",
+                        "name": "from",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.History"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "User isn't logged in",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    },
+                    "404": {
+                        "description": "User doesn't exist",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    }
+                }
+            }
+        },
+        "/calc/industry": {
+            "get": {
+                "description": "Returns detail information about industry",
+                "tags": [
+                    "Calc"
+                ],
+                "summary": "Get data about industry",
+                "parameters": [
+                    {
+                        "description": "Industry Type",
+                        "name": "industry_name",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.IndustryType"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Info about industry",
+                        "schema": {
+                            "$ref": "#/definitions/dao.Industry"
+                        }
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    },
+                    "404": {
+                        "description": "Industry doesn't exist",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -184,6 +331,12 @@ const docTemplate = `{
                         "description": "Info about company",
                         "schema": {
                             "$ref": "#/definitions/dao.Company"
+                        }
+                    },
+                    "401": {
+                        "description": "User isn't logged in",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
                         }
                     },
                     "404": {
@@ -225,6 +378,12 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK"
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
                     },
                     "401": {
                         "description": "User isn't logged in",
@@ -314,6 +473,12 @@ const docTemplate = `{
                     "200": {
                         "description": "Successfully Updated"
                     },
+                    "400": {
+                        "description": "Validation error",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    },
                     "401": {
                         "description": "User isn't logged in",
                         "schema": {
@@ -362,6 +527,12 @@ const docTemplate = `{
                     "200": {
                         "description": "Successfully Updated"
                     },
+                    "400": {
+                        "description": "Validation error",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    },
                     "401": {
                         "description": "User isn't logged in",
                         "schema": {
@@ -405,6 +576,58 @@ const docTemplate = `{
                     "200": {
                         "description": "Successfully Updated"
                     },
+                    "400": {
+                        "description": "Validation error",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    },
+                    "404": {
+                        "description": "User doesn't exist",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/{company_name}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Returns PDF file got from user history",
+                "tags": [
+                    "User"
+                ],
+                "summary": "Generate PDF file from user history",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Unique company name from history",
+                        "name": "company_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "PDF file"
+                    },
+                    "400": {
+                        "description": "Validation error",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    },
                     "401": {
                         "description": "User isn't logged in",
                         "schema": {
@@ -447,6 +670,29 @@ const docTemplate = `{
                 "website": {
                     "type": "string",
                     "example": "https://www.rusprofile.ru"
+                }
+            }
+        },
+        "dao.Industry": {
+            "type": "object",
+            "required": [
+                "avgSalary",
+                "avgSalaryCad",
+                "avgWorkersNum",
+                "avgWorkersNumCad"
+            ],
+            "properties": {
+                "avgSalary": {
+                    "type": "number"
+                },
+                "avgSalaryCad": {
+                    "type": "number"
+                },
+                "avgWorkersNum": {
+                    "type": "number"
+                },
+                "avgWorkersNumCad": {
+                    "type": "number"
                 }
             }
         },
@@ -511,6 +757,74 @@ const docTemplate = `{
                 "email": {
                     "type": "string",
                     "example": "myemail@gmail.com"
+                }
+            }
+        },
+        "dto.History": {
+            "type": "object",
+            "required": [
+                "accountingServices",
+                "companyName",
+                "constructionFacilitiesArea",
+                "districtTitle",
+                "equipmentType",
+                "facilityType",
+                "fullTimeEmployees",
+                "industryBranch",
+                "landArea",
+                "other",
+                "patent"
+            ],
+            "properties": {
+                "accountingServices": {
+                    "type": "boolean"
+                },
+                "companyName": {
+                    "type": "string",
+                    "maxLength": 150,
+                    "minLength": 2
+                },
+                "constructionFacilitiesArea": {
+                    "type": "integer",
+                    "maximum": 0
+                },
+                "districtTitle": {
+                    "type": "string"
+                },
+                "equipmentType": {
+                    "type": "string"
+                },
+                "facilityType": {
+                    "type": "string"
+                },
+                "fullTimeEmployees": {
+                    "type": "integer",
+                    "maximum": 0
+                },
+                "industryBranch": {
+                    "type": "string"
+                },
+                "landArea": {
+                    "type": "integer",
+                    "maximum": 0
+                },
+                "other": {
+                    "type": "string"
+                },
+                "patent": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "dto.IndustryType": {
+            "type": "object",
+            "required": [
+                "type"
+            ],
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "maxLength": 150
                 }
             }
         },

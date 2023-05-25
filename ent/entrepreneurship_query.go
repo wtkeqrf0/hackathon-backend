@@ -10,8 +10,8 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/wtkeqrf0/while.act/ent/entrepreneurship"
-	"github.com/wtkeqrf0/while.act/ent/predicate"
+	"github.com/while-act/hackathon-backend/ent/entrepreneurship"
+	"github.com/while-act/hackathon-backend/ent/predicate"
 )
 
 // EntrepreneurshipQuery is the builder for querying Entrepreneurship entities.
@@ -261,12 +261,12 @@ func (eq *EntrepreneurshipQuery) Clone() *EntrepreneurshipQuery {
 // Example:
 //
 //	var v []struct {
-//		Types string `json:"types,omitempty"`
+//		Type string `json:"type,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Entrepreneurship.Query().
-//		GroupBy(entrepreneurship.FieldTypes).
+//		GroupBy(entrepreneurship.FieldType).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (eq *EntrepreneurshipQuery) GroupBy(field string, fields ...string) *EntrepreneurshipGroupBy {
@@ -284,11 +284,11 @@ func (eq *EntrepreneurshipQuery) GroupBy(field string, fields ...string) *Entrep
 // Example:
 //
 //	var v []struct {
-//		Types string `json:"types,omitempty"`
+//		Type string `json:"type,omitempty"`
 //	}
 //
 //	client.Entrepreneurship.Query().
-//		Select(entrepreneurship.FieldTypes).
+//		Select(entrepreneurship.FieldType).
 //		Scan(ctx, &v)
 func (eq *EntrepreneurshipQuery) Select(fields ...string) *EntrepreneurshipSelect {
 	eq.ctx.Fields = append(eq.ctx.Fields, fields...)

@@ -4,23 +4,26 @@ package ent
 
 import (
 	"context"
+	"database/sql/driver"
 	"fmt"
 	"math"
 
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
-	"github.com/wtkeqrf0/while.act/ent/equipment"
-	"github.com/wtkeqrf0/while.act/ent/predicate"
+	"github.com/while-act/hackathon-backend/ent/equipment"
+	"github.com/while-act/hackathon-backend/ent/history"
+	"github.com/while-act/hackathon-backend/ent/predicate"
 )
 
 // EquipmentQuery is the builder for querying Equipment entities.
 type EquipmentQuery struct {
 	config
-	ctx        *QueryContext
-	order      []equipment.OrderOption
-	inters     []Interceptor
-	predicates []predicate.Equipment
+	ctx           *QueryContext
+	order         []equipment.OrderOption
+	inters        []Interceptor
+	predicates    []predicate.Equipment
+	withHistories *HistoryQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -57,6 +60,28 @@ func (eq *EquipmentQuery) Order(o ...equipment.OrderOption) *EquipmentQuery {
 	return eq
 }
 
+// QueryHistories chains the current query on the "histories" edge.
+func (eq *EquipmentQuery) QueryHistories() *HistoryQuery {
+	query := (&HistoryClient{config: eq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := eq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := eq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(equipment.Table, equipment.FieldID, selector),
+			sqlgraph.To(history.Table, history.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, equipment.HistoriesTable, equipment.HistoriesColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(eq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // First returns the first Equipment entity from the query.
 // Returns a *NotFoundError when no Equipment was found.
 func (eq *EquipmentQuery) First(ctx context.Context) (*Equipment, error) {
@@ -81,8 +106,8 @@ func (eq *EquipmentQuery) FirstX(ctx context.Context) *Equipment {
 
 // FirstID returns the first Equipment ID from the query.
 // Returns a *NotFoundError when no Equipment ID was found.
-func (eq *EquipmentQuery) FirstID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (eq *EquipmentQuery) FirstID(ctx context.Context) (id string, err error) {
+	var ids []string
 	if ids, err = eq.Limit(1).IDs(setContextOp(ctx, eq.ctx, "FirstID")); err != nil {
 		return
 	}
@@ -94,7 +119,7 @@ func (eq *EquipmentQuery) FirstID(ctx context.Context) (id int, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (eq *EquipmentQuery) FirstIDX(ctx context.Context) int {
+func (eq *EquipmentQuery) FirstIDX(ctx context.Context) string {
 	id, err := eq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -132,8 +157,8 @@ func (eq *EquipmentQuery) OnlyX(ctx context.Context) *Equipment {
 // OnlyID is like Only, but returns the only Equipment ID in the query.
 // Returns a *NotSingularError when more than one Equipment ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (eq *EquipmentQuery) OnlyID(ctx context.Context) (id int, err error) {
-	var ids []int
+func (eq *EquipmentQuery) OnlyID(ctx context.Context) (id string, err error) {
+	var ids []string
 	if ids, err = eq.Limit(2).IDs(setContextOp(ctx, eq.ctx, "OnlyID")); err != nil {
 		return
 	}
@@ -149,7 +174,7 @@ func (eq *EquipmentQuery) OnlyID(ctx context.Context) (id int, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (eq *EquipmentQuery) OnlyIDX(ctx context.Context) int {
+func (eq *EquipmentQuery) OnlyIDX(ctx context.Context) string {
 	id, err := eq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -177,7 +202,7 @@ func (eq *EquipmentQuery) AllX(ctx context.Context) []*Equipment {
 }
 
 // IDs executes the query and returns a list of Equipment IDs.
-func (eq *EquipmentQuery) IDs(ctx context.Context) (ids []int, err error) {
+func (eq *EquipmentQuery) IDs(ctx context.Context) (ids []string, err error) {
 	if eq.ctx.Unique == nil && eq.path != nil {
 		eq.Unique(true)
 	}
@@ -189,7 +214,7 @@ func (eq *EquipmentQuery) IDs(ctx context.Context) (ids []int, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (eq *EquipmentQuery) IDsX(ctx context.Context) []int {
+func (eq *EquipmentQuery) IDsX(ctx context.Context) []string {
 	ids, err := eq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -244,15 +269,27 @@ func (eq *EquipmentQuery) Clone() *EquipmentQuery {
 		return nil
 	}
 	return &EquipmentQuery{
-		config:     eq.config,
-		ctx:        eq.ctx.Clone(),
-		order:      append([]equipment.OrderOption{}, eq.order...),
-		inters:     append([]Interceptor{}, eq.inters...),
-		predicates: append([]predicate.Equipment{}, eq.predicates...),
+		config:        eq.config,
+		ctx:           eq.ctx.Clone(),
+		order:         append([]equipment.OrderOption{}, eq.order...),
+		inters:        append([]Interceptor{}, eq.inters...),
+		predicates:    append([]predicate.Equipment{}, eq.predicates...),
+		withHistories: eq.withHistories.Clone(),
 		// clone intermediate query.
 		sql:  eq.sql.Clone(),
 		path: eq.path,
 	}
+}
+
+// WithHistories tells the query-builder to eager-load the nodes that are connected to
+// the "histories" edge. The optional arguments are used to configure the query builder of the edge.
+func (eq *EquipmentQuery) WithHistories(opts ...func(*HistoryQuery)) *EquipmentQuery {
+	query := (&HistoryClient{config: eq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	eq.withHistories = query
+	return eq
 }
 
 // GroupBy is used to group vertices by one or more fields/columns.
@@ -261,12 +298,12 @@ func (eq *EquipmentQuery) Clone() *EquipmentQuery {
 // Example:
 //
 //	var v []struct {
-//		Type string `json:"type,omitempty"`
+//		AvgPriceDol float64 `json:"avg_price_dol,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Equipment.Query().
-//		GroupBy(equipment.FieldType).
+//		GroupBy(equipment.FieldAvgPriceDol).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (eq *EquipmentQuery) GroupBy(field string, fields ...string) *EquipmentGroupBy {
@@ -284,11 +321,11 @@ func (eq *EquipmentQuery) GroupBy(field string, fields ...string) *EquipmentGrou
 // Example:
 //
 //	var v []struct {
-//		Type string `json:"type,omitempty"`
+//		AvgPriceDol float64 `json:"avg_price_dol,omitempty"`
 //	}
 //
 //	client.Equipment.Query().
-//		Select(equipment.FieldType).
+//		Select(equipment.FieldAvgPriceDol).
 //		Scan(ctx, &v)
 func (eq *EquipmentQuery) Select(fields ...string) *EquipmentSelect {
 	eq.ctx.Fields = append(eq.ctx.Fields, fields...)
@@ -331,8 +368,11 @@ func (eq *EquipmentQuery) prepareQuery(ctx context.Context) error {
 
 func (eq *EquipmentQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Equipment, error) {
 	var (
-		nodes = []*Equipment{}
-		_spec = eq.querySpec()
+		nodes       = []*Equipment{}
+		_spec       = eq.querySpec()
+		loadedTypes = [1]bool{
+			eq.withHistories != nil,
+		}
 	)
 	_spec.ScanValues = func(columns []string) ([]any, error) {
 		return (*Equipment).scanValues(nil, columns)
@@ -340,6 +380,7 @@ func (eq *EquipmentQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Eq
 	_spec.Assign = func(columns []string, values []any) error {
 		node := &Equipment{config: eq.config}
 		nodes = append(nodes, node)
+		node.Edges.loadedTypes = loadedTypes
 		return node.assignValues(columns, values)
 	}
 	for i := range hooks {
@@ -351,7 +392,45 @@ func (eq *EquipmentQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Eq
 	if len(nodes) == 0 {
 		return nodes, nil
 	}
+	if query := eq.withHistories; query != nil {
+		if err := eq.loadHistories(ctx, query, nodes,
+			func(n *Equipment) { n.Edges.Histories = []*History{} },
+			func(n *Equipment, e *History) { n.Edges.Histories = append(n.Edges.Histories, e) }); err != nil {
+			return nil, err
+		}
+	}
 	return nodes, nil
+}
+
+func (eq *EquipmentQuery) loadHistories(ctx context.Context, query *HistoryQuery, nodes []*Equipment, init func(*Equipment), assign func(*Equipment, *History)) error {
+	fks := make([]driver.Value, 0, len(nodes))
+	nodeids := make(map[string]*Equipment)
+	for i := range nodes {
+		fks = append(fks, nodes[i].ID)
+		nodeids[nodes[i].ID] = nodes[i]
+		if init != nil {
+			init(nodes[i])
+		}
+	}
+	if len(query.ctx.Fields) > 0 {
+		query.ctx.AppendFieldOnce(history.FieldEquipmentType)
+	}
+	query.Where(predicate.History(func(s *sql.Selector) {
+		s.Where(sql.InValues(s.C(equipment.HistoriesColumn), fks...))
+	}))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		fk := n.EquipmentType
+		node, ok := nodeids[fk]
+		if !ok {
+			return fmt.Errorf(`unexpected referenced foreign-key "equipment_type" returned %v for node %v`, fk, n.ID)
+		}
+		assign(node, n)
+	}
+	return nil
 }
 
 func (eq *EquipmentQuery) sqlCount(ctx context.Context) (int, error) {
@@ -364,7 +443,7 @@ func (eq *EquipmentQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (eq *EquipmentQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(equipment.Table, equipment.Columns, sqlgraph.NewFieldSpec(equipment.FieldID, field.TypeInt))
+	_spec := sqlgraph.NewQuerySpec(equipment.Table, equipment.Columns, sqlgraph.NewFieldSpec(equipment.FieldID, field.TypeString))
 	_spec.From = eq.sql
 	if unique := eq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique
