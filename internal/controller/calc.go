@@ -25,8 +25,9 @@ func (h *Handler) saveCalcData(c *gin.Context) {
 		return
 	}
 
-	history := bind.FillStructJSON[dto.History](c)
-	if history == nil {
+	history, err := bind.FillStructJSON[dto.History](c)
+	if err != nil {
+		c.Error(errs.ValidError.AddErr(err))
 		return
 	}
 
@@ -48,8 +49,9 @@ func (h *Handler) saveCalcData(c *gin.Context) {
 // @Failure 500 {object} errs.MyError
 // @Router /calc [post]
 func (h *Handler) calcData(c *gin.Context) {
-	history := bind.FillStructJSON[dto.History](c)
-	if history == nil {
+	_, err := bind.FillStructJSON[dto.History](c)
+	if err != nil {
+		c.Error(errs.ValidError.AddErr(err))
 		return
 	}
 

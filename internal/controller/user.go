@@ -51,8 +51,9 @@ func (h *Handler) updateMe(c *gin.Context) {
 		return
 	}
 
-	updFields := bind.FillStructJSON[dto.UpdateUser](c)
-	if updFields == nil {
+	updFields, err := bind.FillStructJSON[dto.UpdateUser](c)
+	if err != nil {
+		c.Error(errs.ValidError.AddErr(err))
 		return
 	}
 
@@ -81,20 +82,21 @@ func (h *Handler) updateMe(c *gin.Context) {
 // @Failure 500 {object} errs.MyError
 // @Router /user/password [patch]
 func (h *Handler) updatePassword(c *gin.Context) {
-	updPassword := bind.FillStructJSON[dto.UpdatePassword](c)
-	if updPassword == nil {
+	updPassword, err := bind.FillStructJSON[dto.UpdatePassword](c)
+	if err != nil {
+		c.Error(errs.ValidError.AddErr(err))
 		return
 	}
 
-	if oki, err := h.auth.EqualsPopCode(updPassword.Email, updPassword.Code); err != nil {
+	if ok, err := h.auth.EqualsPopCode(updPassword.Email, updPassword.Code); err != nil {
 		c.Error(errs.ServerError.AddErr(err))
 		return
-	} else if !oki {
+	} else if !ok {
 		c.Error(errs.CodeError.AddErr(err))
 		return
 	}
 
-	if err := h.user.UpdatePassword([]byte(updPassword.NewPassword), updPassword.Email); err != nil {
+	if err = h.user.UpdatePassword([]byte(updPassword.NewPassword), updPassword.Email); err != nil {
 		switch {
 		case ent.IsNotFound(err):
 			c.Error(errs.NoSuchUser.AddErr(err))
@@ -126,8 +128,9 @@ func (h *Handler) updateEmail(c *gin.Context) {
 		return
 	}
 
-	updEmail := bind.FillStructJSON[dto.UpdateEmail](c)
-	if updEmail == nil {
+	updEmail, err := bind.FillStructJSON[dto.UpdateEmail](c)
+	if err != nil {
+		c.Error(errs.ValidError.AddErr(err))
 		return
 	}
 

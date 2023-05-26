@@ -21,8 +21,9 @@ import (
 // @Failure 500 {object} errs.MyError
 // @Router /auth/sign-up [post]
 func (h *Handler) signUp(c *gin.Context) {
-	auth := bind.FillStructJSON[dto.SignUp](c)
-	if auth == nil {
+	auth, err := bind.FillStructJSON[dto.SignUp](c)
+	if err != nil {
+		c.Error(errs.ValidError.AddErr(err))
 		return
 	}
 
@@ -69,8 +70,9 @@ func (h *Handler) signUp(c *gin.Context) {
 // @Failure 500 {object} errs.MyError
 // @Router /auth/sign-in [post]
 func (h *Handler) signIn(c *gin.Context) {
-	auth := bind.FillStructJSON[dto.SignIn](c)
-	if auth == nil {
+	auth, err := bind.FillStructJSON[dto.SignIn](c)
+	if err != nil {
+		c.Error(errs.ValidError.AddErr(err))
 		return
 	}
 
@@ -101,8 +103,9 @@ func (h *Handler) signIn(c *gin.Context) {
 // @Failure 500 {object} errs.MyError
 // @Router /email/send-code [post]
 func (h *Handler) sendCodeToEmail(c *gin.Context) {
-	to := bind.FillStructJSON[dto.Email](c)
-	if to == nil {
+	to, err := bind.FillStructJSON[dto.Email](c)
+	if err != nil {
+		c.Error(errs.ValidError.AddErr(err))
 		return
 	}
 

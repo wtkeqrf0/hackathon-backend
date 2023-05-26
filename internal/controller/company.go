@@ -56,8 +56,9 @@ func (h *Handler) updateCompany(c *gin.Context) {
 		return
 	}
 
-	updCompany := bind.FillStructJSON[dto.UpdateCompany](c)
-	if updCompany == nil {
+	updCompany, err := bind.FillStructJSON[dto.UpdateCompany](c)
+	if err != nil {
+		c.Error(errs.ValidError.AddErr(err))
 		return
 	}
 
