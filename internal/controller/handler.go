@@ -21,7 +21,7 @@ var (
 type UserService interface {
 	FindUserByID(id int) (*dao.Me, error)
 
-	UpdateUser(updateUser dto.UpdateUser, id int) error
+	UpdateUser(updateUser *dto.UpdateUser, id int) error
 	UpdatePassword(newPassword []byte, email string) error
 	UpdateEmail(password []byte, newEmail string, id int) error
 
@@ -36,11 +36,11 @@ type CompanyService interface {
 	CreateCompany(inn string, name, website *string) (*ent.Company, error)
 	GetCompany(id int) (*ent.Company, error)
 	GetCompanyDTO(id int) (*dao.Company, error)
-	UpdateCompany(updateCompany dto.UpdateCompany, id int) error
+	UpdateCompany(updateCompany *dto.UpdateCompany, id int) error
 }
 
 type AuthService interface {
-	CreateUserWithPassword(auth dto.SignUp, company *ent.Company) (*ent.User, error)
+	CreateUserWithPassword(auth *dto.SignUp, company *ent.Company) (*ent.User, error)
 	AuthUserByEmail(email string) (*ent.User, error)
 
 	EqualsPopCode(email string, code string) (bool, error)
@@ -53,7 +53,7 @@ type IndustryService interface {
 
 type HistoryService interface {
 	GetHistory(companyName string) (*ent.History, error)
-	CreateHistory(h dto.History, id int) error
+	CreateHistory(h *dto.History, id int) error
 }
 
 type PDFGenerator interface {
