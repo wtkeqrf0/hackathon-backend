@@ -158,7 +158,7 @@ func (m *Middlewares) InitGlobalMiddleWares(r *gin.Engine) {
 
 func (m *Middlewares) cors(c *gin.Context) {
 	if origin := c.GetHeader("Origin"); origin != "" {
-		c.Header("Access-Control-Allow-Origin", "*")
+		c.Header("Access-Control-Allow-Origin", "http://localhost:3000")
 		c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 		c.Header("Access-Control-Allow-Headers", "*")
 		c.Header("Access-Control-Expose-Headers", "Authorization")
