@@ -153,7 +153,7 @@ func NewMiddleWares(erh ErrHandler, qh QueryHandler) *Middlewares {
 }
 
 func (m *Middlewares) InitGlobalMiddleWares(r *gin.Engine) {
-	r.Use(m.qh.HandleQueries, gin.Recovery(), m.erh.HandleErrors)
+	r.Use(m.cors, m.qh.HandleQueries, gin.Recovery(), m.erh.HandleErrors)
 }
 
 func (m *Middlewares) cors(c *gin.Context) {
