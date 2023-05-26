@@ -91,9 +91,9 @@ func (h *Handler) InitRoutes(rg *gin.RouterGroup, mailSet bool) {
 
 	calc := rg.Group("/calc")
 	{
-		calc.GET("/industry", h.getIndustryInfo)
+		calc.GET("/:industry", h.getIndustryInfo)
 		calc.POST("", h.session.RequireSession, h.saveCalcData)
-		calc.GET("", h.calcData)
+		calc.POST("", h.calcData)
 	}
 
 	docs := rg.Group("/docs")

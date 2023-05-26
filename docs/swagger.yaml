@@ -21,12 +21,16 @@ definitions:
   dao.Industry:
     properties:
       avgSalary:
+        example: 72.7825875
         type: number
       avgSalaryCad:
+        example: 95.54196489
         type: number
       avgWorkersNum:
+        example: 1.208
         type: number
       avgWorkersNumCad:
+        example: 1243
         type: number
     required:
     - avgSalary
@@ -84,31 +88,43 @@ definitions:
   dto.History:
     properties:
       accountingServices:
+        example: true
         type: boolean
       companyName:
+        example: ООО 'Парк'
         maxLength: 150
         minLength: 2
         type: string
       constructionFacilitiesArea:
+        example: 50
         maximum: 0
         type: integer
       districtTitle:
+        example: ВАО
         type: string
       equipmentType:
+        example: Токарные станки
         type: string
       facilityType:
+        description: TODO
+        example: idk
         type: string
       fullTimeEmployees:
+        example: 50
         maximum: 0
         type: integer
       industryBranch:
+        example: Авиационная промышленность
         type: string
       landArea:
+        example: 120
         maximum: 0
         type: integer
       other:
+        example: I want some cookies
         type: string
       patent:
+        example: true
         type: boolean
     required:
     - accountingServices
@@ -122,14 +138,6 @@ definitions:
     - landArea
     - other
     - patent
-    type: object
-  dto.IndustryType:
-    properties:
-      type:
-        maxLength: 150
-        type: string
-    required:
-    - type
     type: object
   dto.SignIn:
     properties:
@@ -321,10 +329,6 @@ paths:
           description: User isn't logged in
           schema:
             $ref: '#/definitions/errs.MyError'
-        "404":
-          description: User doesn't exist
-          schema:
-            $ref: '#/definitions/errs.MyError'
         "500":
           description: Internal Server Error
           schema:
@@ -352,10 +356,6 @@ paths:
             type: string
         "400":
           description: Data is not valid
-          schema:
-            $ref: '#/definitions/errs.MyError'
-        "404":
-          description: User doesn't exist
           schema:
             $ref: '#/definitions/errs.MyError'
         "500":
@@ -386,10 +386,6 @@ paths:
           description: Data is not valid
           schema:
             $ref: '#/definitions/errs.MyError'
-        "404":
-          description: User doesn't exist
-          schema:
-            $ref: '#/definitions/errs.MyError'
         "500":
           description: Internal Server Error
           schema:
@@ -398,7 +394,7 @@ paths:
       tags:
       - Auth
   /calc:
-    get:
+    post:
       description: Returns PDF file, gotten from body
       parameters:
       - description: Completed application form
@@ -421,45 +417,15 @@ paths:
       summary: Generate PDF from body
       tags:
       - Calc
-    post:
-      description: Saves given values to user's history
-      parameters:
-      - description: Completed application form
-        in: body
-        name: from
-        required: true
-        schema:
-          $ref: '#/definitions/dto.History'
-      responses:
-        "200":
-          description: OK
-        "401":
-          description: User isn't logged in
-          schema:
-            $ref: '#/definitions/errs.MyError'
-        "404":
-          description: User doesn't exist
-          schema:
-            $ref: '#/definitions/errs.MyError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/errs.MyError'
-      security:
-      - ApiKeyAuth: []
-      summary: Save calc data to history
-      tags:
-      - Calc
-  /calc/industry:
+  /calc/{industry}:
     get:
       description: Returns detail information about industry
       parameters:
-      - description: Industry Type
-        in: body
-        name: industry_name
+      - description: Industry Branch
+        in: path
+        name: industry
         required: true
-        schema:
-          $ref: '#/definitions/dto.IndustryType'
+        type: string
       responses:
         "200":
           description: Info about industry
@@ -467,10 +433,6 @@ paths:
             $ref: '#/definitions/dao.Industry'
         "400":
           description: Validation error
-          schema:
-            $ref: '#/definitions/errs.MyError'
-        "404":
-          description: Industry doesn't exist
           schema:
             $ref: '#/definitions/errs.MyError'
         "500":
@@ -490,10 +452,6 @@ paths:
             $ref: '#/definitions/dao.Company'
         "401":
           description: User isn't logged in
-          schema:
-            $ref: '#/definitions/errs.MyError'
-        "404":
-          description: Company doesn't exist
           schema:
             $ref: '#/definitions/errs.MyError'
         "500":
@@ -523,10 +481,6 @@ paths:
             $ref: '#/definitions/errs.MyError'
         "401":
           description: User isn't logged in
-          schema:
-            $ref: '#/definitions/errs.MyError'
-        "404":
-          description: Something doesn't exist
           schema:
             $ref: '#/definitions/errs.MyError'
         "500":
@@ -585,10 +539,6 @@ paths:
           description: User isn't logged in
           schema:
             $ref: '#/definitions/errs.MyError'
-        "404":
-          description: User doesn't exist
-          schema:
-            $ref: '#/definitions/errs.MyError'
         "500":
           description: Internal Server Error
           schema:
@@ -616,10 +566,6 @@ paths:
             $ref: '#/definitions/errs.MyError'
         "401":
           description: User isn't logged in
-          schema:
-            $ref: '#/definitions/errs.MyError'
-        "404":
-          description: User doesn't exist
           schema:
             $ref: '#/definitions/errs.MyError'
         "500":
@@ -652,10 +598,6 @@ paths:
           description: User isn't logged in
           schema:
             $ref: '#/definitions/errs.MyError'
-        "404":
-          description: User doesn't exist
-          schema:
-            $ref: '#/definitions/errs.MyError'
         "500":
           description: Internal Server Error
           schema:
@@ -680,10 +622,6 @@ paths:
           description: Successfully Updated
         "400":
           description: Validation error
-          schema:
-            $ref: '#/definitions/errs.MyError'
-        "404":
-          description: User doesn't exist
           schema:
             $ref: '#/definitions/errs.MyError'
         "500":

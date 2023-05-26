@@ -15,8 +15,8 @@ import (
 // @Tags Calc
 // @Param from body dto.History true "Completed application form"
 // @Success 200 "OK"
+// @Failure 400 {object} errs.MyError "Validation error"
 // @Failure 401 {object} errs.MyError "User isn't logged in"
-// @Failure 404 {object} errs.MyError "User doesn't exist"
 // @Failure 500 {object} errs.MyError
 // @Router /calc [post]
 func (h *Handler) saveCalcData(c *gin.Context) {
@@ -46,7 +46,7 @@ func (h *Handler) saveCalcData(c *gin.Context) {
 // @Success 200 "PDF file"
 // @Failure 400 {object} errs.MyError "Validation error"
 // @Failure 500 {object} errs.MyError
-// @Router /calc [get]
+// @Router /calc [post]
 func (h *Handler) calcData(c *gin.Context) {
 	history := bind.FillStructJSON[dto.History](c)
 	if history == nil {
@@ -60,22 +60,17 @@ func (h *Handler) calcData(c *gin.Context) {
 // @Summary Get data about industry
 // @Description Returns detail information about industry
 // @Tags Calc
-// @Param industry_name body dto.IndustryBranch true "Industry Branch"
+// @Param industry path string true "Industry Branch"
 // @Success 200 {object} dao.Industry "Info about industry"
 // @Failure 400 {object} errs.MyError "Validation error"
-// @Failure 404 {object} errs.MyError "Industry doesn't exist"
 // @Failure 500 {object} errs.MyError
-// @Router /calc/industry [get]
+// @Router /calc/{industry} [get]
 func (h *Handler) getIndustryInfo(c *gin.Context) {
-	ind := bind.FillStructJSON[dto.IndustryBranch](c)
-	if ind == nil {
-		return
-	}
-
-	industry, err := h.industry.GetIndustry(ind.Branch)
+	industry, err := h.industry.GetIndustry(c.Param("industry"))
 	if err != nil {
 		c.Error(errs.NoSuchIndustry.AddErr(err))
 		return
 	}
+
 	c.JSON(http.StatusOK, industry)
 }

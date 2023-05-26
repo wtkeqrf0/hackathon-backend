@@ -57,12 +57,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/errs.MyError"
                         }
                     },
-                    "404": {
-                        "description": "User doesn't exist",
-                        "schema": {
-                            "$ref": "#/definitions/errs.MyError"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -124,12 +118,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/errs.MyError"
                         }
                     },
-                    "404": {
-                        "description": "User doesn't exist",
-                        "schema": {
-                            "$ref": "#/definitions/errs.MyError"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -170,12 +158,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/errs.MyError"
                         }
                     },
-                    "404": {
-                        "description": "User doesn't exist",
-                        "schema": {
-                            "$ref": "#/definitions/errs.MyError"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -186,7 +168,7 @@ const docTemplate = `{
             }
         },
         "/calc": {
-            "get": {
+            "post": {
                 "description": "Returns PDF file, gotten from body",
                 "tags": [
                     "Calc"
@@ -220,55 +202,9 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Saves given values to user's history",
-                "tags": [
-                    "Calc"
-                ],
-                "summary": "Save calc data to history",
-                "parameters": [
-                    {
-                        "description": "Completed application form",
-                        "name": "from",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.History"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
-                    },
-                    "401": {
-                        "description": "User isn't logged in",
-                        "schema": {
-                            "$ref": "#/definitions/errs.MyError"
-                        }
-                    },
-                    "404": {
-                        "description": "User doesn't exist",
-                        "schema": {
-                            "$ref": "#/definitions/errs.MyError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/errs.MyError"
-                        }
-                    }
-                }
             }
         },
-        "/calc/industry": {
+        "/calc/{industry}": {
             "get": {
                 "description": "Returns detail information about industry",
                 "tags": [
@@ -277,13 +213,11 @@ const docTemplate = `{
                 "summary": "Get data about industry",
                 "parameters": [
                     {
+                        "type": "string",
                         "description": "Industry Branch",
-                        "name": "industry_name",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.IndustryType"
-                        }
+                        "name": "industry",
+                        "in": "path",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -295,12 +229,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Validation error",
-                        "schema": {
-                            "$ref": "#/definitions/errs.MyError"
-                        }
-                    },
-                    "404": {
-                        "description": "Industry doesn't exist",
                         "schema": {
                             "$ref": "#/definitions/errs.MyError"
                         }
@@ -335,12 +263,6 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "User isn't logged in",
-                        "schema": {
-                            "$ref": "#/definitions/errs.MyError"
-                        }
-                    },
-                    "404": {
-                        "description": "Company doesn't exist",
                         "schema": {
                             "$ref": "#/definitions/errs.MyError"
                         }
@@ -387,12 +309,6 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "User isn't logged in",
-                        "schema": {
-                            "$ref": "#/definitions/errs.MyError"
-                        }
-                    },
-                    "404": {
-                        "description": "Something doesn't exist",
                         "schema": {
                             "$ref": "#/definitions/errs.MyError"
                         }
@@ -485,12 +401,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/errs.MyError"
                         }
                     },
-                    "404": {
-                        "description": "User doesn't exist",
-                        "schema": {
-                            "$ref": "#/definitions/errs.MyError"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -539,12 +449,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/errs.MyError"
                         }
                     },
-                    "404": {
-                        "description": "User doesn't exist",
-                        "schema": {
-                            "$ref": "#/definitions/errs.MyError"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -578,12 +482,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Validation error",
-                        "schema": {
-                            "$ref": "#/definitions/errs.MyError"
-                        }
-                    },
-                    "404": {
-                        "description": "User doesn't exist",
                         "schema": {
                             "$ref": "#/definitions/errs.MyError"
                         }
@@ -634,12 +532,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/errs.MyError"
                         }
                     },
-                    "404": {
-                        "description": "User doesn't exist",
-                        "schema": {
-                            "$ref": "#/definitions/errs.MyError"
-                        }
-                    },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
@@ -683,16 +575,20 @@ const docTemplate = `{
             ],
             "properties": {
                 "avgSalary": {
-                    "type": "number"
+                    "type": "number",
+                    "example": 72.7825875
                 },
                 "avgSalaryCad": {
-                    "type": "number"
+                    "type": "number",
+                    "example": 95.54196489
                 },
                 "avgWorkersNum": {
-                    "type": "number"
+                    "type": "number",
+                    "example": 1.208
                 },
                 "avgWorkersNumCad": {
-                    "type": "number"
+                    "type": "number",
+                    "example": 1243
                 }
             }
         },
@@ -777,54 +673,54 @@ const docTemplate = `{
             ],
             "properties": {
                 "accountingServices": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "example": true
                 },
                 "companyName": {
                     "type": "string",
                     "maxLength": 150,
-                    "minLength": 2
+                    "minLength": 2,
+                    "example": "ООО 'Парк'"
                 },
                 "constructionFacilitiesArea": {
                     "type": "integer",
-                    "maximum": 0
+                    "maximum": 0,
+                    "example": 50
                 },
                 "districtTitle": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "ВАО"
                 },
                 "equipmentType": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Токарные станки"
                 },
                 "facilityType": {
-                    "type": "string"
+                    "description": "TODO",
+                    "type": "string",
+                    "example": "idk"
                 },
                 "fullTimeEmployees": {
                     "type": "integer",
-                    "maximum": 0
+                    "maximum": 0,
+                    "example": 50
                 },
                 "industryBranch": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Авиационная промышленность"
                 },
                 "landArea": {
                     "type": "integer",
-                    "maximum": 0
+                    "maximum": 0,
+                    "example": 120
                 },
                 "other": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "I want some cookies"
                 },
                 "patent": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "dto.IndustryType": {
-            "type": "object",
-            "required": [
-                "type"
-            ],
-            "properties": {
-                "type": {
-                    "type": "string",
-                    "maxLength": 150
+                    "type": "boolean",
+                    "example": true
                 }
             }
         },
