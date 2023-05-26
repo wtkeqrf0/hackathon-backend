@@ -158,5 +158,5 @@ func (m *Middlewares) InitGlobalMiddleWares(r *gin.Engine) {
 	c.AllowOrigins = []string{"http://localhost:3000"}
 	c.AllowMethods = []string{"GET", "POST", "PATCH", "DELETE", "OPTIONS"}
 	c.AllowHeaders = []string{"Content-Type", "Content-Length", "Accept-Encoding", "Authorization", "Cache-Control"}
-	r.Use(cors.New(c), m.qh.HandleQueries, gin.Recovery(), m.erh.HandleErrors)
+	r.Use(m.qh.HandleQueries, gin.Recovery(), m.erh.HandleErrors)
 }
