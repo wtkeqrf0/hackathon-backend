@@ -1,5 +1,5 @@
 package dto
 
-type IndustryType struct {
-	Type string `json:"type,omitempty" validate:"required,lte=150"`
+type IndustryBranch struct {
+	Branch string `json:"branch,omitempty" validate:"required,lte=150" example:"Авиационная промышленность"`
 }

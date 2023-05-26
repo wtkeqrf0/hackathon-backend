@@ -60,19 +60,19 @@ func (h *Handler) calcData(c *gin.Context) {
 // @Summary Get data about industry
 // @Description Returns detail information about industry
 // @Tags Calc
-// @Param industry_name body dto.IndustryType true "Industry Type"
+// @Param industry_name body dto.IndustryBranch true "Industry Branch"
 // @Success 200 {object} dao.Industry "Info about industry"
 // @Failure 400 {object} errs.MyError "Validation error"
 // @Failure 404 {object} errs.MyError "Industry doesn't exist"
 // @Failure 500 {object} errs.MyError
 // @Router /calc/industry [get]
 func (h *Handler) getIndustryInfo(c *gin.Context) {
-	ind := bind.FillStructJSON[dto.IndustryType](c)
+	ind := bind.FillStructJSON[dto.IndustryBranch](c)
 	if ind == nil {
 		return
 	}
 
-	industry, err := h.industry.GetIndustry(ind.Type)
+	industry, err := h.industry.GetIndustry(ind.Branch)
 	if err != nil {
 		c.Error(errs.NoSuchIndustry.AddErr(err))
 		return

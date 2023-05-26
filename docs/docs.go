@@ -277,7 +277,7 @@ const docTemplate = `{
                 "summary": "Get data about industry",
                 "parameters": [
                     {
-                        "description": "Industry Type",
+                        "description": "Industry Branch",
                         "name": "industry_name",
                         "in": "body",
                         "required": true,
