@@ -162,6 +162,7 @@ func (m *Middlewares) cors(c *gin.Context) {
 		c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 		c.Header("Access-Control-Allow-Headers", "*")
 		c.Header("Access-Control-Expose-Headers", "Authorization")
+		c.Header("Access-Control-Allow-Credentials", "true")
 	} else {
 		c.Header("Access-Control-Allow-Headers", c.GetHeader("Origin"))
 	}
