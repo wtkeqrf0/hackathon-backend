@@ -19,9 +19,9 @@ func (a Auth) RequireSession(c *gin.Context) {
 	}
 
 	if ok {
-		c.SetSameSite(http.SameSiteNoneMode)
+		c.SetSameSite(http.SameSiteLaxMode)
 		c.SetCookie(cfg.Session.CookieName, session, int(cfg.Session.Duration.Seconds()),
-			cfg.Session.CookiePath, "", true, true)
+			cfg.Session.CookiePath, cfg.Listen.Host, false, true)
 	}
 
 	c.Set("user_info", info)
