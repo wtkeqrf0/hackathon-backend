@@ -26,7 +26,6 @@ func NewValid(v *validator.Validate) *Valid {
 	if err := v.RegisterValidation("title", validateTitle); err != nil {
 		logrus.WithError(err).Warn("can't validate title")
 	}
-	v.SetTagName("validate")
 
 	return &Valid{v: v}
 }
