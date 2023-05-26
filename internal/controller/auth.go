@@ -18,7 +18,6 @@ import (
 // @Tags Auth
 // @Success 200 {string} string "user's session"
 // @Failure 400 {object} errs.MyError "Data is not valid"
-// @Failure 404 {object} errs.MyError "User doesn't exist"
 // @Failure 500 {object} errs.MyError
 // @Router /auth/sign-up [post]
 func (h *Handler) signUp(c *gin.Context) {
@@ -67,7 +66,6 @@ func (h *Handler) signUp(c *gin.Context) {
 // @Tags Auth
 // @Success 200 {string} string "user's session"
 // @Failure 400 {object} errs.MyError "Data is not valid"
-// @Failure 404 {object} errs.MyError "User doesn't exist"
 // @Failure 500 {object} errs.MyError
 // @Router /auth/sign-in [post]
 func (h *Handler) signIn(c *gin.Context) {

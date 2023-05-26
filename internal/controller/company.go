@@ -16,7 +16,6 @@ import (
 // @Tags Company
 // @Success 200 {object} dao.Company "Info about company"
 // @Failure 401 {object} errs.MyError "User isn't logged in"
-// @Failure 404 {object} errs.MyError "Company doesn't exist"
 // @Failure 500 {object} errs.MyError
 // @Router /company [get]
 func (h *Handler) getMyCompany(c *gin.Context) {
@@ -49,7 +48,6 @@ func (h *Handler) getMyCompany(c *gin.Context) {
 // @Success 200 "OK"
 // @Failure 400 {object} errs.MyError "Validation error"
 // @Failure 401 {object} errs.MyError "User isn't logged in"
-// @Failure 404 {object} errs.MyError "Something doesn't exist"
 // @Failure 500 {object} errs.MyError
 // @Router /company [patch]
 func (h *Handler) updateCompany(c *gin.Context) {

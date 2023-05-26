@@ -17,7 +17,6 @@ import (
 // @Success 200 {object} dao.Me "Info about session"
 // @Failure 400 {object} errs.MyError "Validation error"
 // @Failure 401 {object} errs.MyError "User isn't logged in"
-// @Failure 404 {object} errs.MyError "User doesn't exist"
 // @Failure 500 {object} errs.MyError
 // @Router /auth/session [get]
 func (h *Handler) getMe(c *gin.Context) {
@@ -44,7 +43,6 @@ func (h *Handler) getMe(c *gin.Context) {
 // @Success 200 "Successfully Updated"
 // @Failure 400 {object} errs.MyError "Validation error"
 // @Failure 401 {object} errs.MyError "User isn't logged in"
-// @Failure 404 {object} errs.MyError "User doesn't exist"
 // @Failure 500 {object} errs.MyError
 // @Router /user [patch]
 func (h *Handler) updateMe(c *gin.Context) {
@@ -80,7 +78,6 @@ func (h *Handler) updateMe(c *gin.Context) {
 // @Param updPassword body dto.UpdatePassword true "Email with new password"
 // @Success 200 "Successfully Updated"
 // @Failure 400 {object} errs.MyError "Validation error"
-// @Failure 404 {object} errs.MyError "User doesn't exist"
 // @Failure 500 {object} errs.MyError
 // @Router /user/password [patch]
 func (h *Handler) updatePassword(c *gin.Context) {
@@ -121,7 +118,6 @@ func (h *Handler) updatePassword(c *gin.Context) {
 // @Success 200 "Successfully Updated"
 // @Failure 400 {object} errs.MyError "Validation error"
 // @Failure 401 {object} errs.MyError "User isn't logged in"
-// @Failure 404 {object} errs.MyError "User doesn't exist"
 // @Failure 500 {object} errs.MyError
 // @Router /user/email [patch]
 func (h *Handler) updateEmail(c *gin.Context) {
@@ -159,7 +155,6 @@ func (h *Handler) updateEmail(c *gin.Context) {
 // @Success 200 "PDF file"
 // @Failure 400 {object} errs.MyError "Validation error"
 // @Failure 401 {object} errs.MyError "User isn't logged in"
-// @Failure 404 {object} errs.MyError "User doesn't exist"
 // @Failure 500 {object} errs.MyError
 // @Router /user/{company_name} [get]
 func (h *Handler) getHistory(c *gin.Context) {

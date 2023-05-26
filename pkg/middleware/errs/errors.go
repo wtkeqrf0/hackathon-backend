@@ -28,7 +28,7 @@ var (
 
 // Entity errors
 var (
-	NoSuchUser     = newError(http.StatusNotFound, "There is no such user", "But you can still find another existing user!")
+	NoSuchUser     = newError(http.StatusBadRequest, "There is no such user", "But you can still find another existing user!")
 	NoSuchCompany  = newError(http.StatusBadRequest, "There is no such industry branch", "But you can still find another existing industry!")
 	NoSuchIndustry = newError(http.StatusBadRequest, "There is no such company inn", "But you can still find another existing company!")
 )
@@ -129,7 +129,7 @@ func (e ErrHandler) HandleErrors(c *gin.Context) {
 				my.Advice = "Try to write another value"
 
 			case ent.IsNotFound(err):
-				my.Status = http.StatusNotFound
+				my.Status = http.StatusBadRequest
 				my.Msg = "There is no such object"
 				my.Advice = "But you can still find another existing object!"
 			}
