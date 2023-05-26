@@ -92,7 +92,7 @@ func (h *Handler) InitRoutes(rg *gin.RouterGroup, mailSet bool) {
 	calc := rg.Group("/calc")
 	{
 		calc.GET("/:industry", h.getIndustryInfo)
-		calc.POST("", h.session.RequireSession, h.saveCalcData)
+		calc.POST("/save", h.session.RequireSession, h.saveCalcData)
 		calc.POST("", h.calcData)
 	}
 

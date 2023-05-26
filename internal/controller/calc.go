@@ -18,7 +18,7 @@ import (
 // @Failure 400 {object} errs.MyError "Validation error"
 // @Failure 401 {object} errs.MyError "User isn't logged in"
 // @Failure 500 {object} errs.MyError
-// @Router /calc [post]
+// @Router /calc/save [post]
 func (h *Handler) saveCalcData(c *gin.Context) {
 	s, err := h.session.GetSession(c)
 	if err != nil {

@@ -442,6 +442,36 @@ paths:
       summary: Get data about industry
       tags:
       - Calc
+  /calc/save:
+    post:
+      description: Saves given values to user's history
+      parameters:
+      - description: Completed application form
+        in: body
+        name: from
+        required: true
+        schema:
+          $ref: '#/definitions/dto.History'
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "401":
+          description: User isn't logged in
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+      security:
+      - ApiKeyAuth: []
+      summary: Save calc data to history
+      tags:
+      - Calc
   /company:
     get:
       description: Returns information about company by session
