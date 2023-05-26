@@ -12,7 +12,7 @@ var (
 	CompaniesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "inn", Type: field.TypeString},
-		{Name: "name", Type: field.TypeString, Unique: true, Nullable: true, Size: 150},
+		{Name: "name", Type: field.TypeString, Nullable: true, Size: 150},
 		{Name: "website", Type: field.TypeString, Nullable: true},
 	}
 	// CompaniesTable holds the schema information for the "companies" table.

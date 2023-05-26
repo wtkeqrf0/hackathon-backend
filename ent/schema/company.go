@@ -20,7 +20,7 @@ func (Company) Fields() []ent.Field {
 		field.String("inn").Match(bind.InnRegexp).
 			StructTag(`json:"inn,omitempty" example:"7707083893"`),
 
-		field.String("name").Optional().Unique().MinLen(2).MaxLen(150).Nillable().
+		field.String("name").Optional().MinLen(2).MaxLen(150).Nillable().
 			StructTag(`json:"companyName,omitempty" example:"ООО 'Парк'"`),
 
 		field.String("website").Optional().Match(bind.LinkRegexp).Nillable().
