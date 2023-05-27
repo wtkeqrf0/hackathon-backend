@@ -16,12 +16,13 @@ var (
 )
 
 // FillStructJSON of given generic type by request JSON body
-func FillStructJSON[T any](c *gin.Context) (*T, error) {
+func FillStructJSON[T any](c *gin.Context) *T {
 	var t T
 	if err := c.ShouldBindJSON(&t); err != nil {
-		return nil, err
+		c.Error(err)
+		return nil
 	}
-	return &t, nil
+	return &t
 }
 
 func validateName(fl validator.FieldLevel) bool {
