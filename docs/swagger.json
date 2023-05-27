@@ -406,6 +406,41 @@
             }
         },
         "/user": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Returns array of user histories",
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get all user's histories",
+                "responses": {
+                    "200": {
+                        "description": "History info",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dao.Histories"
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "User isn't logged in",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/errs.MyError"
+                        }
+                    }
+                }
+            },
             "patch": {
                 "security": [
                     {
@@ -608,6 +643,23 @@
                 }
             }
         },
+        "dao.Histories": {
+            "type": "object",
+            "required": [
+                "companyName",
+                "id"
+            ],
+            "properties": {
+                "companyName": {
+                    "type": "string",
+                    "example": "ООО 'Парк'"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 12
+                }
+            }
+        },
         "dao.Industry": {
             "type": "object",
             "required": [
@@ -687,6 +739,34 @@
                 }
             }
         },
+        "dto.BusinessActivity": {
+            "type": "object",
+            "required": [
+                "id",
+                "subType",
+                "total",
+                "type"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "maximum": 0,
+                    "example": 12
+                },
+                "subType": {
+                    "type": "string",
+                    "example": "Много букав"
+                },
+                "total": {
+                    "type": "number",
+                    "example": 35.235
+                },
+                "type": {
+                    "type": "string",
+                    "example": "Много букав"
+                }
+            }
+        },
         "dto.Email": {
             "type": "object",
             "required": [
@@ -699,32 +779,55 @@
                 }
             }
         },
+        "dto.Equipment": {
+            "type": "object",
+            "required": [
+                "type"
+            ],
+            "properties": {
+                "price": {
+                    "type": "number",
+                    "maximum": 0,
+                    "example": 3058.12
+                },
+                "type": {
+                    "type": "string",
+                    "example": "Станок"
+                }
+            }
+        },
         "dto.History": {
             "type": "object",
             "required": [
-                "accountingServices",
-                "companyName",
+                "accountingSupport",
+                "avgSalary",
+                "buildingType",
                 "constructionFacilitiesArea",
                 "districtTitle",
-                "equipmentType",
-                "facilityType",
                 "fullTimeEmployees",
                 "industryBranch",
+                "isBuy",
                 "landArea",
-                "organizationType",
-                "other",
-                "patent"
+                "name",
+                "organizationLegal",
+                "patentCalc"
             ],
             "properties": {
-                "accountingServices": {
+                "accountingSupport": {
                     "type": "boolean",
                     "example": true
                 },
-                "companyName": {
+                "avgSalary": {
+                    "type": "number",
+                    "maximum": 0,
+                    "example": 3058.12
+                },
+                "buildingType": {
                     "type": "string",
-                    "maxLength": 150,
-                    "minLength": 2,
-                    "example": "ООО 'Парк'"
+                    "example": "Энергетическое"
+                },
+                "business_activity": {
+                    "$ref": "#/definitions/dto.BusinessActivity"
                 },
                 "constructionFacilitiesArea": {
                     "type": "number",
@@ -735,14 +838,11 @@
                     "type": "string",
                     "example": "ВАО"
                 },
-                "equipmentType": {
-                    "type": "string",
-                    "example": "Токарные станки"
-                },
-                "facilityType": {
-                    "description": "TODO",
-                    "type": "string",
-                    "example": "idk"
+                "equipment": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.Equipment"
+                    }
                 },
                 "fullTimeEmployees": {
                     "type": "integer",
@@ -753,22 +853,39 @@
                     "type": "string",
                     "example": "Авиационная_промышленность"
                 },
+                "isBuy": {
+                    "type": "boolean",
+                    "example": true
+                },
                 "landArea": {
                     "type": "number",
                     "maximum": 0,
                     "example": 120
                 },
-                "organizationType": {
+                "name": {
                     "type": "string",
-                    "example": "ООО"
+                    "maxLength": 200,
+                    "minLength": 2,
+                    "example": "ООО 'Парк'"
+                },
+                "operationsNum": {
+                    "type": "integer",
+                    "maximum": 0
+                },
+                "organizationLegal": {
+                    "type": "string",
+                    "example": "ИП"
                 },
                 "other": {
                     "type": "string",
                     "example": "I want some cookies"
                 },
-                "patent": {
+                "patentCalc": {
                     "type": "boolean",
                     "example": true
+                },
+                "taxationSystemOperations": {
+                    "$ref": "#/definitions/dto.TaxationSystem"
                 }
             }
         },
@@ -849,6 +966,37 @@
                     "maxLength": 50,
                     "minLength": 2,
                     "example": "Director"
+                }
+            }
+        },
+        "dto.TaxationSystem": {
+            "type": "object",
+            "required": [
+                "operations",
+                "osn",
+                "usn15",
+                "usn6"
+            ],
+            "properties": {
+                "operations": {
+                    "type": "integer",
+                    "maximum": 0,
+                    "example": 20
+                },
+                "osn": {
+                    "type": "number",
+                    "maximum": 0,
+                    "example": 49.5
+                },
+                "usn15": {
+                    "type": "number",
+                    "maximum": 0,
+                    "example": 57.2
+                },
+                "usn6": {
+                    "type": "number",
+                    "maximum": 0,
+                    "example": 84.2
                 }
             }
         },

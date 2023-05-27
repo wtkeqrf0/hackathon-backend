@@ -127,6 +127,29 @@ func (h *Handler) updateEmail(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
+// GetHistories godoc
+// @Summary Get all user's histories
+// @Description Returns array of user histories
+// @Security ApiKeyAuth
+// @Tags User
+// @Success 200 {array} dao.Histories "History info"
+// @Failure 401 {object} errs.MyError "User isn't logged in"
+// @Failure 500 {object} errs.MyError
+// @Router /user [get]
+func (h *Handler) getHistories(c *gin.Context) {
+	s := h.session.GetSession(c)
+	if s == nil {
+		return
+	}
+
+	history, err := h.user.GetAllHistory(s.ID)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+	c.JSON(http.StatusOK, history)
+}
+
 // GetHistory godoc
 // @Summary Generate PDF file from user history
 // @Description Returns PDF file got from user history
@@ -161,7 +184,7 @@ func (h *Handler) getHistory(c *gin.Context) {
 
 	p := service.Params{
 		IndustryBranch:      history.IndustryBranch,
-		OrganizationType:    history.OrganizationType,
+		OrganizationType:    history.OrganizationalLegal,
 		FullTimeEmployers:   history.FullTimeEmployees,
 		LandArea:            history.LandArea,
 		Total:               0,

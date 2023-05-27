@@ -18,6 +18,18 @@ definitions:
     required:
     - inn
     type: object
+  dao.Histories:
+    properties:
+      companyName:
+        example: ООО 'Парк'
+        type: string
+      id:
+        example: 12
+        type: integer
+    required:
+    - companyName
+    - id
+    type: object
   dao.Industry:
     properties:
       avgSalary:
@@ -77,6 +89,27 @@ definitions:
     - name
     - role
     type: object
+  dto.BusinessActivity:
+    properties:
+      id:
+        example: 12
+        maximum: 0
+        type: integer
+      subType:
+        example: Много букав
+        type: string
+      total:
+        example: 35.235
+        type: number
+      type:
+        example: Много букав
+        type: string
+    required:
+    - id
+    - subType
+    - total
+    - type
+    type: object
   dto.Email:
     properties:
       email:
@@ -85,16 +118,32 @@ definitions:
     required:
     - email
     type: object
+  dto.Equipment:
+    properties:
+      price:
+        example: 3058.12
+        maximum: 0
+        type: number
+      type:
+        example: Станок
+        type: string
+    required:
+    - type
+    type: object
   dto.History:
     properties:
-      accountingServices:
+      accountingSupport:
         example: true
         type: boolean
-      companyName:
-        example: ООО 'Парк'
-        maxLength: 150
-        minLength: 2
+      avgSalary:
+        example: 3058.12
+        maximum: 0
+        type: number
+      buildingType:
+        example: Энергетическое
         type: string
+      business_activity:
+        $ref: '#/definitions/dto.BusinessActivity'
       constructionFacilitiesArea:
         example: 50
         maximum: 0
@@ -102,13 +151,10 @@ definitions:
       districtTitle:
         example: ВАО
         type: string
-      equipmentType:
-        example: Токарные станки
-        type: string
-      facilityType:
-        description: TODO
-        example: idk
-        type: string
+      equipment:
+        items:
+          $ref: '#/definitions/dto.Equipment'
+        type: array
       fullTimeEmployees:
         example: 50
         maximum: 0
@@ -116,32 +162,45 @@ definitions:
       industryBranch:
         example: Авиационная_промышленность
         type: string
+      isBuy:
+        example: true
+        type: boolean
       landArea:
         example: 120
         maximum: 0
         type: number
-      organizationType:
-        example: ООО
+      name:
+        example: ООО 'Парк'
+        maxLength: 200
+        minLength: 2
+        type: string
+      operationsNum:
+        maximum: 0
+        type: integer
+      organizationLegal:
+        example: ИП
         type: string
       other:
         example: I want some cookies
         type: string
-      patent:
+      patentCalc:
         example: true
         type: boolean
+      taxationSystemOperations:
+        $ref: '#/definitions/dto.TaxationSystem'
     required:
-    - accountingServices
-    - companyName
+    - accountingSupport
+    - avgSalary
+    - buildingType
     - constructionFacilitiesArea
     - districtTitle
-    - equipmentType
-    - facilityType
     - fullTimeEmployees
     - industryBranch
+    - isBuy
     - landArea
-    - organizationType
-    - other
-    - patent
+    - name
+    - organizationLegal
+    - patentCalc
     type: object
   dto.SignIn:
     properties:
@@ -204,6 +263,30 @@ definitions:
     - firstName
     - lastName
     - password
+    type: object
+  dto.TaxationSystem:
+    properties:
+      operations:
+        example: 20
+        maximum: 0
+        type: integer
+      osn:
+        example: 49.5
+        maximum: 0
+        type: number
+      usn6:
+        example: 84.2
+        maximum: 0
+        type: number
+      usn15:
+        example: 57.2
+        maximum: 0
+        type: number
+    required:
+    - operations
+    - osn
+    - usn15
+    - usn6
     type: object
   dto.UpdateCompany:
     properties:
@@ -553,6 +636,28 @@ paths:
       tags:
       - Auth
   /user:
+    get:
+      description: Returns array of user histories
+      responses:
+        "200":
+          description: History info
+          schema:
+            items:
+              $ref: '#/definitions/dao.Histories'
+            type: array
+        "401":
+          description: User isn't logged in
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get all user's histories
+      tags:
+      - User
     patch:
       description: Updates user's info
       parameters:
