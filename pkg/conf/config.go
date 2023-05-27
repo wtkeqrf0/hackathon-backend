@@ -17,14 +17,14 @@ type Config struct {
 
 	Session struct {
 		CookieName string        `yaml:"cookie_name" env:"COOKIE_NAME" env-default:"session_id"`
-		CookiePath string        `yaml:"cookie_path" env:"COOKIE_PATH" env-default:"localhost:3000/api"`
+		CookiePath string        `yaml:"cookie_path" env:"COOKIE_PATH" env-default:"/api"`
 		Duration   time.Duration `yaml:"duration" env:"COOKIE_DURATION" env-default:"720h"`
 	} `yaml:"session"`
 
 	Listen struct {
-		MainPath string `yaml:"main_path" env:"MAIN_PATH" env-default:"/api"`
-		Host     string `yaml:"host" env:"HOST" env-default:"localhost"`
-		Port     int    `yaml:"port" env:"PORT" env-default:"3000"`
+		MainPath   string `yaml:"main_path" env:"MAIN_PATH" env-default:"/api"`
+		DomainName string `yaml:"domain_name" env:"DOMAIN_NAME" env-default:"37.230.195.26:3000"`
+		Port       int    `yaml:"port" env:"PORT" env-default:"3000"`
 	} `yaml:"listen"`
 
 	DB struct {

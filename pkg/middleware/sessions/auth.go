@@ -93,7 +93,7 @@ func (a Auth) SetNewCookie(id int, c *gin.Context) {
 
 	c.SetSameSite(http.SameSiteNoneMode)
 	c.SetCookie(cfg.Session.CookieName, session, int(cfg.Session.Duration.Seconds()),
-		cfg.Session.CookiePath, cfg.Listen.Host, false, true)
+		cfg.Session.CookiePath, cfg.Listen.DomainName, false, true)
 }
 
 // PopCookie from cookie storage only if equals to uuid4

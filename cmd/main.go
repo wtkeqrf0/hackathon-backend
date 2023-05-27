@@ -65,7 +65,7 @@ func init() {
 // @sessions.docs.description Authorization, registration and authentication
 func main() {
 	cfg := conf.GetConfig()
-	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%d", cfg.Listen.Host, cfg.Listen.Port)
+	docs.SwaggerInfo.Host = fmt.Sprintf("%s:%d", cfg.Listen.DomainName, cfg.Listen.Port)
 
 	pClient, rClient, mailClient := getClients(cfg)
 
