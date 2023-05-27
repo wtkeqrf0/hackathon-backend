@@ -19,7 +19,9 @@ import (
 type History struct {
 	config `json:"-"`
 	// ID of the ent.
-	ID string `json:"id,omitempty"`
+	ID int `json:"id,omitempty"`
+	// CompanyName holds the value of the "company_name" field.
+	CompanyName string `json:"company_name,omitempty"`
 	// IndustryBranch holds the value of the "industry_branch" field.
 	IndustryBranch string `json:"industry_branch,omitempty"`
 	// FullTimeEmployees holds the value of the "full_time_employees" field.
@@ -27,11 +29,13 @@ type History struct {
 	// DistrictTitle holds the value of the "district_title" field.
 	DistrictTitle string `json:"district_title,omitempty"`
 	// LandArea holds the value of the "land_area" field.
-	LandArea int `json:"land_area,omitempty"`
+	LandArea float64 `json:"land_area,omitempty"`
 	// ConstructionFacilitiesArea holds the value of the "construction_facilities_area" field.
-	ConstructionFacilitiesArea int `json:"construction_facilities_area,omitempty"`
+	ConstructionFacilitiesArea float64 `json:"construction_facilities_area,omitempty"`
 	// EquipmentType holds the value of the "equipment_type" field.
 	EquipmentType string `json:"equipment_type,omitempty"`
+	// OrganizationType holds the value of the "organization_type" field.
+	OrganizationType string `json:"organization_type,omitempty"`
 	// FacilityType holds the value of the "facility_type" field.
 	FacilityType string `json:"facility_type,omitempty"`
 	// AccountingServices holds the value of the "accounting_services" field.
@@ -122,9 +126,11 @@ func (*History) scanValues(columns []string) ([]any, error) {
 		switch columns[i] {
 		case history.FieldAccountingServices, history.FieldPatent:
 			values[i] = new(sql.NullBool)
-		case history.FieldFullTimeEmployees, history.FieldLandArea, history.FieldConstructionFacilitiesArea, history.FieldUserID:
+		case history.FieldLandArea, history.FieldConstructionFacilitiesArea:
+			values[i] = new(sql.NullFloat64)
+		case history.FieldID, history.FieldFullTimeEmployees, history.FieldUserID:
 			values[i] = new(sql.NullInt64)
-		case history.FieldID, history.FieldIndustryBranch, history.FieldDistrictTitle, history.FieldEquipmentType, history.FieldFacilityType, history.FieldOther:
+		case history.FieldCompanyName, history.FieldIndustryBranch, history.FieldDistrictTitle, history.FieldEquipmentType, history.FieldOrganizationType, history.FieldFacilityType, history.FieldOther:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -142,10 +148,16 @@ func (h *History) assignValues(columns []string, values []any) error {
 	for i := range columns {
 		switch columns[i] {
 		case history.FieldID:
+			value, ok := values[i].(*sql.NullInt64)
+			if !ok {
+				return fmt.Errorf("unexpected type %T for field id", value)
+			}
+			h.ID = int(value.Int64)
+		case history.FieldCompanyName:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field id", values[i])
+				return fmt.Errorf("unexpected type %T for field company_name", values[i])
 			} else if value.Valid {
-				h.ID = value.String
+				h.CompanyName = value.String
 			}
 		case history.FieldIndustryBranch:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -166,22 +178,28 @@ func (h *History) assignValues(columns []string, values []any) error {
 				h.DistrictTitle = value.String
 			}
 		case history.FieldLandArea:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field land_area", values[i])
 			} else if value.Valid {
-				h.LandArea = int(value.Int64)
+				h.LandArea = value.Float64
 			}
 		case history.FieldConstructionFacilitiesArea:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field construction_facilities_area", values[i])
 			} else if value.Valid {
-				h.ConstructionFacilitiesArea = int(value.Int64)
+				h.ConstructionFacilitiesArea = value.Float64
 			}
 		case history.FieldEquipmentType:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field equipment_type", values[i])
 			} else if value.Valid {
 				h.EquipmentType = value.String
+			}
+		case history.FieldOrganizationType:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field organization_type", values[i])
+			} else if value.Valid {
+				h.OrganizationType = value.String
 			}
 		case history.FieldFacilityType:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -269,6 +287,9 @@ func (h *History) String() string {
 	var builder strings.Builder
 	builder.WriteString("History(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", h.ID))
+	builder.WriteString("company_name=")
+	builder.WriteString(h.CompanyName)
+	builder.WriteString(", ")
 	builder.WriteString("industry_branch=")
 	builder.WriteString(h.IndustryBranch)
 	builder.WriteString(", ")
@@ -286,6 +307,9 @@ func (h *History) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("equipment_type=")
 	builder.WriteString(h.EquipmentType)
+	builder.WriteString(", ")
+	builder.WriteString("organization_type=")
+	builder.WriteString(h.OrganizationType)
 	builder.WriteString(", ")
 	builder.WriteString("facility_type=")
 	builder.WriteString(h.FacilityType)

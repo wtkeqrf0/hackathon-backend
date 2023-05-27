@@ -40,7 +40,7 @@ func (hd *HistoryDelete) ExecX(ctx context.Context) int {
 }
 
 func (hd *HistoryDelete) sqlExec(ctx context.Context) (int, error) {
-	_spec := sqlgraph.NewDeleteSpec(history.Table, sqlgraph.NewFieldSpec(history.FieldID, field.TypeString))
+	_spec := sqlgraph.NewDeleteSpec(history.Table, sqlgraph.NewFieldSpec(history.FieldID, field.TypeInt))
 	if ps := hd.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {

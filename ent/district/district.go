@@ -17,7 +17,7 @@ const (
 	// EdgeHistories holds the string denoting the histories edge name in mutations.
 	EdgeHistories = "histories"
 	// HistoryFieldID holds the string denoting the ID field of the History.
-	HistoryFieldID = "company_name"
+	HistoryFieldID = "id"
 	// Table holds the table name of the district in the database.
 	Table = "districts"
 	// HistoriesTable is the table that holds the histories relation/edge.

@@ -47,8 +47,6 @@ const (
 	EdgeCompany = "company"
 	// EdgeHistories holds the string denoting the histories edge name in mutations.
 	EdgeHistories = "histories"
-	// HistoryFieldID holds the string denoting the ID field of the History.
-	HistoryFieldID = "company_name"
 	// Table holds the table name of the user in the database.
 	Table = "users"
 	// CompanyTable is the table that holds the company relation/edge.
@@ -234,7 +232,7 @@ func newCompanyStep() *sqlgraph.Step {
 func newHistoriesStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(HistoriesInverseTable, HistoryFieldID),
+		sqlgraph.To(HistoriesInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.O2M, false, HistoriesTable, HistoriesColumn),
 	)
 }

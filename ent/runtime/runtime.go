@@ -64,6 +64,24 @@ func init() {
 	equipment.AvgPriceRubValidator = equipmentDescAvgPriceRub.Validators[0].(func(float64) error)
 	historyFields := schema.History{}.Fields()
 	_ = historyFields
+	// historyDescCompanyName is the schema descriptor for company_name field.
+	historyDescCompanyName := historyFields[0].Descriptor()
+	// history.CompanyNameValidator is a validator for the "company_name" field. It is called by the builders before save.
+	history.CompanyNameValidator = func() func(string) error {
+		validators := historyDescCompanyName.Validators
+		fns := [...]func(string) error{
+			validators[0].(func(string) error),
+			validators[1].(func(string) error),
+		}
+		return func(company_name string) error {
+			for _, fn := range fns {
+				if err := fn(company_name); err != nil {
+					return err
+				}
+			}
+			return nil
+		}
+	}()
 	// historyDescFullTimeEmployees is the schema descriptor for full_time_employees field.
 	historyDescFullTimeEmployees := historyFields[2].Descriptor()
 	// history.FullTimeEmployeesValidator is a validator for the "full_time_employees" field. It is called by the builders before save.
@@ -71,29 +89,11 @@ func init() {
 	// historyDescLandArea is the schema descriptor for land_area field.
 	historyDescLandArea := historyFields[4].Descriptor()
 	// history.LandAreaValidator is a validator for the "land_area" field. It is called by the builders before save.
-	history.LandAreaValidator = historyDescLandArea.Validators[0].(func(int) error)
+	history.LandAreaValidator = historyDescLandArea.Validators[0].(func(float64) error)
 	// historyDescConstructionFacilitiesArea is the schema descriptor for construction_facilities_area field.
 	historyDescConstructionFacilitiesArea := historyFields[5].Descriptor()
 	// history.ConstructionFacilitiesAreaValidator is a validator for the "construction_facilities_area" field. It is called by the builders before save.
-	history.ConstructionFacilitiesAreaValidator = historyDescConstructionFacilitiesArea.Validators[0].(func(int) error)
-	// historyDescID is the schema descriptor for id field.
-	historyDescID := historyFields[0].Descriptor()
-	// history.IDValidator is a validator for the "id" field. It is called by the builders before save.
-	history.IDValidator = func() func(string) error {
-		validators := historyDescID.Validators
-		fns := [...]func(string) error{
-			validators[0].(func(string) error),
-			validators[1].(func(string) error),
-		}
-		return func(id string) error {
-			for _, fn := range fns {
-				if err := fn(id); err != nil {
-					return err
-				}
-			}
-			return nil
-		}
-	}()
+	history.ConstructionFacilitiesAreaValidator = historyDescConstructionFacilitiesArea.Validators[0].(func(float64) error)
 	industryFields := schema.Industry{}.Fields()
 	_ = industryFields
 	// industryDescAvgWorkersNum is the schema descriptor for avg_workers_num field.

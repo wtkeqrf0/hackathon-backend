@@ -57,10 +57,12 @@ var (
 	}
 	// HistoriesColumns holds the columns for the "histories" table.
 	HistoriesColumns = []*schema.Column{
-		{Name: "company_name", Type: field.TypeString, Unique: true, Size: 150},
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "company_name", Type: field.TypeString, Size: 150},
 		{Name: "full_time_employees", Type: field.TypeInt},
-		{Name: "land_area", Type: field.TypeInt},
-		{Name: "construction_facilities_area", Type: field.TypeInt},
+		{Name: "land_area", Type: field.TypeFloat64},
+		{Name: "construction_facilities_area", Type: field.TypeFloat64},
+		{Name: "organization_type", Type: field.TypeString},
 		{Name: "facility_type", Type: field.TypeString},
 		{Name: "accounting_services", Type: field.TypeBool},
 		{Name: "patent", Type: field.TypeBool},
@@ -78,25 +80,25 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "histories_districts_histories",
-				Columns:    []*schema.Column{HistoriesColumns[8]},
+				Columns:    []*schema.Column{HistoriesColumns[10]},
 				RefColumns: []*schema.Column{DistrictsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "histories_equipment_histories",
-				Columns:    []*schema.Column{HistoriesColumns[9]},
+				Columns:    []*schema.Column{HistoriesColumns[11]},
 				RefColumns: []*schema.Column{EquipmentColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "histories_industries_histories",
-				Columns:    []*schema.Column{HistoriesColumns[10]},
+				Columns:    []*schema.Column{HistoriesColumns[12]},
 				RefColumns: []*schema.Column{IndustriesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
 				Symbol:     "histories_users_histories",
-				Columns:    []*schema.Column{HistoriesColumns[11]},
+				Columns:    []*schema.Column{HistoriesColumns[13]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},

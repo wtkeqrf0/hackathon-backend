@@ -39,14 +39,14 @@ func (ec *EquipmentCreate) SetID(s string) *EquipmentCreate {
 }
 
 // AddHistoryIDs adds the "histories" edge to the History entity by IDs.
-func (ec *EquipmentCreate) AddHistoryIDs(ids ...string) *EquipmentCreate {
+func (ec *EquipmentCreate) AddHistoryIDs(ids ...int) *EquipmentCreate {
 	ec.mutation.AddHistoryIDs(ids...)
 	return ec
 }
 
 // AddHistories adds the "histories" edges to the History entity.
 func (ec *EquipmentCreate) AddHistories(h ...*History) *EquipmentCreate {
-	ids := make([]string, len(h))
+	ids := make([]int, len(h))
 	for i := range h {
 		ids[i] = h[i].ID
 	}
@@ -154,7 +154,7 @@ func (ec *EquipmentCreate) createSpec() (*Equipment, *sqlgraph.CreateSpec) {
 			Columns: []string{equipment.HistoriesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

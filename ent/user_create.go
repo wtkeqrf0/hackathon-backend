@@ -182,14 +182,14 @@ func (uc *UserCreate) SetCompany(c *Company) *UserCreate {
 }
 
 // AddHistoryIDs adds the "histories" edge to the History entity by IDs.
-func (uc *UserCreate) AddHistoryIDs(ids ...string) *UserCreate {
+func (uc *UserCreate) AddHistoryIDs(ids ...int) *UserCreate {
 	uc.mutation.AddHistoryIDs(ids...)
 	return uc
 }
 
 // AddHistories adds the "histories" edges to the History entity.
 func (uc *UserCreate) AddHistories(h ...*History) *UserCreate {
-	ids := make([]string, len(h))
+	ids := make([]int, len(h))
 	for i := range h {
 		ids[i] = h[i].ID
 	}
@@ -437,7 +437,7 @@ func (uc *UserCreate) createSpec() (*User, *sqlgraph.CreateSpec) {
 			Columns: []string{user.HistoriesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

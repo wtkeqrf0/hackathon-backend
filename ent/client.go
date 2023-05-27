@@ -812,7 +812,7 @@ func (c *HistoryClient) UpdateOne(h *History) *HistoryUpdateOne {
 }
 
 // UpdateOneID returns an update builder for the given id.
-func (c *HistoryClient) UpdateOneID(id string) *HistoryUpdateOne {
+func (c *HistoryClient) UpdateOneID(id int) *HistoryUpdateOne {
 	mutation := newHistoryMutation(c.config, OpUpdateOne, withHistoryID(id))
 	return &HistoryUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
 }
@@ -829,7 +829,7 @@ func (c *HistoryClient) DeleteOne(h *History) *HistoryDeleteOne {
 }
 
 // DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *HistoryClient) DeleteOneID(id string) *HistoryDeleteOne {
+func (c *HistoryClient) DeleteOneID(id int) *HistoryDeleteOne {
 	builder := c.Delete().Where(history.ID(id))
 	builder.mutation.id = &id
 	builder.mutation.op = OpDeleteOne
@@ -846,12 +846,12 @@ func (c *HistoryClient) Query() *HistoryQuery {
 }
 
 // Get returns a History entity by its id.
-func (c *HistoryClient) Get(ctx context.Context, id string) (*History, error) {
+func (c *HistoryClient) Get(ctx context.Context, id int) (*History, error) {
 	return c.Query().Where(history.ID(id)).Only(ctx)
 }
 
 // GetX is like Get, but panics if an error occurs.
-func (c *HistoryClient) GetX(ctx context.Context, id string) *History {
+func (c *HistoryClient) GetX(ctx context.Context, id int) *History {
 	obj, err := c.Get(ctx, id)
 	if err != nil {
 		panic(err)

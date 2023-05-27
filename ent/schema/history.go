@@ -14,7 +14,7 @@ type History struct {
 // Fields of the History.
 func (History) Fields() []ent.Field {
 	return []ent.Field{
-		field.String("id").StorageKey("company_name").Unique().MinLen(2).MaxLen(150),
+		field.String("company_name").MinLen(2).MaxLen(150),
 
 		field.String("industry_branch").Immutable(),
 
@@ -22,11 +22,13 @@ func (History) Fields() []ent.Field {
 
 		field.String("district_title").Immutable(),
 
-		field.Int("land_area").Positive().Immutable(),
+		field.Float("land_area").Positive().Immutable(),
 
-		field.Int("construction_facilities_area").Positive().Immutable(),
+		field.Float("construction_facilities_area").Positive().Immutable(),
 
 		field.String("equipment_type").Immutable(),
+
+		field.String("organization_type").Immutable(),
 
 		field.String("facility_type").Immutable(),
 
@@ -60,7 +62,7 @@ func (History) Edges() []ent.Edge {
 
 		edge.From("users", User.Type).
 			Ref("histories").
-			Required().Unique().Immutable().
-			Field("user_id"),
+			Required().Immutable().
+			Unique().Field("user_id"),
 	}
 }

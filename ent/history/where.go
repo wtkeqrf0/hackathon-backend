@@ -9,58 +9,53 @@ import (
 )
 
 // ID filters vertices based on their ID field.
-func ID(id string) predicate.History {
+func ID(id int) predicate.History {
 	return predicate.History(sql.FieldEQ(FieldID, id))
 }
 
 // IDEQ applies the EQ predicate on the ID field.
-func IDEQ(id string) predicate.History {
+func IDEQ(id int) predicate.History {
 	return predicate.History(sql.FieldEQ(FieldID, id))
 }
 
 // IDNEQ applies the NEQ predicate on the ID field.
-func IDNEQ(id string) predicate.History {
+func IDNEQ(id int) predicate.History {
 	return predicate.History(sql.FieldNEQ(FieldID, id))
 }
 
 // IDIn applies the In predicate on the ID field.
-func IDIn(ids ...string) predicate.History {
+func IDIn(ids ...int) predicate.History {
 	return predicate.History(sql.FieldIn(FieldID, ids...))
 }
 
 // IDNotIn applies the NotIn predicate on the ID field.
-func IDNotIn(ids ...string) predicate.History {
+func IDNotIn(ids ...int) predicate.History {
 	return predicate.History(sql.FieldNotIn(FieldID, ids...))
 }
 
 // IDGT applies the GT predicate on the ID field.
-func IDGT(id string) predicate.History {
+func IDGT(id int) predicate.History {
 	return predicate.History(sql.FieldGT(FieldID, id))
 }
 
 // IDGTE applies the GTE predicate on the ID field.
-func IDGTE(id string) predicate.History {
+func IDGTE(id int) predicate.History {
 	return predicate.History(sql.FieldGTE(FieldID, id))
 }
 
 // IDLT applies the LT predicate on the ID field.
-func IDLT(id string) predicate.History {
+func IDLT(id int) predicate.History {
 	return predicate.History(sql.FieldLT(FieldID, id))
 }
 
 // IDLTE applies the LTE predicate on the ID field.
-func IDLTE(id string) predicate.History {
+func IDLTE(id int) predicate.History {
 	return predicate.History(sql.FieldLTE(FieldID, id))
 }
 
-// IDEqualFold applies the EqualFold predicate on the ID field.
-func IDEqualFold(id string) predicate.History {
-	return predicate.History(sql.FieldEqualFold(FieldID, id))
-}
-
-// IDContainsFold applies the ContainsFold predicate on the ID field.
-func IDContainsFold(id string) predicate.History {
-	return predicate.History(sql.FieldContainsFold(FieldID, id))
+// CompanyName applies equality check predicate on the "company_name" field. It's identical to CompanyNameEQ.
+func CompanyName(v string) predicate.History {
+	return predicate.History(sql.FieldEQ(FieldCompanyName, v))
 }
 
 // IndustryBranch applies equality check predicate on the "industry_branch" field. It's identical to IndustryBranchEQ.
@@ -79,18 +74,23 @@ func DistrictTitle(v string) predicate.History {
 }
 
 // LandArea applies equality check predicate on the "land_area" field. It's identical to LandAreaEQ.
-func LandArea(v int) predicate.History {
+func LandArea(v float64) predicate.History {
 	return predicate.History(sql.FieldEQ(FieldLandArea, v))
 }
 
 // ConstructionFacilitiesArea applies equality check predicate on the "construction_facilities_area" field. It's identical to ConstructionFacilitiesAreaEQ.
-func ConstructionFacilitiesArea(v int) predicate.History {
+func ConstructionFacilitiesArea(v float64) predicate.History {
 	return predicate.History(sql.FieldEQ(FieldConstructionFacilitiesArea, v))
 }
 
 // EquipmentType applies equality check predicate on the "equipment_type" field. It's identical to EquipmentTypeEQ.
 func EquipmentType(v string) predicate.History {
 	return predicate.History(sql.FieldEQ(FieldEquipmentType, v))
+}
+
+// OrganizationType applies equality check predicate on the "organization_type" field. It's identical to OrganizationTypeEQ.
+func OrganizationType(v string) predicate.History {
+	return predicate.History(sql.FieldEQ(FieldOrganizationType, v))
 }
 
 // FacilityType applies equality check predicate on the "facility_type" field. It's identical to FacilityTypeEQ.
@@ -116,6 +116,71 @@ func Other(v string) predicate.History {
 // UserID applies equality check predicate on the "user_id" field. It's identical to UserIDEQ.
 func UserID(v int) predicate.History {
 	return predicate.History(sql.FieldEQ(FieldUserID, v))
+}
+
+// CompanyNameEQ applies the EQ predicate on the "company_name" field.
+func CompanyNameEQ(v string) predicate.History {
+	return predicate.History(sql.FieldEQ(FieldCompanyName, v))
+}
+
+// CompanyNameNEQ applies the NEQ predicate on the "company_name" field.
+func CompanyNameNEQ(v string) predicate.History {
+	return predicate.History(sql.FieldNEQ(FieldCompanyName, v))
+}
+
+// CompanyNameIn applies the In predicate on the "company_name" field.
+func CompanyNameIn(vs ...string) predicate.History {
+	return predicate.History(sql.FieldIn(FieldCompanyName, vs...))
+}
+
+// CompanyNameNotIn applies the NotIn predicate on the "company_name" field.
+func CompanyNameNotIn(vs ...string) predicate.History {
+	return predicate.History(sql.FieldNotIn(FieldCompanyName, vs...))
+}
+
+// CompanyNameGT applies the GT predicate on the "company_name" field.
+func CompanyNameGT(v string) predicate.History {
+	return predicate.History(sql.FieldGT(FieldCompanyName, v))
+}
+
+// CompanyNameGTE applies the GTE predicate on the "company_name" field.
+func CompanyNameGTE(v string) predicate.History {
+	return predicate.History(sql.FieldGTE(FieldCompanyName, v))
+}
+
+// CompanyNameLT applies the LT predicate on the "company_name" field.
+func CompanyNameLT(v string) predicate.History {
+	return predicate.History(sql.FieldLT(FieldCompanyName, v))
+}
+
+// CompanyNameLTE applies the LTE predicate on the "company_name" field.
+func CompanyNameLTE(v string) predicate.History {
+	return predicate.History(sql.FieldLTE(FieldCompanyName, v))
+}
+
+// CompanyNameContains applies the Contains predicate on the "company_name" field.
+func CompanyNameContains(v string) predicate.History {
+	return predicate.History(sql.FieldContains(FieldCompanyName, v))
+}
+
+// CompanyNameHasPrefix applies the HasPrefix predicate on the "company_name" field.
+func CompanyNameHasPrefix(v string) predicate.History {
+	return predicate.History(sql.FieldHasPrefix(FieldCompanyName, v))
+}
+
+// CompanyNameHasSuffix applies the HasSuffix predicate on the "company_name" field.
+func CompanyNameHasSuffix(v string) predicate.History {
+	return predicate.History(sql.FieldHasSuffix(FieldCompanyName, v))
+}
+
+// CompanyNameEqualFold applies the EqualFold predicate on the "company_name" field.
+func CompanyNameEqualFold(v string) predicate.History {
+	return predicate.History(sql.FieldEqualFold(FieldCompanyName, v))
+}
+
+// CompanyNameContainsFold applies the ContainsFold predicate on the "company_name" field.
+func CompanyNameContainsFold(v string) predicate.History {
+	return predicate.History(sql.FieldContainsFold(FieldCompanyName, v))
 }
 
 // IndustryBranchEQ applies the EQ predicate on the "industry_branch" field.
@@ -289,82 +354,82 @@ func DistrictTitleContainsFold(v string) predicate.History {
 }
 
 // LandAreaEQ applies the EQ predicate on the "land_area" field.
-func LandAreaEQ(v int) predicate.History {
+func LandAreaEQ(v float64) predicate.History {
 	return predicate.History(sql.FieldEQ(FieldLandArea, v))
 }
 
 // LandAreaNEQ applies the NEQ predicate on the "land_area" field.
-func LandAreaNEQ(v int) predicate.History {
+func LandAreaNEQ(v float64) predicate.History {
 	return predicate.History(sql.FieldNEQ(FieldLandArea, v))
 }
 
 // LandAreaIn applies the In predicate on the "land_area" field.
-func LandAreaIn(vs ...int) predicate.History {
+func LandAreaIn(vs ...float64) predicate.History {
 	return predicate.History(sql.FieldIn(FieldLandArea, vs...))
 }
 
 // LandAreaNotIn applies the NotIn predicate on the "land_area" field.
-func LandAreaNotIn(vs ...int) predicate.History {
+func LandAreaNotIn(vs ...float64) predicate.History {
 	return predicate.History(sql.FieldNotIn(FieldLandArea, vs...))
 }
 
 // LandAreaGT applies the GT predicate on the "land_area" field.
-func LandAreaGT(v int) predicate.History {
+func LandAreaGT(v float64) predicate.History {
 	return predicate.History(sql.FieldGT(FieldLandArea, v))
 }
 
 // LandAreaGTE applies the GTE predicate on the "land_area" field.
-func LandAreaGTE(v int) predicate.History {
+func LandAreaGTE(v float64) predicate.History {
 	return predicate.History(sql.FieldGTE(FieldLandArea, v))
 }
 
 // LandAreaLT applies the LT predicate on the "land_area" field.
-func LandAreaLT(v int) predicate.History {
+func LandAreaLT(v float64) predicate.History {
 	return predicate.History(sql.FieldLT(FieldLandArea, v))
 }
 
 // LandAreaLTE applies the LTE predicate on the "land_area" field.
-func LandAreaLTE(v int) predicate.History {
+func LandAreaLTE(v float64) predicate.History {
 	return predicate.History(sql.FieldLTE(FieldLandArea, v))
 }
 
 // ConstructionFacilitiesAreaEQ applies the EQ predicate on the "construction_facilities_area" field.
-func ConstructionFacilitiesAreaEQ(v int) predicate.History {
+func ConstructionFacilitiesAreaEQ(v float64) predicate.History {
 	return predicate.History(sql.FieldEQ(FieldConstructionFacilitiesArea, v))
 }
 
 // ConstructionFacilitiesAreaNEQ applies the NEQ predicate on the "construction_facilities_area" field.
-func ConstructionFacilitiesAreaNEQ(v int) predicate.History {
+func ConstructionFacilitiesAreaNEQ(v float64) predicate.History {
 	return predicate.History(sql.FieldNEQ(FieldConstructionFacilitiesArea, v))
 }
 
 // ConstructionFacilitiesAreaIn applies the In predicate on the "construction_facilities_area" field.
-func ConstructionFacilitiesAreaIn(vs ...int) predicate.History {
+func ConstructionFacilitiesAreaIn(vs ...float64) predicate.History {
 	return predicate.History(sql.FieldIn(FieldConstructionFacilitiesArea, vs...))
 }
 
 // ConstructionFacilitiesAreaNotIn applies the NotIn predicate on the "construction_facilities_area" field.
-func ConstructionFacilitiesAreaNotIn(vs ...int) predicate.History {
+func ConstructionFacilitiesAreaNotIn(vs ...float64) predicate.History {
 	return predicate.History(sql.FieldNotIn(FieldConstructionFacilitiesArea, vs...))
 }
 
 // ConstructionFacilitiesAreaGT applies the GT predicate on the "construction_facilities_area" field.
-func ConstructionFacilitiesAreaGT(v int) predicate.History {
+func ConstructionFacilitiesAreaGT(v float64) predicate.History {
 	return predicate.History(sql.FieldGT(FieldConstructionFacilitiesArea, v))
 }
 
 // ConstructionFacilitiesAreaGTE applies the GTE predicate on the "construction_facilities_area" field.
-func ConstructionFacilitiesAreaGTE(v int) predicate.History {
+func ConstructionFacilitiesAreaGTE(v float64) predicate.History {
 	return predicate.History(sql.FieldGTE(FieldConstructionFacilitiesArea, v))
 }
 
 // ConstructionFacilitiesAreaLT applies the LT predicate on the "construction_facilities_area" field.
-func ConstructionFacilitiesAreaLT(v int) predicate.History {
+func ConstructionFacilitiesAreaLT(v float64) predicate.History {
 	return predicate.History(sql.FieldLT(FieldConstructionFacilitiesArea, v))
 }
 
 // ConstructionFacilitiesAreaLTE applies the LTE predicate on the "construction_facilities_area" field.
-func ConstructionFacilitiesAreaLTE(v int) predicate.History {
+func ConstructionFacilitiesAreaLTE(v float64) predicate.History {
 	return predicate.History(sql.FieldLTE(FieldConstructionFacilitiesArea, v))
 }
 
@@ -431,6 +496,71 @@ func EquipmentTypeEqualFold(v string) predicate.History {
 // EquipmentTypeContainsFold applies the ContainsFold predicate on the "equipment_type" field.
 func EquipmentTypeContainsFold(v string) predicate.History {
 	return predicate.History(sql.FieldContainsFold(FieldEquipmentType, v))
+}
+
+// OrganizationTypeEQ applies the EQ predicate on the "organization_type" field.
+func OrganizationTypeEQ(v string) predicate.History {
+	return predicate.History(sql.FieldEQ(FieldOrganizationType, v))
+}
+
+// OrganizationTypeNEQ applies the NEQ predicate on the "organization_type" field.
+func OrganizationTypeNEQ(v string) predicate.History {
+	return predicate.History(sql.FieldNEQ(FieldOrganizationType, v))
+}
+
+// OrganizationTypeIn applies the In predicate on the "organization_type" field.
+func OrganizationTypeIn(vs ...string) predicate.History {
+	return predicate.History(sql.FieldIn(FieldOrganizationType, vs...))
+}
+
+// OrganizationTypeNotIn applies the NotIn predicate on the "organization_type" field.
+func OrganizationTypeNotIn(vs ...string) predicate.History {
+	return predicate.History(sql.FieldNotIn(FieldOrganizationType, vs...))
+}
+
+// OrganizationTypeGT applies the GT predicate on the "organization_type" field.
+func OrganizationTypeGT(v string) predicate.History {
+	return predicate.History(sql.FieldGT(FieldOrganizationType, v))
+}
+
+// OrganizationTypeGTE applies the GTE predicate on the "organization_type" field.
+func OrganizationTypeGTE(v string) predicate.History {
+	return predicate.History(sql.FieldGTE(FieldOrganizationType, v))
+}
+
+// OrganizationTypeLT applies the LT predicate on the "organization_type" field.
+func OrganizationTypeLT(v string) predicate.History {
+	return predicate.History(sql.FieldLT(FieldOrganizationType, v))
+}
+
+// OrganizationTypeLTE applies the LTE predicate on the "organization_type" field.
+func OrganizationTypeLTE(v string) predicate.History {
+	return predicate.History(sql.FieldLTE(FieldOrganizationType, v))
+}
+
+// OrganizationTypeContains applies the Contains predicate on the "organization_type" field.
+func OrganizationTypeContains(v string) predicate.History {
+	return predicate.History(sql.FieldContains(FieldOrganizationType, v))
+}
+
+// OrganizationTypeHasPrefix applies the HasPrefix predicate on the "organization_type" field.
+func OrganizationTypeHasPrefix(v string) predicate.History {
+	return predicate.History(sql.FieldHasPrefix(FieldOrganizationType, v))
+}
+
+// OrganizationTypeHasSuffix applies the HasSuffix predicate on the "organization_type" field.
+func OrganizationTypeHasSuffix(v string) predicate.History {
+	return predicate.History(sql.FieldHasSuffix(FieldOrganizationType, v))
+}
+
+// OrganizationTypeEqualFold applies the EqualFold predicate on the "organization_type" field.
+func OrganizationTypeEqualFold(v string) predicate.History {
+	return predicate.History(sql.FieldEqualFold(FieldOrganizationType, v))
+}
+
+// OrganizationTypeContainsFold applies the ContainsFold predicate on the "organization_type" field.
+func OrganizationTypeContainsFold(v string) predicate.History {
+	return predicate.History(sql.FieldContainsFold(FieldOrganizationType, v))
 }
 
 // FacilityTypeEQ applies the EQ predicate on the "facility_type" field.

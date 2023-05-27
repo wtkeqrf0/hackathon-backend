@@ -51,14 +51,14 @@ func (ic *IndustryCreate) SetID(s string) *IndustryCreate {
 }
 
 // AddHistoryIDs adds the "histories" edge to the History entity by IDs.
-func (ic *IndustryCreate) AddHistoryIDs(ids ...string) *IndustryCreate {
+func (ic *IndustryCreate) AddHistoryIDs(ids ...int) *IndustryCreate {
 	ic.mutation.AddHistoryIDs(ids...)
 	return ic
 }
 
 // AddHistories adds the "histories" edges to the History entity.
 func (ic *IndustryCreate) AddHistories(h ...*History) *IndustryCreate {
-	ids := make([]string, len(h))
+	ids := make([]int, len(h))
 	for i := range h {
 		ids[i] = h[i].ID
 	}
@@ -190,7 +190,7 @@ func (ic *IndustryCreate) createSpec() (*Industry, *sqlgraph.CreateSpec) {
 			Columns: []string{industry.HistoriesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

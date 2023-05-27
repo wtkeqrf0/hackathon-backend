@@ -42,14 +42,14 @@ func (du *DistrictUpdate) AddAvgCadastralVal(f float64) *DistrictUpdate {
 }
 
 // AddHistoryIDs adds the "histories" edge to the History entity by IDs.
-func (du *DistrictUpdate) AddHistoryIDs(ids ...string) *DistrictUpdate {
+func (du *DistrictUpdate) AddHistoryIDs(ids ...int) *DistrictUpdate {
 	du.mutation.AddHistoryIDs(ids...)
 	return du
 }
 
 // AddHistories adds the "histories" edges to the History entity.
 func (du *DistrictUpdate) AddHistories(h ...*History) *DistrictUpdate {
-	ids := make([]string, len(h))
+	ids := make([]int, len(h))
 	for i := range h {
 		ids[i] = h[i].ID
 	}
@@ -68,14 +68,14 @@ func (du *DistrictUpdate) ClearHistories() *DistrictUpdate {
 }
 
 // RemoveHistoryIDs removes the "histories" edge to History entities by IDs.
-func (du *DistrictUpdate) RemoveHistoryIDs(ids ...string) *DistrictUpdate {
+func (du *DistrictUpdate) RemoveHistoryIDs(ids ...int) *DistrictUpdate {
 	du.mutation.RemoveHistoryIDs(ids...)
 	return du
 }
 
 // RemoveHistories removes "histories" edges to History entities.
 func (du *DistrictUpdate) RemoveHistories(h ...*History) *DistrictUpdate {
-	ids := make([]string, len(h))
+	ids := make([]int, len(h))
 	for i := range h {
 		ids[i] = h[i].ID
 	}
@@ -145,7 +145,7 @@ func (du *DistrictUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{district.HistoriesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -158,7 +158,7 @@ func (du *DistrictUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{district.HistoriesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -174,7 +174,7 @@ func (du *DistrictUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{district.HistoriesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -216,14 +216,14 @@ func (duo *DistrictUpdateOne) AddAvgCadastralVal(f float64) *DistrictUpdateOne {
 }
 
 // AddHistoryIDs adds the "histories" edge to the History entity by IDs.
-func (duo *DistrictUpdateOne) AddHistoryIDs(ids ...string) *DistrictUpdateOne {
+func (duo *DistrictUpdateOne) AddHistoryIDs(ids ...int) *DistrictUpdateOne {
 	duo.mutation.AddHistoryIDs(ids...)
 	return duo
 }
 
 // AddHistories adds the "histories" edges to the History entity.
 func (duo *DistrictUpdateOne) AddHistories(h ...*History) *DistrictUpdateOne {
-	ids := make([]string, len(h))
+	ids := make([]int, len(h))
 	for i := range h {
 		ids[i] = h[i].ID
 	}
@@ -242,14 +242,14 @@ func (duo *DistrictUpdateOne) ClearHistories() *DistrictUpdateOne {
 }
 
 // RemoveHistoryIDs removes the "histories" edge to History entities by IDs.
-func (duo *DistrictUpdateOne) RemoveHistoryIDs(ids ...string) *DistrictUpdateOne {
+func (duo *DistrictUpdateOne) RemoveHistoryIDs(ids ...int) *DistrictUpdateOne {
 	duo.mutation.RemoveHistoryIDs(ids...)
 	return duo
 }
 
 // RemoveHistories removes "histories" edges to History entities.
 func (duo *DistrictUpdateOne) RemoveHistories(h ...*History) *DistrictUpdateOne {
-	ids := make([]string, len(h))
+	ids := make([]int, len(h))
 	for i := range h {
 		ids[i] = h[i].ID
 	}
@@ -349,7 +349,7 @@ func (duo *DistrictUpdateOne) sqlSave(ctx context.Context) (_node *District, err
 			Columns: []string{district.HistoriesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -362,7 +362,7 @@ func (duo *DistrictUpdateOne) sqlSave(ctx context.Context) (_node *District, err
 			Columns: []string{district.HistoriesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -378,7 +378,7 @@ func (duo *DistrictUpdateOne) sqlSave(ctx context.Context) (_node *District, err
 			Columns: []string{district.HistoriesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

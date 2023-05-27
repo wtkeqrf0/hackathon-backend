@@ -27,6 +27,12 @@ func (hu *HistoryUpdate) Where(ps ...predicate.History) *HistoryUpdate {
 	return hu
 }
 
+// SetCompanyName sets the "company_name" field.
+func (hu *HistoryUpdate) SetCompanyName(s string) *HistoryUpdate {
+	hu.mutation.SetCompanyName(s)
+	return hu
+}
+
 // Mutation returns the HistoryMutation object of the builder.
 func (hu *HistoryUpdate) Mutation() *HistoryMutation {
 	return hu.mutation
@@ -61,6 +67,11 @@ func (hu *HistoryUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (hu *HistoryUpdate) check() error {
+	if v, ok := hu.mutation.CompanyName(); ok {
+		if err := history.CompanyNameValidator(v); err != nil {
+			return &ValidationError{Name: "company_name", err: fmt.Errorf(`ent: validator failed for field "History.company_name": %w`, err)}
+		}
+	}
 	if _, ok := hu.mutation.IndustryID(); hu.mutation.IndustryCleared() && !ok {
 		return errors.New(`ent: clearing a required unique edge "History.industry"`)
 	}
@@ -80,13 +91,16 @@ func (hu *HistoryUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if err := hu.check(); err != nil {
 		return n, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(history.Table, history.Columns, sqlgraph.NewFieldSpec(history.FieldID, field.TypeString))
+	_spec := sqlgraph.NewUpdateSpec(history.Table, history.Columns, sqlgraph.NewFieldSpec(history.FieldID, field.TypeInt))
 	if ps := hu.mutation.predicates; len(ps) > 0 {
 		_spec.Predicate = func(selector *sql.Selector) {
 			for i := range ps {
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := hu.mutation.CompanyName(); ok {
+		_spec.SetField(history.FieldCompanyName, field.TypeString, value)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, hu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -106,6 +120,12 @@ type HistoryUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *HistoryMutation
+}
+
+// SetCompanyName sets the "company_name" field.
+func (huo *HistoryUpdateOne) SetCompanyName(s string) *HistoryUpdateOne {
+	huo.mutation.SetCompanyName(s)
+	return huo
 }
 
 // Mutation returns the HistoryMutation object of the builder.
@@ -155,6 +175,11 @@ func (huo *HistoryUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (huo *HistoryUpdateOne) check() error {
+	if v, ok := huo.mutation.CompanyName(); ok {
+		if err := history.CompanyNameValidator(v); err != nil {
+			return &ValidationError{Name: "company_name", err: fmt.Errorf(`ent: validator failed for field "History.company_name": %w`, err)}
+		}
+	}
 	if _, ok := huo.mutation.IndustryID(); huo.mutation.IndustryCleared() && !ok {
 		return errors.New(`ent: clearing a required unique edge "History.industry"`)
 	}
@@ -174,7 +199,7 @@ func (huo *HistoryUpdateOne) sqlSave(ctx context.Context) (_node *History, err e
 	if err := huo.check(); err != nil {
 		return _node, err
 	}
-	_spec := sqlgraph.NewUpdateSpec(history.Table, history.Columns, sqlgraph.NewFieldSpec(history.FieldID, field.TypeString))
+	_spec := sqlgraph.NewUpdateSpec(history.Table, history.Columns, sqlgraph.NewFieldSpec(history.FieldID, field.TypeInt))
 	id, ok := huo.mutation.ID()
 	if !ok {
 		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "History.id" for update`)}
@@ -198,6 +223,9 @@ func (huo *HistoryUpdateOne) sqlSave(ctx context.Context) (_node *History, err e
 				ps[i](selector)
 			}
 		}
+	}
+	if value, ok := huo.mutation.CompanyName(); ok {
+		_spec.SetField(history.FieldCompanyName, field.TypeString, value)
 	}
 	_node = &History{config: huo.config}
 	_spec.Assign = _node.assignValues

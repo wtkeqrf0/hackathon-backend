@@ -23,6 +23,12 @@ type HistoryCreate struct {
 	hooks    []Hook
 }
 
+// SetCompanyName sets the "company_name" field.
+func (hc *HistoryCreate) SetCompanyName(s string) *HistoryCreate {
+	hc.mutation.SetCompanyName(s)
+	return hc
+}
+
 // SetIndustryBranch sets the "industry_branch" field.
 func (hc *HistoryCreate) SetIndustryBranch(s string) *HistoryCreate {
 	hc.mutation.SetIndustryBranch(s)
@@ -42,20 +48,26 @@ func (hc *HistoryCreate) SetDistrictTitle(s string) *HistoryCreate {
 }
 
 // SetLandArea sets the "land_area" field.
-func (hc *HistoryCreate) SetLandArea(i int) *HistoryCreate {
-	hc.mutation.SetLandArea(i)
+func (hc *HistoryCreate) SetLandArea(f float64) *HistoryCreate {
+	hc.mutation.SetLandArea(f)
 	return hc
 }
 
 // SetConstructionFacilitiesArea sets the "construction_facilities_area" field.
-func (hc *HistoryCreate) SetConstructionFacilitiesArea(i int) *HistoryCreate {
-	hc.mutation.SetConstructionFacilitiesArea(i)
+func (hc *HistoryCreate) SetConstructionFacilitiesArea(f float64) *HistoryCreate {
+	hc.mutation.SetConstructionFacilitiesArea(f)
 	return hc
 }
 
 // SetEquipmentType sets the "equipment_type" field.
 func (hc *HistoryCreate) SetEquipmentType(s string) *HistoryCreate {
 	hc.mutation.SetEquipmentType(s)
+	return hc
+}
+
+// SetOrganizationType sets the "organization_type" field.
+func (hc *HistoryCreate) SetOrganizationType(s string) *HistoryCreate {
+	hc.mutation.SetOrganizationType(s)
 	return hc
 }
 
@@ -86,12 +98,6 @@ func (hc *HistoryCreate) SetOther(s string) *HistoryCreate {
 // SetUserID sets the "user_id" field.
 func (hc *HistoryCreate) SetUserID(i int) *HistoryCreate {
 	hc.mutation.SetUserID(i)
-	return hc
-}
-
-// SetID sets the "id" field.
-func (hc *HistoryCreate) SetID(s string) *HistoryCreate {
-	hc.mutation.SetID(s)
 	return hc
 }
 
@@ -173,6 +179,14 @@ func (hc *HistoryCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (hc *HistoryCreate) check() error {
+	if _, ok := hc.mutation.CompanyName(); !ok {
+		return &ValidationError{Name: "company_name", err: errors.New(`ent: missing required field "History.company_name"`)}
+	}
+	if v, ok := hc.mutation.CompanyName(); ok {
+		if err := history.CompanyNameValidator(v); err != nil {
+			return &ValidationError{Name: "company_name", err: fmt.Errorf(`ent: validator failed for field "History.company_name": %w`, err)}
+		}
+	}
 	if _, ok := hc.mutation.IndustryBranch(); !ok {
 		return &ValidationError{Name: "industry_branch", err: errors.New(`ent: missing required field "History.industry_branch"`)}
 	}
@@ -206,6 +220,9 @@ func (hc *HistoryCreate) check() error {
 	if _, ok := hc.mutation.EquipmentType(); !ok {
 		return &ValidationError{Name: "equipment_type", err: errors.New(`ent: missing required field "History.equipment_type"`)}
 	}
+	if _, ok := hc.mutation.OrganizationType(); !ok {
+		return &ValidationError{Name: "organization_type", err: errors.New(`ent: missing required field "History.organization_type"`)}
+	}
 	if _, ok := hc.mutation.FacilityType(); !ok {
 		return &ValidationError{Name: "facility_type", err: errors.New(`ent: missing required field "History.facility_type"`)}
 	}
@@ -220,11 +237,6 @@ func (hc *HistoryCreate) check() error {
 	}
 	if _, ok := hc.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "History.user_id"`)}
-	}
-	if v, ok := hc.mutation.ID(); ok {
-		if err := history.IDValidator(v); err != nil {
-			return &ValidationError{Name: "id", err: fmt.Errorf(`ent: validator failed for field "History.id": %w`, err)}
-		}
 	}
 	if _, ok := hc.mutation.IndustryID(); !ok {
 		return &ValidationError{Name: "industry", err: errors.New(`ent: missing required edge "History.industry"`)}
@@ -252,13 +264,8 @@ func (hc *HistoryCreate) sqlSave(ctx context.Context) (*History, error) {
 		}
 		return nil, err
 	}
-	if _spec.ID.Value != nil {
-		if id, ok := _spec.ID.Value.(string); ok {
-			_node.ID = id
-		} else {
-			return nil, fmt.Errorf("unexpected History.ID type: %T", _spec.ID.Value)
-		}
-	}
+	id := _spec.ID.Value.(int64)
+	_node.ID = int(id)
 	hc.mutation.id = &_node.ID
 	hc.mutation.done = true
 	return _node, nil
@@ -267,23 +274,27 @@ func (hc *HistoryCreate) sqlSave(ctx context.Context) (*History, error) {
 func (hc *HistoryCreate) createSpec() (*History, *sqlgraph.CreateSpec) {
 	var (
 		_node = &History{config: hc.config}
-		_spec = sqlgraph.NewCreateSpec(history.Table, sqlgraph.NewFieldSpec(history.FieldID, field.TypeString))
+		_spec = sqlgraph.NewCreateSpec(history.Table, sqlgraph.NewFieldSpec(history.FieldID, field.TypeInt))
 	)
-	if id, ok := hc.mutation.ID(); ok {
-		_node.ID = id
-		_spec.ID.Value = id
+	if value, ok := hc.mutation.CompanyName(); ok {
+		_spec.SetField(history.FieldCompanyName, field.TypeString, value)
+		_node.CompanyName = value
 	}
 	if value, ok := hc.mutation.FullTimeEmployees(); ok {
 		_spec.SetField(history.FieldFullTimeEmployees, field.TypeInt, value)
 		_node.FullTimeEmployees = value
 	}
 	if value, ok := hc.mutation.LandArea(); ok {
-		_spec.SetField(history.FieldLandArea, field.TypeInt, value)
+		_spec.SetField(history.FieldLandArea, field.TypeFloat64, value)
 		_node.LandArea = value
 	}
 	if value, ok := hc.mutation.ConstructionFacilitiesArea(); ok {
-		_spec.SetField(history.FieldConstructionFacilitiesArea, field.TypeInt, value)
+		_spec.SetField(history.FieldConstructionFacilitiesArea, field.TypeFloat64, value)
 		_node.ConstructionFacilitiesArea = value
+	}
+	if value, ok := hc.mutation.OrganizationType(); ok {
+		_spec.SetField(history.FieldOrganizationType, field.TypeString, value)
+		_node.OrganizationType = value
 	}
 	if value, ok := hc.mutation.FacilityType(); ok {
 		_spec.SetField(history.FieldFacilityType, field.TypeString, value)
@@ -412,6 +423,10 @@ func (hcb *HistoryCreateBulk) Save(ctx context.Context) ([]*History, error) {
 					return nil, err
 				}
 				mutation.id = &nodes[i].ID
+				if specs[i].ID.Value != nil {
+					id := specs[i].ID.Value.(int64)
+					nodes[i].ID = int(id)
+				}
 				mutation.done = true
 				return nodes[i], nil
 			})

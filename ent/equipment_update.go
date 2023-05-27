@@ -55,14 +55,14 @@ func (eu *EquipmentUpdate) AddAvgPriceRub(f float64) *EquipmentUpdate {
 }
 
 // AddHistoryIDs adds the "histories" edge to the History entity by IDs.
-func (eu *EquipmentUpdate) AddHistoryIDs(ids ...string) *EquipmentUpdate {
+func (eu *EquipmentUpdate) AddHistoryIDs(ids ...int) *EquipmentUpdate {
 	eu.mutation.AddHistoryIDs(ids...)
 	return eu
 }
 
 // AddHistories adds the "histories" edges to the History entity.
 func (eu *EquipmentUpdate) AddHistories(h ...*History) *EquipmentUpdate {
-	ids := make([]string, len(h))
+	ids := make([]int, len(h))
 	for i := range h {
 		ids[i] = h[i].ID
 	}
@@ -81,14 +81,14 @@ func (eu *EquipmentUpdate) ClearHistories() *EquipmentUpdate {
 }
 
 // RemoveHistoryIDs removes the "histories" edge to History entities by IDs.
-func (eu *EquipmentUpdate) RemoveHistoryIDs(ids ...string) *EquipmentUpdate {
+func (eu *EquipmentUpdate) RemoveHistoryIDs(ids ...int) *EquipmentUpdate {
 	eu.mutation.RemoveHistoryIDs(ids...)
 	return eu
 }
 
 // RemoveHistories removes "histories" edges to History entities.
 func (eu *EquipmentUpdate) RemoveHistories(h ...*History) *EquipmentUpdate {
-	ids := make([]string, len(h))
+	ids := make([]int, len(h))
 	for i := range h {
 		ids[i] = h[i].ID
 	}
@@ -169,7 +169,7 @@ func (eu *EquipmentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{equipment.HistoriesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -182,7 +182,7 @@ func (eu *EquipmentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{equipment.HistoriesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -198,7 +198,7 @@ func (eu *EquipmentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{equipment.HistoriesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -253,14 +253,14 @@ func (euo *EquipmentUpdateOne) AddAvgPriceRub(f float64) *EquipmentUpdateOne {
 }
 
 // AddHistoryIDs adds the "histories" edge to the History entity by IDs.
-func (euo *EquipmentUpdateOne) AddHistoryIDs(ids ...string) *EquipmentUpdateOne {
+func (euo *EquipmentUpdateOne) AddHistoryIDs(ids ...int) *EquipmentUpdateOne {
 	euo.mutation.AddHistoryIDs(ids...)
 	return euo
 }
 
 // AddHistories adds the "histories" edges to the History entity.
 func (euo *EquipmentUpdateOne) AddHistories(h ...*History) *EquipmentUpdateOne {
-	ids := make([]string, len(h))
+	ids := make([]int, len(h))
 	for i := range h {
 		ids[i] = h[i].ID
 	}
@@ -279,14 +279,14 @@ func (euo *EquipmentUpdateOne) ClearHistories() *EquipmentUpdateOne {
 }
 
 // RemoveHistoryIDs removes the "histories" edge to History entities by IDs.
-func (euo *EquipmentUpdateOne) RemoveHistoryIDs(ids ...string) *EquipmentUpdateOne {
+func (euo *EquipmentUpdateOne) RemoveHistoryIDs(ids ...int) *EquipmentUpdateOne {
 	euo.mutation.RemoveHistoryIDs(ids...)
 	return euo
 }
 
 // RemoveHistories removes "histories" edges to History entities.
 func (euo *EquipmentUpdateOne) RemoveHistories(h ...*History) *EquipmentUpdateOne {
-	ids := make([]string, len(h))
+	ids := make([]int, len(h))
 	for i := range h {
 		ids[i] = h[i].ID
 	}
@@ -397,7 +397,7 @@ func (euo *EquipmentUpdateOne) sqlSave(ctx context.Context) (_node *Equipment, e
 			Columns: []string{equipment.HistoriesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -410,7 +410,7 @@ func (euo *EquipmentUpdateOne) sqlSave(ctx context.Context) (_node *Equipment, e
 			Columns: []string{equipment.HistoriesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -426,7 +426,7 @@ func (euo *EquipmentUpdateOne) sqlSave(ctx context.Context) (_node *Equipment, e
 			Columns: []string{equipment.HistoriesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

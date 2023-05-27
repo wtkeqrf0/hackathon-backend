@@ -177,8 +177,8 @@ func (hq *HistoryQuery) FirstX(ctx context.Context) *History {
 
 // FirstID returns the first History ID from the query.
 // Returns a *NotFoundError when no History ID was found.
-func (hq *HistoryQuery) FirstID(ctx context.Context) (id string, err error) {
-	var ids []string
+func (hq *HistoryQuery) FirstID(ctx context.Context) (id int, err error) {
+	var ids []int
 	if ids, err = hq.Limit(1).IDs(setContextOp(ctx, hq.ctx, "FirstID")); err != nil {
 		return
 	}
@@ -190,7 +190,7 @@ func (hq *HistoryQuery) FirstID(ctx context.Context) (id string, err error) {
 }
 
 // FirstIDX is like FirstID, but panics if an error occurs.
-func (hq *HistoryQuery) FirstIDX(ctx context.Context) string {
+func (hq *HistoryQuery) FirstIDX(ctx context.Context) int {
 	id, err := hq.FirstID(ctx)
 	if err != nil && !IsNotFound(err) {
 		panic(err)
@@ -228,8 +228,8 @@ func (hq *HistoryQuery) OnlyX(ctx context.Context) *History {
 // OnlyID is like Only, but returns the only History ID in the query.
 // Returns a *NotSingularError when more than one History ID is found.
 // Returns a *NotFoundError when no entities are found.
-func (hq *HistoryQuery) OnlyID(ctx context.Context) (id string, err error) {
-	var ids []string
+func (hq *HistoryQuery) OnlyID(ctx context.Context) (id int, err error) {
+	var ids []int
 	if ids, err = hq.Limit(2).IDs(setContextOp(ctx, hq.ctx, "OnlyID")); err != nil {
 		return
 	}
@@ -245,7 +245,7 @@ func (hq *HistoryQuery) OnlyID(ctx context.Context) (id string, err error) {
 }
 
 // OnlyIDX is like OnlyID, but panics if an error occurs.
-func (hq *HistoryQuery) OnlyIDX(ctx context.Context) string {
+func (hq *HistoryQuery) OnlyIDX(ctx context.Context) int {
 	id, err := hq.OnlyID(ctx)
 	if err != nil {
 		panic(err)
@@ -273,7 +273,7 @@ func (hq *HistoryQuery) AllX(ctx context.Context) []*History {
 }
 
 // IDs executes the query and returns a list of History IDs.
-func (hq *HistoryQuery) IDs(ctx context.Context) (ids []string, err error) {
+func (hq *HistoryQuery) IDs(ctx context.Context) (ids []int, err error) {
 	if hq.ctx.Unique == nil && hq.path != nil {
 		hq.Unique(true)
 	}
@@ -285,7 +285,7 @@ func (hq *HistoryQuery) IDs(ctx context.Context) (ids []string, err error) {
 }
 
 // IDsX is like IDs, but panics if an error occurs.
-func (hq *HistoryQuery) IDsX(ctx context.Context) []string {
+func (hq *HistoryQuery) IDsX(ctx context.Context) []int {
 	ids, err := hq.IDs(ctx)
 	if err != nil {
 		panic(err)
@@ -405,12 +405,12 @@ func (hq *HistoryQuery) WithUsers(opts ...func(*UserQuery)) *HistoryQuery {
 // Example:
 //
 //	var v []struct {
-//		IndustryBranch string `json:"industry_branch,omitempty"`
+//		CompanyName string `json:"company_name,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.History.Query().
-//		GroupBy(history.FieldIndustryBranch).
+//		GroupBy(history.FieldCompanyName).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (hq *HistoryQuery) GroupBy(field string, fields ...string) *HistoryGroupBy {
@@ -428,11 +428,11 @@ func (hq *HistoryQuery) GroupBy(field string, fields ...string) *HistoryGroupBy 
 // Example:
 //
 //	var v []struct {
-//		IndustryBranch string `json:"industry_branch,omitempty"`
+//		CompanyName string `json:"company_name,omitempty"`
 //	}
 //
 //	client.History.Query().
-//		Select(history.FieldIndustryBranch).
+//		Select(history.FieldCompanyName).
 //		Scan(ctx, &v)
 func (hq *HistoryQuery) Select(fields ...string) *HistorySelect {
 	hq.ctx.Fields = append(hq.ctx.Fields, fields...)
@@ -656,7 +656,7 @@ func (hq *HistoryQuery) sqlCount(ctx context.Context) (int, error) {
 }
 
 func (hq *HistoryQuery) querySpec() *sqlgraph.QuerySpec {
-	_spec := sqlgraph.NewQuerySpec(history.Table, history.Columns, sqlgraph.NewFieldSpec(history.FieldID, field.TypeString))
+	_spec := sqlgraph.NewQuerySpec(history.Table, history.Columns, sqlgraph.NewFieldSpec(history.FieldID, field.TypeInt))
 	_spec.From = hq.sql
 	if unique := hq.ctx.Unique; unique != nil {
 		_spec.Unique = *unique

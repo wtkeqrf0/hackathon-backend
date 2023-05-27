@@ -81,14 +81,14 @@ func (iu *IndustryUpdate) AddAvgSalaryCad(f float64) *IndustryUpdate {
 }
 
 // AddHistoryIDs adds the "histories" edge to the History entity by IDs.
-func (iu *IndustryUpdate) AddHistoryIDs(ids ...string) *IndustryUpdate {
+func (iu *IndustryUpdate) AddHistoryIDs(ids ...int) *IndustryUpdate {
 	iu.mutation.AddHistoryIDs(ids...)
 	return iu
 }
 
 // AddHistories adds the "histories" edges to the History entity.
 func (iu *IndustryUpdate) AddHistories(h ...*History) *IndustryUpdate {
-	ids := make([]string, len(h))
+	ids := make([]int, len(h))
 	for i := range h {
 		ids[i] = h[i].ID
 	}
@@ -107,14 +107,14 @@ func (iu *IndustryUpdate) ClearHistories() *IndustryUpdate {
 }
 
 // RemoveHistoryIDs removes the "histories" edge to History entities by IDs.
-func (iu *IndustryUpdate) RemoveHistoryIDs(ids ...string) *IndustryUpdate {
+func (iu *IndustryUpdate) RemoveHistoryIDs(ids ...int) *IndustryUpdate {
 	iu.mutation.RemoveHistoryIDs(ids...)
 	return iu
 }
 
 // RemoveHistories removes "histories" edges to History entities.
 func (iu *IndustryUpdate) RemoveHistories(h ...*History) *IndustryUpdate {
-	ids := make([]string, len(h))
+	ids := make([]int, len(h))
 	for i := range h {
 		ids[i] = h[i].ID
 	}
@@ -217,7 +217,7 @@ func (iu *IndustryUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{industry.HistoriesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -230,7 +230,7 @@ func (iu *IndustryUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{industry.HistoriesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -246,7 +246,7 @@ func (iu *IndustryUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			Columns: []string{industry.HistoriesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -327,14 +327,14 @@ func (iuo *IndustryUpdateOne) AddAvgSalaryCad(f float64) *IndustryUpdateOne {
 }
 
 // AddHistoryIDs adds the "histories" edge to the History entity by IDs.
-func (iuo *IndustryUpdateOne) AddHistoryIDs(ids ...string) *IndustryUpdateOne {
+func (iuo *IndustryUpdateOne) AddHistoryIDs(ids ...int) *IndustryUpdateOne {
 	iuo.mutation.AddHistoryIDs(ids...)
 	return iuo
 }
 
 // AddHistories adds the "histories" edges to the History entity.
 func (iuo *IndustryUpdateOne) AddHistories(h ...*History) *IndustryUpdateOne {
-	ids := make([]string, len(h))
+	ids := make([]int, len(h))
 	for i := range h {
 		ids[i] = h[i].ID
 	}
@@ -353,14 +353,14 @@ func (iuo *IndustryUpdateOne) ClearHistories() *IndustryUpdateOne {
 }
 
 // RemoveHistoryIDs removes the "histories" edge to History entities by IDs.
-func (iuo *IndustryUpdateOne) RemoveHistoryIDs(ids ...string) *IndustryUpdateOne {
+func (iuo *IndustryUpdateOne) RemoveHistoryIDs(ids ...int) *IndustryUpdateOne {
 	iuo.mutation.RemoveHistoryIDs(ids...)
 	return iuo
 }
 
 // RemoveHistories removes "histories" edges to History entities.
 func (iuo *IndustryUpdateOne) RemoveHistories(h ...*History) *IndustryUpdateOne {
-	ids := make([]string, len(h))
+	ids := make([]int, len(h))
 	for i := range h {
 		ids[i] = h[i].ID
 	}
@@ -493,7 +493,7 @@ func (iuo *IndustryUpdateOne) sqlSave(ctx context.Context) (_node *Industry, err
 			Columns: []string{industry.HistoriesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeInt),
 			},
 		}
 		_spec.Edges.Clear = append(_spec.Edges.Clear, edge)
@@ -506,7 +506,7 @@ func (iuo *IndustryUpdateOne) sqlSave(ctx context.Context) (_node *Industry, err
 			Columns: []string{industry.HistoriesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
@@ -522,7 +522,7 @@ func (iuo *IndustryUpdateOne) sqlSave(ctx context.Context) (_node *Industry, err
 			Columns: []string{industry.HistoriesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {

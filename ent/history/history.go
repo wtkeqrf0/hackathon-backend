@@ -11,7 +11,9 @@ const (
 	// Label holds the string label denoting the history type in the database.
 	Label = "history"
 	// FieldID holds the string denoting the id field in the database.
-	FieldID = "company_name"
+	FieldID = "id"
+	// FieldCompanyName holds the string denoting the company_name field in the database.
+	FieldCompanyName = "company_name"
 	// FieldIndustryBranch holds the string denoting the industry_branch field in the database.
 	FieldIndustryBranch = "industry_branch"
 	// FieldFullTimeEmployees holds the string denoting the full_time_employees field in the database.
@@ -24,6 +26,8 @@ const (
 	FieldConstructionFacilitiesArea = "construction_facilities_area"
 	// FieldEquipmentType holds the string denoting the equipment_type field in the database.
 	FieldEquipmentType = "equipment_type"
+	// FieldOrganizationType holds the string denoting the organization_type field in the database.
+	FieldOrganizationType = "organization_type"
 	// FieldFacilityType holds the string denoting the facility_type field in the database.
 	FieldFacilityType = "facility_type"
 	// FieldAccountingServices holds the string denoting the accounting_services field in the database.
@@ -48,8 +52,6 @@ const (
 	DistrictFieldID = "title"
 	// EquipmentFieldID holds the string denoting the ID field of the Equipment.
 	EquipmentFieldID = "type"
-	// UserFieldID holds the string denoting the ID field of the User.
-	UserFieldID = "id"
 	// Table holds the table name of the history in the database.
 	Table = "histories"
 	// IndustryTable is the table that holds the industry relation/edge.
@@ -85,12 +87,14 @@ const (
 // Columns holds all SQL columns for history fields.
 var Columns = []string{
 	FieldID,
+	FieldCompanyName,
 	FieldIndustryBranch,
 	FieldFullTimeEmployees,
 	FieldDistrictTitle,
 	FieldLandArea,
 	FieldConstructionFacilitiesArea,
 	FieldEquipmentType,
+	FieldOrganizationType,
 	FieldFacilityType,
 	FieldAccountingServices,
 	FieldPatent,
@@ -109,14 +113,14 @@ func ValidColumn(column string) bool {
 }
 
 var (
+	// CompanyNameValidator is a validator for the "company_name" field. It is called by the builders before save.
+	CompanyNameValidator func(string) error
 	// FullTimeEmployeesValidator is a validator for the "full_time_employees" field. It is called by the builders before save.
 	FullTimeEmployeesValidator func(int) error
 	// LandAreaValidator is a validator for the "land_area" field. It is called by the builders before save.
-	LandAreaValidator func(int) error
+	LandAreaValidator func(float64) error
 	// ConstructionFacilitiesAreaValidator is a validator for the "construction_facilities_area" field. It is called by the builders before save.
-	ConstructionFacilitiesAreaValidator func(int) error
-	// IDValidator is a validator for the "id" field. It is called by the builders before save.
-	IDValidator func(string) error
+	ConstructionFacilitiesAreaValidator func(float64) error
 )
 
 // OrderOption defines the ordering options for the History queries.
@@ -125,6 +129,11 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
+}
+
+// ByCompanyName orders the results by the company_name field.
+func ByCompanyName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldCompanyName, opts...).ToFunc()
 }
 
 // ByIndustryBranch orders the results by the industry_branch field.
@@ -155,6 +164,11 @@ func ByConstructionFacilitiesArea(opts ...sql.OrderTermOption) OrderOption {
 // ByEquipmentType orders the results by the equipment_type field.
 func ByEquipmentType(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldEquipmentType, opts...).ToFunc()
+}
+
+// ByOrganizationType orders the results by the organization_type field.
+func ByOrganizationType(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldOrganizationType, opts...).ToFunc()
 }
 
 // ByFacilityType orders the results by the facility_type field.
@@ -233,7 +247,7 @@ func newEquipmentStep() *sqlgraph.Step {
 func newUsersStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(UsersInverseTable, UserFieldID),
+		sqlgraph.To(UsersInverseTable, FieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, UsersTable, UsersColumn),
 	)
 }

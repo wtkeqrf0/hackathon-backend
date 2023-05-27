@@ -596,8 +596,8 @@ type DistrictMutation struct {
 	avg_cadastral_val    *float64
 	addavg_cadastral_val *float64
 	clearedFields        map[string]struct{}
-	histories            map[string]struct{}
-	removedhistories     map[string]struct{}
+	histories            map[int]struct{}
+	removedhistories     map[int]struct{}
 	clearedhistories     bool
 	done                 bool
 	oldValue             func(context.Context) (*District, error)
@@ -765,9 +765,9 @@ func (m *DistrictMutation) ResetAvgCadastralVal() {
 }
 
 // AddHistoryIDs adds the "histories" edge to the History entity by ids.
-func (m *DistrictMutation) AddHistoryIDs(ids ...string) {
+func (m *DistrictMutation) AddHistoryIDs(ids ...int) {
 	if m.histories == nil {
-		m.histories = make(map[string]struct{})
+		m.histories = make(map[int]struct{})
 	}
 	for i := range ids {
 		m.histories[ids[i]] = struct{}{}
@@ -785,9 +785,9 @@ func (m *DistrictMutation) HistoriesCleared() bool {
 }
 
 // RemoveHistoryIDs removes the "histories" edge to the History entity by IDs.
-func (m *DistrictMutation) RemoveHistoryIDs(ids ...string) {
+func (m *DistrictMutation) RemoveHistoryIDs(ids ...int) {
 	if m.removedhistories == nil {
-		m.removedhistories = make(map[string]struct{})
+		m.removedhistories = make(map[int]struct{})
 	}
 	for i := range ids {
 		delete(m.histories, ids[i])
@@ -796,7 +796,7 @@ func (m *DistrictMutation) RemoveHistoryIDs(ids ...string) {
 }
 
 // RemovedHistories returns the removed IDs of the "histories" edge to the History entity.
-func (m *DistrictMutation) RemovedHistoriesIDs() (ids []string) {
+func (m *DistrictMutation) RemovedHistoriesIDs() (ids []int) {
 	for id := range m.removedhistories {
 		ids = append(ids, id)
 	}
@@ -804,7 +804,7 @@ func (m *DistrictMutation) RemovedHistoriesIDs() (ids []string) {
 }
 
 // HistoriesIDs returns the "histories" edge IDs in the mutation.
-func (m *DistrictMutation) HistoriesIDs() (ids []string) {
+func (m *DistrictMutation) HistoriesIDs() (ids []int) {
 	for id := range m.histories {
 		ids = append(ids, id)
 	}
@@ -1385,8 +1385,8 @@ type EquipmentMutation struct {
 	avg_price_rub    *float64
 	addavg_price_rub *float64
 	clearedFields    map[string]struct{}
-	histories        map[string]struct{}
-	removedhistories map[string]struct{}
+	histories        map[int]struct{}
+	removedhistories map[int]struct{}
 	clearedhistories bool
 	done             bool
 	oldValue         func(context.Context) (*Equipment, error)
@@ -1610,9 +1610,9 @@ func (m *EquipmentMutation) ResetAvgPriceRub() {
 }
 
 // AddHistoryIDs adds the "histories" edge to the History entity by ids.
-func (m *EquipmentMutation) AddHistoryIDs(ids ...string) {
+func (m *EquipmentMutation) AddHistoryIDs(ids ...int) {
 	if m.histories == nil {
-		m.histories = make(map[string]struct{})
+		m.histories = make(map[int]struct{})
 	}
 	for i := range ids {
 		m.histories[ids[i]] = struct{}{}
@@ -1630,9 +1630,9 @@ func (m *EquipmentMutation) HistoriesCleared() bool {
 }
 
 // RemoveHistoryIDs removes the "histories" edge to the History entity by IDs.
-func (m *EquipmentMutation) RemoveHistoryIDs(ids ...string) {
+func (m *EquipmentMutation) RemoveHistoryIDs(ids ...int) {
 	if m.removedhistories == nil {
-		m.removedhistories = make(map[string]struct{})
+		m.removedhistories = make(map[int]struct{})
 	}
 	for i := range ids {
 		delete(m.histories, ids[i])
@@ -1641,7 +1641,7 @@ func (m *EquipmentMutation) RemoveHistoryIDs(ids ...string) {
 }
 
 // RemovedHistories returns the removed IDs of the "histories" edge to the History entity.
-func (m *EquipmentMutation) RemovedHistoriesIDs() (ids []string) {
+func (m *EquipmentMutation) RemovedHistoriesIDs() (ids []int) {
 	for id := range m.removedhistories {
 		ids = append(ids, id)
 	}
@@ -1649,7 +1649,7 @@ func (m *EquipmentMutation) RemovedHistoriesIDs() (ids []string) {
 }
 
 // HistoriesIDs returns the "histories" edge IDs in the mutation.
-func (m *EquipmentMutation) HistoriesIDs() (ids []string) {
+func (m *EquipmentMutation) HistoriesIDs() (ids []int) {
 	for id := range m.histories {
 		ids = append(ids, id)
 	}
@@ -1927,13 +1927,15 @@ type HistoryMutation struct {
 	config
 	op                              Op
 	typ                             string
-	id                              *string
+	id                              *int
+	company_name                    *string
 	full_time_employees             *int
 	addfull_time_employees          *int
-	land_area                       *int
-	addland_area                    *int
-	construction_facilities_area    *int
-	addconstruction_facilities_area *int
+	land_area                       *float64
+	addland_area                    *float64
+	construction_facilities_area    *float64
+	addconstruction_facilities_area *float64
+	organization_type               *string
 	facility_type                   *string
 	accounting_services             *bool
 	patent                          *bool
@@ -1972,7 +1974,7 @@ func newHistoryMutation(c config, op Op, opts ...historyOption) *HistoryMutation
 }
 
 // withHistoryID sets the ID field of the mutation.
-func withHistoryID(id string) historyOption {
+func withHistoryID(id int) historyOption {
 	return func(m *HistoryMutation) {
 		var (
 			err   error
@@ -2022,15 +2024,9 @@ func (m HistoryMutation) Tx() (*Tx, error) {
 	return tx, nil
 }
 
-// SetID sets the value of the id field. Note that this
-// operation is only accepted on creation of History entities.
-func (m *HistoryMutation) SetID(id string) {
-	m.id = &id
-}
-
 // ID returns the ID value in the mutation. Note that the ID is only available
 // if it was provided to the builder or after it was returned from the database.
-func (m *HistoryMutation) ID() (id string, exists bool) {
+func (m *HistoryMutation) ID() (id int, exists bool) {
 	if m.id == nil {
 		return
 	}
@@ -2041,12 +2037,12 @@ func (m *HistoryMutation) ID() (id string, exists bool) {
 // That means, if the mutation is applied within a transaction with an isolation level such
 // as sql.LevelSerializable, the returned ids match the ids of the rows that will be updated
 // or updated by the mutation.
-func (m *HistoryMutation) IDs(ctx context.Context) ([]string, error) {
+func (m *HistoryMutation) IDs(ctx context.Context) ([]int, error) {
 	switch {
 	case m.op.Is(OpUpdateOne | OpDeleteOne):
 		id, exists := m.ID()
 		if exists {
-			return []string{id}, nil
+			return []int{id}, nil
 		}
 		fallthrough
 	case m.op.Is(OpUpdate | OpDelete):
@@ -2054,6 +2050,42 @@ func (m *HistoryMutation) IDs(ctx context.Context) ([]string, error) {
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
+}
+
+// SetCompanyName sets the "company_name" field.
+func (m *HistoryMutation) SetCompanyName(s string) {
+	m.company_name = &s
+}
+
+// CompanyName returns the value of the "company_name" field in the mutation.
+func (m *HistoryMutation) CompanyName() (r string, exists bool) {
+	v := m.company_name
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldCompanyName returns the old "company_name" field's value of the History entity.
+// If the History object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *HistoryMutation) OldCompanyName(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldCompanyName is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldCompanyName requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldCompanyName: %w", err)
+	}
+	return oldValue.CompanyName, nil
+}
+
+// ResetCompanyName resets all changes to the "company_name" field.
+func (m *HistoryMutation) ResetCompanyName() {
+	m.company_name = nil
 }
 
 // SetIndustryBranch sets the "industry_branch" field.
@@ -2185,13 +2217,13 @@ func (m *HistoryMutation) ResetDistrictTitle() {
 }
 
 // SetLandArea sets the "land_area" field.
-func (m *HistoryMutation) SetLandArea(i int) {
-	m.land_area = &i
+func (m *HistoryMutation) SetLandArea(f float64) {
+	m.land_area = &f
 	m.addland_area = nil
 }
 
 // LandArea returns the value of the "land_area" field in the mutation.
-func (m *HistoryMutation) LandArea() (r int, exists bool) {
+func (m *HistoryMutation) LandArea() (r float64, exists bool) {
 	v := m.land_area
 	if v == nil {
 		return
@@ -2202,7 +2234,7 @@ func (m *HistoryMutation) LandArea() (r int, exists bool) {
 // OldLandArea returns the old "land_area" field's value of the History entity.
 // If the History object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *HistoryMutation) OldLandArea(ctx context.Context) (v int, err error) {
+func (m *HistoryMutation) OldLandArea(ctx context.Context) (v float64, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldLandArea is only allowed on UpdateOne operations")
 	}
@@ -2216,17 +2248,17 @@ func (m *HistoryMutation) OldLandArea(ctx context.Context) (v int, err error) {
 	return oldValue.LandArea, nil
 }
 
-// AddLandArea adds i to the "land_area" field.
-func (m *HistoryMutation) AddLandArea(i int) {
+// AddLandArea adds f to the "land_area" field.
+func (m *HistoryMutation) AddLandArea(f float64) {
 	if m.addland_area != nil {
-		*m.addland_area += i
+		*m.addland_area += f
 	} else {
-		m.addland_area = &i
+		m.addland_area = &f
 	}
 }
 
 // AddedLandArea returns the value that was added to the "land_area" field in this mutation.
-func (m *HistoryMutation) AddedLandArea() (r int, exists bool) {
+func (m *HistoryMutation) AddedLandArea() (r float64, exists bool) {
 	v := m.addland_area
 	if v == nil {
 		return
@@ -2241,13 +2273,13 @@ func (m *HistoryMutation) ResetLandArea() {
 }
 
 // SetConstructionFacilitiesArea sets the "construction_facilities_area" field.
-func (m *HistoryMutation) SetConstructionFacilitiesArea(i int) {
-	m.construction_facilities_area = &i
+func (m *HistoryMutation) SetConstructionFacilitiesArea(f float64) {
+	m.construction_facilities_area = &f
 	m.addconstruction_facilities_area = nil
 }
 
 // ConstructionFacilitiesArea returns the value of the "construction_facilities_area" field in the mutation.
-func (m *HistoryMutation) ConstructionFacilitiesArea() (r int, exists bool) {
+func (m *HistoryMutation) ConstructionFacilitiesArea() (r float64, exists bool) {
 	v := m.construction_facilities_area
 	if v == nil {
 		return
@@ -2258,7 +2290,7 @@ func (m *HistoryMutation) ConstructionFacilitiesArea() (r int, exists bool) {
 // OldConstructionFacilitiesArea returns the old "construction_facilities_area" field's value of the History entity.
 // If the History object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *HistoryMutation) OldConstructionFacilitiesArea(ctx context.Context) (v int, err error) {
+func (m *HistoryMutation) OldConstructionFacilitiesArea(ctx context.Context) (v float64, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldConstructionFacilitiesArea is only allowed on UpdateOne operations")
 	}
@@ -2272,17 +2304,17 @@ func (m *HistoryMutation) OldConstructionFacilitiesArea(ctx context.Context) (v 
 	return oldValue.ConstructionFacilitiesArea, nil
 }
 
-// AddConstructionFacilitiesArea adds i to the "construction_facilities_area" field.
-func (m *HistoryMutation) AddConstructionFacilitiesArea(i int) {
+// AddConstructionFacilitiesArea adds f to the "construction_facilities_area" field.
+func (m *HistoryMutation) AddConstructionFacilitiesArea(f float64) {
 	if m.addconstruction_facilities_area != nil {
-		*m.addconstruction_facilities_area += i
+		*m.addconstruction_facilities_area += f
 	} else {
-		m.addconstruction_facilities_area = &i
+		m.addconstruction_facilities_area = &f
 	}
 }
 
 // AddedConstructionFacilitiesArea returns the value that was added to the "construction_facilities_area" field in this mutation.
-func (m *HistoryMutation) AddedConstructionFacilitiesArea() (r int, exists bool) {
+func (m *HistoryMutation) AddedConstructionFacilitiesArea() (r float64, exists bool) {
 	v := m.addconstruction_facilities_area
 	if v == nil {
 		return
@@ -2330,6 +2362,42 @@ func (m *HistoryMutation) OldEquipmentType(ctx context.Context) (v string, err e
 // ResetEquipmentType resets all changes to the "equipment_type" field.
 func (m *HistoryMutation) ResetEquipmentType() {
 	m.equipment = nil
+}
+
+// SetOrganizationType sets the "organization_type" field.
+func (m *HistoryMutation) SetOrganizationType(s string) {
+	m.organization_type = &s
+}
+
+// OrganizationType returns the value of the "organization_type" field in the mutation.
+func (m *HistoryMutation) OrganizationType() (r string, exists bool) {
+	v := m.organization_type
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldOrganizationType returns the old "organization_type" field's value of the History entity.
+// If the History object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *HistoryMutation) OldOrganizationType(ctx context.Context) (v string, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldOrganizationType is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldOrganizationType requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldOrganizationType: %w", err)
+	}
+	return oldValue.OrganizationType, nil
+}
+
+// ResetOrganizationType resets all changes to the "organization_type" field.
+func (m *HistoryMutation) ResetOrganizationType() {
+	m.organization_type = nil
 }
 
 // SetFacilityType sets the "facility_type" field.
@@ -2702,7 +2770,10 @@ func (m *HistoryMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *HistoryMutation) Fields() []string {
-	fields := make([]string, 0, 11)
+	fields := make([]string, 0, 13)
+	if m.company_name != nil {
+		fields = append(fields, history.FieldCompanyName)
+	}
 	if m.industry != nil {
 		fields = append(fields, history.FieldIndustryBranch)
 	}
@@ -2720,6 +2791,9 @@ func (m *HistoryMutation) Fields() []string {
 	}
 	if m.equipment != nil {
 		fields = append(fields, history.FieldEquipmentType)
+	}
+	if m.organization_type != nil {
+		fields = append(fields, history.FieldOrganizationType)
 	}
 	if m.facility_type != nil {
 		fields = append(fields, history.FieldFacilityType)
@@ -2744,6 +2818,8 @@ func (m *HistoryMutation) Fields() []string {
 // schema.
 func (m *HistoryMutation) Field(name string) (ent.Value, bool) {
 	switch name {
+	case history.FieldCompanyName:
+		return m.CompanyName()
 	case history.FieldIndustryBranch:
 		return m.IndustryBranch()
 	case history.FieldFullTimeEmployees:
@@ -2756,6 +2832,8 @@ func (m *HistoryMutation) Field(name string) (ent.Value, bool) {
 		return m.ConstructionFacilitiesArea()
 	case history.FieldEquipmentType:
 		return m.EquipmentType()
+	case history.FieldOrganizationType:
+		return m.OrganizationType()
 	case history.FieldFacilityType:
 		return m.FacilityType()
 	case history.FieldAccountingServices:
@@ -2775,6 +2853,8 @@ func (m *HistoryMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *HistoryMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
+	case history.FieldCompanyName:
+		return m.OldCompanyName(ctx)
 	case history.FieldIndustryBranch:
 		return m.OldIndustryBranch(ctx)
 	case history.FieldFullTimeEmployees:
@@ -2787,6 +2867,8 @@ func (m *HistoryMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldConstructionFacilitiesArea(ctx)
 	case history.FieldEquipmentType:
 		return m.OldEquipmentType(ctx)
+	case history.FieldOrganizationType:
+		return m.OldOrganizationType(ctx)
 	case history.FieldFacilityType:
 		return m.OldFacilityType(ctx)
 	case history.FieldAccountingServices:
@@ -2806,6 +2888,13 @@ func (m *HistoryMutation) OldField(ctx context.Context, name string) (ent.Value,
 // type.
 func (m *HistoryMutation) SetField(name string, value ent.Value) error {
 	switch name {
+	case history.FieldCompanyName:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetCompanyName(v)
+		return nil
 	case history.FieldIndustryBranch:
 		v, ok := value.(string)
 		if !ok {
@@ -2828,14 +2917,14 @@ func (m *HistoryMutation) SetField(name string, value ent.Value) error {
 		m.SetDistrictTitle(v)
 		return nil
 	case history.FieldLandArea:
-		v, ok := value.(int)
+		v, ok := value.(float64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetLandArea(v)
 		return nil
 	case history.FieldConstructionFacilitiesArea:
-		v, ok := value.(int)
+		v, ok := value.(float64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -2847,6 +2936,13 @@ func (m *HistoryMutation) SetField(name string, value ent.Value) error {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.SetEquipmentType(v)
+		return nil
+	case history.FieldOrganizationType:
+		v, ok := value.(string)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetOrganizationType(v)
 		return nil
 	case history.FieldFacilityType:
 		v, ok := value.(string)
@@ -2931,14 +3027,14 @@ func (m *HistoryMutation) AddField(name string, value ent.Value) error {
 		m.AddFullTimeEmployees(v)
 		return nil
 	case history.FieldLandArea:
-		v, ok := value.(int)
+		v, ok := value.(float64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
 		m.AddLandArea(v)
 		return nil
 	case history.FieldConstructionFacilitiesArea:
-		v, ok := value.(int)
+		v, ok := value.(float64)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
@@ -2971,6 +3067,9 @@ func (m *HistoryMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *HistoryMutation) ResetField(name string) error {
 	switch name {
+	case history.FieldCompanyName:
+		m.ResetCompanyName()
+		return nil
 	case history.FieldIndustryBranch:
 		m.ResetIndustryBranch()
 		return nil
@@ -2988,6 +3087,9 @@ func (m *HistoryMutation) ResetField(name string) error {
 		return nil
 	case history.FieldEquipmentType:
 		m.ResetEquipmentType()
+		return nil
+	case history.FieldOrganizationType:
+		m.ResetOrganizationType()
 		return nil
 	case history.FieldFacilityType:
 		m.ResetFacilityType()
@@ -3151,8 +3253,8 @@ type IndustryMutation struct {
 	avg_salary_cad         *float64
 	addavg_salary_cad      *float64
 	clearedFields          map[string]struct{}
-	histories              map[string]struct{}
-	removedhistories       map[string]struct{}
+	histories              map[int]struct{}
+	removedhistories       map[int]struct{}
 	clearedhistories       bool
 	done                   bool
 	oldValue               func(context.Context) (*Industry, error)
@@ -3488,9 +3590,9 @@ func (m *IndustryMutation) ResetAvgSalaryCad() {
 }
 
 // AddHistoryIDs adds the "histories" edge to the History entity by ids.
-func (m *IndustryMutation) AddHistoryIDs(ids ...string) {
+func (m *IndustryMutation) AddHistoryIDs(ids ...int) {
 	if m.histories == nil {
-		m.histories = make(map[string]struct{})
+		m.histories = make(map[int]struct{})
 	}
 	for i := range ids {
 		m.histories[ids[i]] = struct{}{}
@@ -3508,9 +3610,9 @@ func (m *IndustryMutation) HistoriesCleared() bool {
 }
 
 // RemoveHistoryIDs removes the "histories" edge to the History entity by IDs.
-func (m *IndustryMutation) RemoveHistoryIDs(ids ...string) {
+func (m *IndustryMutation) RemoveHistoryIDs(ids ...int) {
 	if m.removedhistories == nil {
-		m.removedhistories = make(map[string]struct{})
+		m.removedhistories = make(map[int]struct{})
 	}
 	for i := range ids {
 		delete(m.histories, ids[i])
@@ -3519,7 +3621,7 @@ func (m *IndustryMutation) RemoveHistoryIDs(ids ...string) {
 }
 
 // RemovedHistories returns the removed IDs of the "histories" edge to the History entity.
-func (m *IndustryMutation) RemovedHistoriesIDs() (ids []string) {
+func (m *IndustryMutation) RemovedHistoriesIDs() (ids []int) {
 	for id := range m.removedhistories {
 		ids = append(ids, id)
 	}
@@ -3527,7 +3629,7 @@ func (m *IndustryMutation) RemovedHistoriesIDs() (ids []string) {
 }
 
 // HistoriesIDs returns the "histories" edge IDs in the mutation.
-func (m *IndustryMutation) HistoriesIDs() (ids []string) {
+func (m *IndustryMutation) HistoriesIDs() (ids []int) {
 	for id := range m.histories {
 		ids = append(ids, id)
 	}
@@ -3880,8 +3982,8 @@ type UserMutation struct {
 	clearedFields    map[string]struct{}
 	company          *int
 	clearedcompany   bool
-	histories        map[string]struct{}
-	removedhistories map[string]struct{}
+	histories        map[int]struct{}
+	removedhistories map[int]struct{}
 	clearedhistories bool
 	done             bool
 	oldValue         func(context.Context) (*User, error)
@@ -4588,9 +4690,9 @@ func (m *UserMutation) ResetCompany() {
 }
 
 // AddHistoryIDs adds the "histories" edge to the History entity by ids.
-func (m *UserMutation) AddHistoryIDs(ids ...string) {
+func (m *UserMutation) AddHistoryIDs(ids ...int) {
 	if m.histories == nil {
-		m.histories = make(map[string]struct{})
+		m.histories = make(map[int]struct{})
 	}
 	for i := range ids {
 		m.histories[ids[i]] = struct{}{}
@@ -4608,9 +4710,9 @@ func (m *UserMutation) HistoriesCleared() bool {
 }
 
 // RemoveHistoryIDs removes the "histories" edge to the History entity by IDs.
-func (m *UserMutation) RemoveHistoryIDs(ids ...string) {
+func (m *UserMutation) RemoveHistoryIDs(ids ...int) {
 	if m.removedhistories == nil {
-		m.removedhistories = make(map[string]struct{})
+		m.removedhistories = make(map[int]struct{})
 	}
 	for i := range ids {
 		delete(m.histories, ids[i])
@@ -4619,7 +4721,7 @@ func (m *UserMutation) RemoveHistoryIDs(ids ...string) {
 }
 
 // RemovedHistories returns the removed IDs of the "histories" edge to the History entity.
-func (m *UserMutation) RemovedHistoriesIDs() (ids []string) {
+func (m *UserMutation) RemovedHistoriesIDs() (ids []int) {
 	for id := range m.removedhistories {
 		ids = append(ids, id)
 	}
@@ -4627,7 +4729,7 @@ func (m *UserMutation) RemovedHistoriesIDs() (ids []string) {
 }
 
 // HistoriesIDs returns the "histories" edge IDs in the mutation.
-func (m *UserMutation) HistoriesIDs() (ids []string) {
+func (m *UserMutation) HistoriesIDs() (ids []int) {
 	for id := range m.histories {
 		ids = append(ids, id)
 	}

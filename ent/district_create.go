@@ -33,14 +33,14 @@ func (dc *DistrictCreate) SetID(s string) *DistrictCreate {
 }
 
 // AddHistoryIDs adds the "histories" edge to the History entity by IDs.
-func (dc *DistrictCreate) AddHistoryIDs(ids ...string) *DistrictCreate {
+func (dc *DistrictCreate) AddHistoryIDs(ids ...int) *DistrictCreate {
 	dc.mutation.AddHistoryIDs(ids...)
 	return dc
 }
 
 // AddHistories adds the "histories" edges to the History entity.
 func (dc *DistrictCreate) AddHistories(h ...*History) *DistrictCreate {
-	ids := make([]string, len(h))
+	ids := make([]int, len(h))
 	for i := range h {
 		ids[i] = h[i].ID
 	}
@@ -136,7 +136,7 @@ func (dc *DistrictCreate) createSpec() (*District, *sqlgraph.CreateSpec) {
 			Columns: []string{district.HistoriesColumn},
 			Bidi:    false,
 			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeString),
+				IDSpec: sqlgraph.NewFieldSpec(history.FieldID, field.TypeInt),
 			},
 		}
 		for _, k := range nodes {
