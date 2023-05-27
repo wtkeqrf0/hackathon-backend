@@ -67,17 +67,19 @@ func (a Auth) GenerateSession(id int, ip, userAgent string) (string, error) {
 	})
 }
 
-func (a Auth) GetSession(c *gin.Context) (*dao.Session, error) {
+func (a Auth) GetSession(c *gin.Context) *dao.Session {
 	get, ok := c.Get("user_info")
 	if !ok {
-		return nil, fmt.Errorf("session not found in context")
+		c.Error(fmt.Errorf("session not found in context"))
+		return nil
 	}
 
 	res, ok := get.(*dao.Session)
 	if !ok {
-		return nil, fmt.Errorf("cannot parse session")
+		c.Error(fmt.Errorf("cannot parse session"))
+		return nil
 	}
-	return res, nil
+	return res
 }
 
 func (a Auth) SetNewCookie(id int, c *gin.Context) {
@@ -91,7 +93,7 @@ func (a Auth) SetNewCookie(id int, c *gin.Context) {
 
 	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie(cfg.Session.CookieName, session, int(cfg.Session.Duration.Seconds()),
-		cfg.Session.CookiePath, cfg.Listen.Host, false, true)
+		cfg.Session.CookiePath, cfg.Listen.Host, true, true)
 }
 
 // PopCookie from cookie storage only if equals to uuid4

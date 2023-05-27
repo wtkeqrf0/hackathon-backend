@@ -21,9 +21,8 @@ import (
 // @Failure 500 {object} errs.MyError
 // @Router /auth/sign-up [post]
 func (h *Handler) signUp(c *gin.Context) {
-	auth, err := bind.FillStructJSON[dto.SignUp](c)
-	if err != nil {
-		c.Error(errs.ValidError.AddErr(err))
+	auth := bind.FillStructJSON[dto.SignUp](c)
+	if auth == nil {
 		return
 	}
 
@@ -39,13 +38,13 @@ func (h *Handler) signUp(c *gin.Context) {
 		)
 
 		if err != nil {
-			c.Error(errs.ValidError.AddErr(err))
+			c.Error(err)
 			return
 		}
 
 		user, err = h.auth.CreateUserWithPassword(auth, company)
 		if err != nil {
-			c.Error(errs.ValidError.AddErr(err))
+			c.Error(err)
 			return
 		}
 	}
@@ -70,16 +69,15 @@ func (h *Handler) signUp(c *gin.Context) {
 // @Failure 500 {object} errs.MyError
 // @Router /auth/sign-in [post]
 func (h *Handler) signIn(c *gin.Context) {
-	auth, err := bind.FillStructJSON[dto.SignIn](c)
-	if err != nil {
-		c.Error(errs.ValidError.AddErr(err))
+	auth := bind.FillStructJSON[dto.SignIn](c)
+	if auth == nil {
 		return
 	}
 
 	user, err := h.auth.AuthUserByEmail(auth.Email)
 
 	if err != nil {
-		c.Error(errs.NoSuchUser.AddErr(err))
+		c.Error(err)
 		return
 	}
 
@@ -103,9 +101,8 @@ func (h *Handler) signIn(c *gin.Context) {
 // @Failure 500 {object} errs.MyError
 // @Router /email/send-code [post]
 func (h *Handler) sendCodeToEmail(c *gin.Context) {
-	to, err := bind.FillStructJSON[dto.Email](c)
-	if err != nil {
-		c.Error(errs.ValidError.AddErr(err))
+	to := bind.FillStructJSON[dto.Email](c)
+	if to == nil {
 		return
 	}
 

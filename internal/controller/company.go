@@ -2,10 +2,8 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/while-act/hackathon-backend/ent"
 	"github.com/while-act/hackathon-backend/internal/controller/dto"
 	"github.com/while-act/hackathon-backend/pkg/bind"
-	"github.com/while-act/hackathon-backend/pkg/middleware/errs"
 	"net/http"
 )
 
@@ -19,20 +17,20 @@ import (
 // @Failure 500 {object} errs.MyError
 // @Router /company [get]
 func (h *Handler) getMyCompany(c *gin.Context) {
-	s, err := h.session.GetSession(c)
-	if err != nil {
+	s := h.session.GetSession(c)
+	if s == nil {
 		return
 	}
 
 	user, err := h.user.FindUserByID(s.ID)
 	if err != nil {
-		c.Error(errs.ValidError.AddErr(err))
+		c.Error(err)
 		return
 	}
 
 	company, err := h.company.GetCompanyDTO(user.CompanyID)
 	if err != nil {
-		c.Error(errs.NoSuchCompany.AddErr(err))
+		c.Error(err)
 		return
 	}
 
@@ -51,30 +49,24 @@ func (h *Handler) getMyCompany(c *gin.Context) {
 // @Failure 500 {object} errs.MyError
 // @Router /company [patch]
 func (h *Handler) updateCompany(c *gin.Context) {
-	s, err := h.session.GetSession(c)
-	if err != nil {
+	s := h.session.GetSession(c)
+	if s == nil {
 		return
 	}
 
-	updCompany, err := bind.FillStructJSON[dto.UpdateCompany](c)
-	if err != nil {
-		c.Error(errs.ValidError.AddErr(err))
+	updCompany := bind.FillStructJSON[dto.UpdateCompany](c)
+	if updCompany == nil {
 		return
 	}
 
 	user, err := h.user.FindUserByID(s.ID)
 	if err != nil {
-		c.Error(errs.ValidError.AddErr(err))
+		c.Error(err)
 		return
 	}
 
 	if err = h.company.UpdateCompany(updCompany, user.CompanyID); err != nil {
-		switch {
-		case ent.IsValidationError(err):
-			c.Error(errs.ValidError.AddErr(err))
-		default:
-			c.Error(errs.ServerError.AddErr(err))
-		}
+		c.Error(err)
 		return
 	}
 
