@@ -3,16 +3,19 @@
 package ent
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 
 	"entgo.io/ent"
 	"entgo.io/ent/dialect/sql"
+	"github.com/while-act/hackathon-backend/ent/businessactivity"
 	"github.com/while-act/hackathon-backend/ent/district"
-	"github.com/while-act/hackathon-backend/ent/equipment"
 	"github.com/while-act/hackathon-backend/ent/history"
 	"github.com/while-act/hackathon-backend/ent/industry"
+	"github.com/while-act/hackathon-backend/ent/taxationsystem"
 	"github.com/while-act/hackathon-backend/ent/user"
+	"github.com/while-act/hackathon-backend/internal/controller/dto"
 )
 
 // History is the model entity for the History schema.
@@ -20,28 +23,38 @@ type History struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID int `json:"id,omitempty"`
-	// CompanyName holds the value of the "company_name" field.
-	CompanyName string `json:"company_name,omitempty"`
+	// Name holds the value of the "name" field.
+	Name string `json:"name,omitempty"`
+	// OrganizationalLegal holds the value of the "organizational_legal" field.
+	OrganizationalLegal string `json:"organizational_legal,omitempty"`
 	// IndustryBranch holds the value of the "industry_branch" field.
 	IndustryBranch string `json:"industry_branch,omitempty"`
 	// FullTimeEmployees holds the value of the "full_time_employees" field.
 	FullTimeEmployees int `json:"full_time_employees,omitempty"`
+	// AvgSalary holds the value of the "avg_salary" field.
+	AvgSalary float64 `json:"avg_salary,omitempty"`
 	// DistrictTitle holds the value of the "district_title" field.
 	DistrictTitle string `json:"district_title,omitempty"`
 	// LandArea holds the value of the "land_area" field.
 	LandArea float64 `json:"land_area,omitempty"`
+	// IsBuy holds the value of the "is_buy" field.
+	IsBuy bool `json:"is_buy,omitempty"`
 	// ConstructionFacilitiesArea holds the value of the "construction_facilities_area" field.
 	ConstructionFacilitiesArea float64 `json:"construction_facilities_area,omitempty"`
-	// EquipmentType holds the value of the "equipment_type" field.
-	EquipmentType string `json:"equipment_type,omitempty"`
-	// OrganizationType holds the value of the "organization_type" field.
-	OrganizationType string `json:"organization_type,omitempty"`
-	// FacilityType holds the value of the "facility_type" field.
-	FacilityType string `json:"facility_type,omitempty"`
-	// AccountingServices holds the value of the "accounting_services" field.
-	AccountingServices bool `json:"accounting_services,omitempty"`
-	// Patent holds the value of the "patent" field.
-	Patent bool `json:"patent,omitempty"`
+	// BuildingType holds the value of the "building_type" field.
+	BuildingType string `json:"building_type,omitempty"`
+	// Equipment holds the value of the "equipment" field.
+	Equipment dto.Equipment `json:"equipment,omitempty"`
+	// AccountingSupport holds the value of the "accounting_support" field.
+	AccountingSupport bool `json:"accounting_support,omitempty"`
+	// TaxationSystemOperations holds the value of the "taxation_system_operations" field.
+	TaxationSystemOperations int `json:"taxation_system_operations,omitempty"`
+	// OperationsNum holds the value of the "operations_num" field.
+	OperationsNum int `json:"operations_num,omitempty"`
+	// PatentCalc holds the value of the "patent_calc" field.
+	PatentCalc bool `json:"patent_calc,omitempty"`
+	// BusinessActivityID holds the value of the "business_activity_id" field.
+	BusinessActivityID int `json:"business_activity_id,omitempty"`
 	// Other holds the value of the "other" field.
 	Other string `json:"other,omitempty"`
 	// UserID holds the value of the "user_id" field.
@@ -56,15 +69,17 @@ type History struct {
 type HistoryEdges struct {
 	// Industry holds the value of the industry edge.
 	Industry *Industry `json:"industry,omitempty"`
+	// TaxationSystems holds the value of the taxation_systems edge.
+	TaxationSystems *TaxationSystem `json:"taxation_systems,omitempty"`
+	// BusinessActivity holds the value of the business_activity edge.
+	BusinessActivity *BusinessActivity `json:"business_activity,omitempty"`
 	// District holds the value of the district edge.
 	District *District `json:"district,omitempty"`
-	// Equipment holds the value of the equipment edge.
-	Equipment *Equipment `json:"equipment,omitempty"`
 	// Users holds the value of the users edge.
 	Users *User `json:"users,omitempty"`
 	// loadedTypes holds the information for reporting if a
 	// type was loaded (or requested) in eager-loading or not.
-	loadedTypes [4]bool
+	loadedTypes [5]bool
 }
 
 // IndustryOrErr returns the Industry value or an error if the edge
@@ -80,10 +95,36 @@ func (e HistoryEdges) IndustryOrErr() (*Industry, error) {
 	return nil, &NotLoadedError{edge: "industry"}
 }
 
+// TaxationSystemsOrErr returns the TaxationSystems value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e HistoryEdges) TaxationSystemsOrErr() (*TaxationSystem, error) {
+	if e.loadedTypes[1] {
+		if e.TaxationSystems == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: taxationsystem.Label}
+		}
+		return e.TaxationSystems, nil
+	}
+	return nil, &NotLoadedError{edge: "taxation_systems"}
+}
+
+// BusinessActivityOrErr returns the BusinessActivity value or an error if the edge
+// was not loaded in eager-loading, or loaded but was not found.
+func (e HistoryEdges) BusinessActivityOrErr() (*BusinessActivity, error) {
+	if e.loadedTypes[2] {
+		if e.BusinessActivity == nil {
+			// Edge was loaded but was not found.
+			return nil, &NotFoundError{label: businessactivity.Label}
+		}
+		return e.BusinessActivity, nil
+	}
+	return nil, &NotLoadedError{edge: "business_activity"}
+}
+
 // DistrictOrErr returns the District value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e HistoryEdges) DistrictOrErr() (*District, error) {
-	if e.loadedTypes[1] {
+	if e.loadedTypes[3] {
 		if e.District == nil {
 			// Edge was loaded but was not found.
 			return nil, &NotFoundError{label: district.Label}
@@ -93,23 +134,10 @@ func (e HistoryEdges) DistrictOrErr() (*District, error) {
 	return nil, &NotLoadedError{edge: "district"}
 }
 
-// EquipmentOrErr returns the Equipment value or an error if the edge
-// was not loaded in eager-loading, or loaded but was not found.
-func (e HistoryEdges) EquipmentOrErr() (*Equipment, error) {
-	if e.loadedTypes[2] {
-		if e.Equipment == nil {
-			// Edge was loaded but was not found.
-			return nil, &NotFoundError{label: equipment.Label}
-		}
-		return e.Equipment, nil
-	}
-	return nil, &NotLoadedError{edge: "equipment"}
-}
-
 // UsersOrErr returns the Users value or an error if the edge
 // was not loaded in eager-loading, or loaded but was not found.
 func (e HistoryEdges) UsersOrErr() (*User, error) {
-	if e.loadedTypes[3] {
+	if e.loadedTypes[4] {
 		if e.Users == nil {
 			// Edge was loaded but was not found.
 			return nil, &NotFoundError{label: user.Label}
@@ -124,13 +152,15 @@ func (*History) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case history.FieldAccountingServices, history.FieldPatent:
+		case history.FieldEquipment:
+			values[i] = new([]byte)
+		case history.FieldIsBuy, history.FieldAccountingSupport, history.FieldPatentCalc:
 			values[i] = new(sql.NullBool)
-		case history.FieldLandArea, history.FieldConstructionFacilitiesArea:
+		case history.FieldAvgSalary, history.FieldLandArea, history.FieldConstructionFacilitiesArea:
 			values[i] = new(sql.NullFloat64)
-		case history.FieldID, history.FieldFullTimeEmployees, history.FieldUserID:
+		case history.FieldID, history.FieldFullTimeEmployees, history.FieldTaxationSystemOperations, history.FieldOperationsNum, history.FieldBusinessActivityID, history.FieldUserID:
 			values[i] = new(sql.NullInt64)
-		case history.FieldCompanyName, history.FieldIndustryBranch, history.FieldDistrictTitle, history.FieldEquipmentType, history.FieldOrganizationType, history.FieldFacilityType, history.FieldOther:
+		case history.FieldName, history.FieldOrganizationalLegal, history.FieldIndustryBranch, history.FieldDistrictTitle, history.FieldBuildingType, history.FieldOther:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -153,11 +183,17 @@ func (h *History) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", value)
 			}
 			h.ID = int(value.Int64)
-		case history.FieldCompanyName:
+		case history.FieldName:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field company_name", values[i])
+				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
-				h.CompanyName = value.String
+				h.Name = value.String
+			}
+		case history.FieldOrganizationalLegal:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field organizational_legal", values[i])
+			} else if value.Valid {
+				h.OrganizationalLegal = value.String
 			}
 		case history.FieldIndustryBranch:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -171,6 +207,12 @@ func (h *History) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				h.FullTimeEmployees = int(value.Int64)
 			}
+		case history.FieldAvgSalary:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field avg_salary", values[i])
+			} else if value.Valid {
+				h.AvgSalary = value.Float64
+			}
 		case history.FieldDistrictTitle:
 			if value, ok := values[i].(*sql.NullString); !ok {
 				return fmt.Errorf("unexpected type %T for field district_title", values[i])
@@ -183,41 +225,61 @@ func (h *History) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				h.LandArea = value.Float64
 			}
+		case history.FieldIsBuy:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field is_buy", values[i])
+			} else if value.Valid {
+				h.IsBuy = value.Bool
+			}
 		case history.FieldConstructionFacilitiesArea:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
 				return fmt.Errorf("unexpected type %T for field construction_facilities_area", values[i])
 			} else if value.Valid {
 				h.ConstructionFacilitiesArea = value.Float64
 			}
-		case history.FieldEquipmentType:
+		case history.FieldBuildingType:
 			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field equipment_type", values[i])
+				return fmt.Errorf("unexpected type %T for field building_type", values[i])
 			} else if value.Valid {
-				h.EquipmentType = value.String
+				h.BuildingType = value.String
 			}
-		case history.FieldOrganizationType:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field organization_type", values[i])
-			} else if value.Valid {
-				h.OrganizationType = value.String
+		case history.FieldEquipment:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field equipment", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &h.Equipment); err != nil {
+					return fmt.Errorf("unmarshal field equipment: %w", err)
+				}
 			}
-		case history.FieldFacilityType:
-			if value, ok := values[i].(*sql.NullString); !ok {
-				return fmt.Errorf("unexpected type %T for field facility_type", values[i])
-			} else if value.Valid {
-				h.FacilityType = value.String
-			}
-		case history.FieldAccountingServices:
+		case history.FieldAccountingSupport:
 			if value, ok := values[i].(*sql.NullBool); !ok {
-				return fmt.Errorf("unexpected type %T for field accounting_services", values[i])
+				return fmt.Errorf("unexpected type %T for field accounting_support", values[i])
 			} else if value.Valid {
-				h.AccountingServices = value.Bool
+				h.AccountingSupport = value.Bool
 			}
-		case history.FieldPatent:
-			if value, ok := values[i].(*sql.NullBool); !ok {
-				return fmt.Errorf("unexpected type %T for field patent", values[i])
+		case history.FieldTaxationSystemOperations:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field taxation_system_operations", values[i])
 			} else if value.Valid {
-				h.Patent = value.Bool
+				h.TaxationSystemOperations = int(value.Int64)
+			}
+		case history.FieldOperationsNum:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field operations_num", values[i])
+			} else if value.Valid {
+				h.OperationsNum = int(value.Int64)
+			}
+		case history.FieldPatentCalc:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field patent_calc", values[i])
+			} else if value.Valid {
+				h.PatentCalc = value.Bool
+			}
+		case history.FieldBusinessActivityID:
+			if value, ok := values[i].(*sql.NullInt64); !ok {
+				return fmt.Errorf("unexpected type %T for field business_activity_id", values[i])
+			} else if value.Valid {
+				h.BusinessActivityID = int(value.Int64)
 			}
 		case history.FieldOther:
 			if value, ok := values[i].(*sql.NullString); !ok {
@@ -249,14 +311,19 @@ func (h *History) QueryIndustry() *IndustryQuery {
 	return NewHistoryClient(h.config).QueryIndustry(h)
 }
 
+// QueryTaxationSystems queries the "taxation_systems" edge of the History entity.
+func (h *History) QueryTaxationSystems() *TaxationSystemQuery {
+	return NewHistoryClient(h.config).QueryTaxationSystems(h)
+}
+
+// QueryBusinessActivity queries the "business_activity" edge of the History entity.
+func (h *History) QueryBusinessActivity() *BusinessActivityQuery {
+	return NewHistoryClient(h.config).QueryBusinessActivity(h)
+}
+
 // QueryDistrict queries the "district" edge of the History entity.
 func (h *History) QueryDistrict() *DistrictQuery {
 	return NewHistoryClient(h.config).QueryDistrict(h)
-}
-
-// QueryEquipment queries the "equipment" edge of the History entity.
-func (h *History) QueryEquipment() *EquipmentQuery {
-	return NewHistoryClient(h.config).QueryEquipment(h)
 }
 
 // QueryUsers queries the "users" edge of the History entity.
@@ -287,8 +354,11 @@ func (h *History) String() string {
 	var builder strings.Builder
 	builder.WriteString("History(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", h.ID))
-	builder.WriteString("company_name=")
-	builder.WriteString(h.CompanyName)
+	builder.WriteString("name=")
+	builder.WriteString(h.Name)
+	builder.WriteString(", ")
+	builder.WriteString("organizational_legal=")
+	builder.WriteString(h.OrganizationalLegal)
 	builder.WriteString(", ")
 	builder.WriteString("industry_branch=")
 	builder.WriteString(h.IndustryBranch)
@@ -296,29 +366,41 @@ func (h *History) String() string {
 	builder.WriteString("full_time_employees=")
 	builder.WriteString(fmt.Sprintf("%v", h.FullTimeEmployees))
 	builder.WriteString(", ")
+	builder.WriteString("avg_salary=")
+	builder.WriteString(fmt.Sprintf("%v", h.AvgSalary))
+	builder.WriteString(", ")
 	builder.WriteString("district_title=")
 	builder.WriteString(h.DistrictTitle)
 	builder.WriteString(", ")
 	builder.WriteString("land_area=")
 	builder.WriteString(fmt.Sprintf("%v", h.LandArea))
 	builder.WriteString(", ")
+	builder.WriteString("is_buy=")
+	builder.WriteString(fmt.Sprintf("%v", h.IsBuy))
+	builder.WriteString(", ")
 	builder.WriteString("construction_facilities_area=")
 	builder.WriteString(fmt.Sprintf("%v", h.ConstructionFacilitiesArea))
 	builder.WriteString(", ")
-	builder.WriteString("equipment_type=")
-	builder.WriteString(h.EquipmentType)
+	builder.WriteString("building_type=")
+	builder.WriteString(h.BuildingType)
 	builder.WriteString(", ")
-	builder.WriteString("organization_type=")
-	builder.WriteString(h.OrganizationType)
+	builder.WriteString("equipment=")
+	builder.WriteString(fmt.Sprintf("%v", h.Equipment))
 	builder.WriteString(", ")
-	builder.WriteString("facility_type=")
-	builder.WriteString(h.FacilityType)
+	builder.WriteString("accounting_support=")
+	builder.WriteString(fmt.Sprintf("%v", h.AccountingSupport))
 	builder.WriteString(", ")
-	builder.WriteString("accounting_services=")
-	builder.WriteString(fmt.Sprintf("%v", h.AccountingServices))
+	builder.WriteString("taxation_system_operations=")
+	builder.WriteString(fmt.Sprintf("%v", h.TaxationSystemOperations))
 	builder.WriteString(", ")
-	builder.WriteString("patent=")
-	builder.WriteString(fmt.Sprintf("%v", h.Patent))
+	builder.WriteString("operations_num=")
+	builder.WriteString(fmt.Sprintf("%v", h.OperationsNum))
+	builder.WriteString(", ")
+	builder.WriteString("patent_calc=")
+	builder.WriteString(fmt.Sprintf("%v", h.PatentCalc))
+	builder.WriteString(", ")
+	builder.WriteString("business_activity_id=")
+	builder.WriteString(fmt.Sprintf("%v", h.BusinessActivityID))
 	builder.WriteString(", ")
 	builder.WriteString("other=")
 	builder.WriteString(h.Other)

@@ -12,18 +12,18 @@ import (
 // Tx is a transactional client that is created by calling Client.Tx().
 type Tx struct {
 	config
+	// BusinessActivity is the client for interacting with the BusinessActivity builders.
+	BusinessActivity *BusinessActivityClient
 	// Company is the client for interacting with the Company builders.
 	Company *CompanyClient
 	// District is the client for interacting with the District builders.
 	District *DistrictClient
-	// Entrepreneurship is the client for interacting with the Entrepreneurship builders.
-	Entrepreneurship *EntrepreneurshipClient
-	// Equipment is the client for interacting with the Equipment builders.
-	Equipment *EquipmentClient
 	// History is the client for interacting with the History builders.
 	History *HistoryClient
 	// Industry is the client for interacting with the Industry builders.
 	Industry *IndustryClient
+	// TaxationSystem is the client for interacting with the TaxationSystem builders.
+	TaxationSystem *TaxationSystemClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 
@@ -157,12 +157,12 @@ func (tx *Tx) Client() *Client {
 }
 
 func (tx *Tx) init() {
+	tx.BusinessActivity = NewBusinessActivityClient(tx.config)
 	tx.Company = NewCompanyClient(tx.config)
 	tx.District = NewDistrictClient(tx.config)
-	tx.Entrepreneurship = NewEntrepreneurshipClient(tx.config)
-	tx.Equipment = NewEquipmentClient(tx.config)
 	tx.History = NewHistoryClient(tx.config)
 	tx.Industry = NewIndustryClient(tx.config)
+	tx.TaxationSystem = NewTaxationSystemClient(tx.config)
 	tx.User = NewUserClient(tx.config)
 }
 
@@ -173,7 +173,7 @@ func (tx *Tx) init() {
 // of them in order to commit or rollback the transaction.
 //
 // If a closed transaction is embedded in one of the generated entities, and the entity
-// applies a query, for example: Company.QueryXXX(), the query will be executed
+// applies a query, for example: BusinessActivity.QueryXXX(), the query will be executed
 // through the driver which created this transaction.
 //
 // Note that txDriver is not goroutine safe.

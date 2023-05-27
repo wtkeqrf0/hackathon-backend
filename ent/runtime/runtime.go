@@ -5,12 +5,13 @@ package runtime
 import (
 	"time"
 
+	"github.com/while-act/hackathon-backend/ent/businessactivity"
 	"github.com/while-act/hackathon-backend/ent/company"
 	"github.com/while-act/hackathon-backend/ent/district"
-	"github.com/while-act/hackathon-backend/ent/equipment"
 	"github.com/while-act/hackathon-backend/ent/history"
 	"github.com/while-act/hackathon-backend/ent/industry"
 	"github.com/while-act/hackathon-backend/ent/schema"
+	"github.com/while-act/hackathon-backend/ent/taxationsystem"
 	"github.com/while-act/hackathon-backend/ent/user"
 )
 
@@ -18,6 +19,12 @@ import (
 // (default values, validators, hooks and policies) and stitches it
 // to their package variables.
 func init() {
+	businessactivityFields := schema.BusinessActivity{}.Fields()
+	_ = businessactivityFields
+	// businessactivityDescTotal is the schema descriptor for total field.
+	businessactivityDescTotal := businessactivityFields[2].Descriptor()
+	// businessactivity.TotalValidator is a validator for the "total" field. It is called by the builders before save.
+	businessactivity.TotalValidator = businessactivityDescTotal.Validators[0].(func(float64) error)
 	companyFields := schema.Company{}.Fields()
 	_ = companyFields
 	// companyDescInn is the schema descriptor for inn field.
@@ -52,26 +59,20 @@ func init() {
 	districtDescAvgCadastralVal := districtFields[1].Descriptor()
 	// district.AvgCadastralValValidator is a validator for the "avg_cadastral_val" field. It is called by the builders before save.
 	district.AvgCadastralValValidator = districtDescAvgCadastralVal.Validators[0].(func(float64) error)
-	equipmentFields := schema.Equipment{}.Fields()
-	_ = equipmentFields
-	// equipmentDescAvgPriceRub is the schema descriptor for avg_price_rub field.
-	equipmentDescAvgPriceRub := equipmentFields[1].Descriptor()
-	// equipment.AvgPriceRubValidator is a validator for the "avg_price_rub" field. It is called by the builders before save.
-	equipment.AvgPriceRubValidator = equipmentDescAvgPriceRub.Validators[0].(func(float64) error)
 	historyFields := schema.History{}.Fields()
 	_ = historyFields
-	// historyDescCompanyName is the schema descriptor for company_name field.
-	historyDescCompanyName := historyFields[0].Descriptor()
-	// history.CompanyNameValidator is a validator for the "company_name" field. It is called by the builders before save.
-	history.CompanyNameValidator = func() func(string) error {
-		validators := historyDescCompanyName.Validators
+	// historyDescName is the schema descriptor for name field.
+	historyDescName := historyFields[0].Descriptor()
+	// history.NameValidator is a validator for the "name" field. It is called by the builders before save.
+	history.NameValidator = func() func(string) error {
+		validators := historyDescName.Validators
 		fns := [...]func(string) error{
 			validators[0].(func(string) error),
 			validators[1].(func(string) error),
 		}
-		return func(company_name string) error {
+		return func(name string) error {
 			for _, fn := range fns {
-				if err := fn(company_name); err != nil {
+				if err := fn(name); err != nil {
 					return err
 				}
 			}
@@ -79,15 +80,15 @@ func init() {
 		}
 	}()
 	// historyDescFullTimeEmployees is the schema descriptor for full_time_employees field.
-	historyDescFullTimeEmployees := historyFields[2].Descriptor()
+	historyDescFullTimeEmployees := historyFields[3].Descriptor()
 	// history.FullTimeEmployeesValidator is a validator for the "full_time_employees" field. It is called by the builders before save.
 	history.FullTimeEmployeesValidator = historyDescFullTimeEmployees.Validators[0].(func(int) error)
 	// historyDescLandArea is the schema descriptor for land_area field.
-	historyDescLandArea := historyFields[4].Descriptor()
+	historyDescLandArea := historyFields[6].Descriptor()
 	// history.LandAreaValidator is a validator for the "land_area" field. It is called by the builders before save.
 	history.LandAreaValidator = historyDescLandArea.Validators[0].(func(float64) error)
 	// historyDescConstructionFacilitiesArea is the schema descriptor for construction_facilities_area field.
-	historyDescConstructionFacilitiesArea := historyFields[5].Descriptor()
+	historyDescConstructionFacilitiesArea := historyFields[8].Descriptor()
 	// history.ConstructionFacilitiesAreaValidator is a validator for the "construction_facilities_area" field. It is called by the builders before save.
 	history.ConstructionFacilitiesAreaValidator = historyDescConstructionFacilitiesArea.Validators[0].(func(float64) error)
 	industryFields := schema.Industry{}.Fields()
@@ -108,6 +109,24 @@ func init() {
 	industryDescAvgSalaryCad := industryFields[4].Descriptor()
 	// industry.AvgSalaryCadValidator is a validator for the "avg_salary_cad" field. It is called by the builders before save.
 	industry.AvgSalaryCadValidator = industryDescAvgSalaryCad.Validators[0].(func(float64) error)
+	taxationsystemFields := schema.TaxationSystem{}.Fields()
+	_ = taxationsystemFields
+	// taxationsystemDescUsn6 is the schema descriptor for usn6 field.
+	taxationsystemDescUsn6 := taxationsystemFields[1].Descriptor()
+	// taxationsystem.Usn6Validator is a validator for the "usn6" field. It is called by the builders before save.
+	taxationsystem.Usn6Validator = taxationsystemDescUsn6.Validators[0].(func(float64) error)
+	// taxationsystemDescUsn15 is the schema descriptor for usn15 field.
+	taxationsystemDescUsn15 := taxationsystemFields[2].Descriptor()
+	// taxationsystem.Usn15Validator is a validator for the "usn15" field. It is called by the builders before save.
+	taxationsystem.Usn15Validator = taxationsystemDescUsn15.Validators[0].(func(float64) error)
+	// taxationsystemDescOsn is the schema descriptor for osn field.
+	taxationsystemDescOsn := taxationsystemFields[3].Descriptor()
+	// taxationsystem.OsnValidator is a validator for the "osn" field. It is called by the builders before save.
+	taxationsystem.OsnValidator = taxationsystemDescOsn.Validators[0].(func(float64) error)
+	// taxationsystemDescID is the schema descriptor for id field.
+	taxationsystemDescID := taxationsystemFields[0].Descriptor()
+	// taxationsystem.IDValidator is a validator for the "id" field. It is called by the builders before save.
+	taxationsystem.IDValidator = taxationsystemDescID.Validators[0].(func(int) error)
 	userMixin := schema.User{}.Mixin()
 	userHooks := schema.User{}.Hooks()
 	user.Hooks[0] = userHooks[0]

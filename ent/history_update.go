@@ -27,9 +27,9 @@ func (hu *HistoryUpdate) Where(ps ...predicate.History) *HistoryUpdate {
 	return hu
 }
 
-// SetCompanyName sets the "company_name" field.
-func (hu *HistoryUpdate) SetCompanyName(s string) *HistoryUpdate {
-	hu.mutation.SetCompanyName(s)
+// SetName sets the "name" field.
+func (hu *HistoryUpdate) SetName(s string) *HistoryUpdate {
+	hu.mutation.SetName(s)
 	return hu
 }
 
@@ -67,9 +67,9 @@ func (hu *HistoryUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (hu *HistoryUpdate) check() error {
-	if v, ok := hu.mutation.CompanyName(); ok {
-		if err := history.CompanyNameValidator(v); err != nil {
-			return &ValidationError{Name: "company_name", err: fmt.Errorf(`ent: validator failed for field "History.company_name": %w`, err)}
+	if v, ok := hu.mutation.Name(); ok {
+		if err := history.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "History.name": %w`, err)}
 		}
 	}
 	if _, ok := hu.mutation.IndustryID(); hu.mutation.IndustryCleared() && !ok {
@@ -77,9 +77,6 @@ func (hu *HistoryUpdate) check() error {
 	}
 	if _, ok := hu.mutation.DistrictID(); hu.mutation.DistrictCleared() && !ok {
 		return errors.New(`ent: clearing a required unique edge "History.district"`)
-	}
-	if _, ok := hu.mutation.EquipmentID(); hu.mutation.EquipmentCleared() && !ok {
-		return errors.New(`ent: clearing a required unique edge "History.equipment"`)
 	}
 	if _, ok := hu.mutation.UsersID(); hu.mutation.UsersCleared() && !ok {
 		return errors.New(`ent: clearing a required unique edge "History.users"`)
@@ -99,8 +96,14 @@ func (hu *HistoryUpdate) sqlSave(ctx context.Context) (n int, err error) {
 			}
 		}
 	}
-	if value, ok := hu.mutation.CompanyName(); ok {
-		_spec.SetField(history.FieldCompanyName, field.TypeString, value)
+	if value, ok := hu.mutation.Name(); ok {
+		_spec.SetField(history.FieldName, field.TypeString, value)
+	}
+	if hu.mutation.OperationsNumCleared() {
+		_spec.ClearField(history.FieldOperationsNum, field.TypeInt)
+	}
+	if hu.mutation.OtherCleared() {
+		_spec.ClearField(history.FieldOther, field.TypeString)
 	}
 	if n, err = sqlgraph.UpdateNodes(ctx, hu.driver, _spec); err != nil {
 		if _, ok := err.(*sqlgraph.NotFoundError); ok {
@@ -122,9 +125,9 @@ type HistoryUpdateOne struct {
 	mutation *HistoryMutation
 }
 
-// SetCompanyName sets the "company_name" field.
-func (huo *HistoryUpdateOne) SetCompanyName(s string) *HistoryUpdateOne {
-	huo.mutation.SetCompanyName(s)
+// SetName sets the "name" field.
+func (huo *HistoryUpdateOne) SetName(s string) *HistoryUpdateOne {
+	huo.mutation.SetName(s)
 	return huo
 }
 
@@ -175,9 +178,9 @@ func (huo *HistoryUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (huo *HistoryUpdateOne) check() error {
-	if v, ok := huo.mutation.CompanyName(); ok {
-		if err := history.CompanyNameValidator(v); err != nil {
-			return &ValidationError{Name: "company_name", err: fmt.Errorf(`ent: validator failed for field "History.company_name": %w`, err)}
+	if v, ok := huo.mutation.Name(); ok {
+		if err := history.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "History.name": %w`, err)}
 		}
 	}
 	if _, ok := huo.mutation.IndustryID(); huo.mutation.IndustryCleared() && !ok {
@@ -185,9 +188,6 @@ func (huo *HistoryUpdateOne) check() error {
 	}
 	if _, ok := huo.mutation.DistrictID(); huo.mutation.DistrictCleared() && !ok {
 		return errors.New(`ent: clearing a required unique edge "History.district"`)
-	}
-	if _, ok := huo.mutation.EquipmentID(); huo.mutation.EquipmentCleared() && !ok {
-		return errors.New(`ent: clearing a required unique edge "History.equipment"`)
 	}
 	if _, ok := huo.mutation.UsersID(); huo.mutation.UsersCleared() && !ok {
 		return errors.New(`ent: clearing a required unique edge "History.users"`)
@@ -224,8 +224,14 @@ func (huo *HistoryUpdateOne) sqlSave(ctx context.Context) (_node *History, err e
 			}
 		}
 	}
-	if value, ok := huo.mutation.CompanyName(); ok {
-		_spec.SetField(history.FieldCompanyName, field.TypeString, value)
+	if value, ok := huo.mutation.Name(); ok {
+		_spec.SetField(history.FieldName, field.TypeString, value)
+	}
+	if huo.mutation.OperationsNumCleared() {
+		_spec.ClearField(history.FieldOperationsNum, field.TypeInt)
+	}
+	if huo.mutation.OtherCleared() {
+		_spec.ClearField(history.FieldOther, field.TypeString)
 	}
 	_node = &History{config: huo.config}
 	_spec.Assign = _node.assignValues

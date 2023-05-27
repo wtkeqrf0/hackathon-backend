@@ -8,6 +8,19 @@ import (
 )
 
 var (
+	// BusinessActivitiesColumns holds the columns for the "business_activities" table.
+	BusinessActivitiesColumns = []*schema.Column{
+		{Name: "id", Type: field.TypeInt, Increment: true},
+		{Name: "type", Type: field.TypeString},
+		{Name: "sub_type", Type: field.TypeString},
+		{Name: "total", Type: field.TypeFloat64},
+	}
+	// BusinessActivitiesTable holds the schema information for the "business_activities" table.
+	BusinessActivitiesTable = &schema.Table{
+		Name:       "business_activities",
+		Columns:    BusinessActivitiesColumns,
+		PrimaryKey: []*schema.Column{BusinessActivitiesColumns[0]},
+	}
 	// CompaniesColumns holds the columns for the "companies" table.
 	CompaniesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
@@ -32,43 +45,26 @@ var (
 		Columns:    DistrictsColumns,
 		PrimaryKey: []*schema.Column{DistrictsColumns[0]},
 	}
-	// EntrepreneurshipsColumns holds the columns for the "entrepreneurships" table.
-	EntrepreneurshipsColumns = []*schema.Column{
-		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "type", Type: field.TypeString, Unique: true},
-	}
-	// EntrepreneurshipsTable holds the schema information for the "entrepreneurships" table.
-	EntrepreneurshipsTable = &schema.Table{
-		Name:       "entrepreneurships",
-		Columns:    EntrepreneurshipsColumns,
-		PrimaryKey: []*schema.Column{EntrepreneurshipsColumns[0]},
-	}
-	// EquipmentColumns holds the columns for the "equipment" table.
-	EquipmentColumns = []*schema.Column{
-		{Name: "type", Type: field.TypeString, Unique: true},
-		{Name: "avg_price_rub", Type: field.TypeFloat64},
-	}
-	// EquipmentTable holds the schema information for the "equipment" table.
-	EquipmentTable = &schema.Table{
-		Name:       "equipment",
-		Columns:    EquipmentColumns,
-		PrimaryKey: []*schema.Column{EquipmentColumns[0]},
-	}
 	// HistoriesColumns holds the columns for the "histories" table.
 	HistoriesColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
-		{Name: "company_name", Type: field.TypeString, Size: 150},
+		{Name: "name", Type: field.TypeString, Size: 200},
+		{Name: "organizational_legal", Type: field.TypeString},
 		{Name: "full_time_employees", Type: field.TypeInt},
+		{Name: "avg_salary", Type: field.TypeFloat64},
 		{Name: "land_area", Type: field.TypeFloat64},
+		{Name: "is_buy", Type: field.TypeBool},
 		{Name: "construction_facilities_area", Type: field.TypeFloat64},
-		{Name: "organization_type", Type: field.TypeString},
-		{Name: "facility_type", Type: field.TypeString},
-		{Name: "accounting_services", Type: field.TypeBool},
-		{Name: "patent", Type: field.TypeBool},
-		{Name: "other", Type: field.TypeString, Size: 2147483647},
+		{Name: "building_type", Type: field.TypeString},
+		{Name: "equipment", Type: field.TypeJSON},
+		{Name: "accounting_support", Type: field.TypeBool},
+		{Name: "operations_num", Type: field.TypeInt, Nullable: true},
+		{Name: "patent_calc", Type: field.TypeBool},
+		{Name: "other", Type: field.TypeString, Nullable: true, Size: 2147483647},
+		{Name: "business_activity_id", Type: field.TypeInt, Nullable: true},
 		{Name: "district_title", Type: field.TypeString},
-		{Name: "equipment_type", Type: field.TypeString},
 		{Name: "industry_branch", Type: field.TypeString},
+		{Name: "taxation_system_operations", Type: field.TypeInt, Nullable: true},
 		{Name: "user_id", Type: field.TypeInt},
 	}
 	// HistoriesTable holds the schema information for the "histories" table.
@@ -78,26 +74,32 @@ var (
 		PrimaryKey: []*schema.Column{HistoriesColumns[0]},
 		ForeignKeys: []*schema.ForeignKey{
 			{
+				Symbol:     "histories_business_activities_histories",
+				Columns:    []*schema.Column{HistoriesColumns[14]},
+				RefColumns: []*schema.Column{BusinessActivitiesColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
 				Symbol:     "histories_districts_histories",
-				Columns:    []*schema.Column{HistoriesColumns[10]},
+				Columns:    []*schema.Column{HistoriesColumns[15]},
 				RefColumns: []*schema.Column{DistrictsColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
-				Symbol:     "histories_equipment_histories",
-				Columns:    []*schema.Column{HistoriesColumns[11]},
-				RefColumns: []*schema.Column{EquipmentColumns[0]},
-				OnDelete:   schema.NoAction,
-			},
-			{
 				Symbol:     "histories_industries_histories",
-				Columns:    []*schema.Column{HistoriesColumns[12]},
+				Columns:    []*schema.Column{HistoriesColumns[16]},
 				RefColumns: []*schema.Column{IndustriesColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
 			{
+				Symbol:     "histories_taxation_systems_histories",
+				Columns:    []*schema.Column{HistoriesColumns[17]},
+				RefColumns: []*schema.Column{TaxationSystemsColumns[0]},
+				OnDelete:   schema.SetNull,
+			},
+			{
 				Symbol:     "histories_users_histories",
-				Columns:    []*schema.Column{HistoriesColumns[13]},
+				Columns:    []*schema.Column{HistoriesColumns[18]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.NoAction,
 			},
@@ -116,6 +118,19 @@ var (
 		Name:       "industries",
 		Columns:    IndustriesColumns,
 		PrimaryKey: []*schema.Column{IndustriesColumns[0]},
+	}
+	// TaxationSystemsColumns holds the columns for the "taxation_systems" table.
+	TaxationSystemsColumns = []*schema.Column{
+		{Name: "operations", Type: field.TypeInt, Increment: true},
+		{Name: "usn6", Type: field.TypeFloat64},
+		{Name: "usn15", Type: field.TypeFloat64},
+		{Name: "osn", Type: field.TypeFloat64},
+	}
+	// TaxationSystemsTable holds the schema information for the "taxation_systems" table.
+	TaxationSystemsTable = &schema.Table{
+		Name:       "taxation_systems",
+		Columns:    TaxationSystemsColumns,
+		PrimaryKey: []*schema.Column{TaxationSystemsColumns[0]},
 	}
 	// UsersColumns holds the columns for the "users" table.
 	UsersColumns = []*schema.Column{
@@ -151,20 +166,21 @@ var (
 	}
 	// Tables holds all the tables in the schema.
 	Tables = []*schema.Table{
+		BusinessActivitiesTable,
 		CompaniesTable,
 		DistrictsTable,
-		EntrepreneurshipsTable,
-		EquipmentTable,
 		HistoriesTable,
 		IndustriesTable,
+		TaxationSystemsTable,
 		UsersTable,
 	}
 )
 
 func init() {
-	HistoriesTable.ForeignKeys[0].RefTable = DistrictsTable
-	HistoriesTable.ForeignKeys[1].RefTable = EquipmentTable
+	HistoriesTable.ForeignKeys[0].RefTable = BusinessActivitiesTable
+	HistoriesTable.ForeignKeys[1].RefTable = DistrictsTable
 	HistoriesTable.ForeignKeys[2].RefTable = IndustriesTable
-	HistoriesTable.ForeignKeys[3].RefTable = UsersTable
+	HistoriesTable.ForeignKeys[3].RefTable = TaxationSystemsTable
+	HistoriesTable.ForeignKeys[4].RefTable = UsersTable
 	UsersTable.ForeignKeys[0].RefTable = CompaniesTable
 }

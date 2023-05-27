@@ -9,6 +9,18 @@ import (
 	"github.com/while-act/hackathon-backend/ent"
 )
 
+// The BusinessActivityFunc type is an adapter to allow the use of ordinary
+// function as BusinessActivity mutator.
+type BusinessActivityFunc func(context.Context, *ent.BusinessActivityMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f BusinessActivityFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.BusinessActivityMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.BusinessActivityMutation", m)
+}
+
 // The CompanyFunc type is an adapter to allow the use of ordinary
 // function as Company mutator.
 type CompanyFunc func(context.Context, *ent.CompanyMutation) (ent.Value, error)
@@ -33,30 +45,6 @@ func (f DistrictFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, er
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.DistrictMutation", m)
 }
 
-// The EntrepreneurshipFunc type is an adapter to allow the use of ordinary
-// function as Entrepreneurship mutator.
-type EntrepreneurshipFunc func(context.Context, *ent.EntrepreneurshipMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f EntrepreneurshipFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.EntrepreneurshipMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.EntrepreneurshipMutation", m)
-}
-
-// The EquipmentFunc type is an adapter to allow the use of ordinary
-// function as Equipment mutator.
-type EquipmentFunc func(context.Context, *ent.EquipmentMutation) (ent.Value, error)
-
-// Mutate calls f(ctx, m).
-func (f EquipmentFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
-	if mv, ok := m.(*ent.EquipmentMutation); ok {
-		return f(ctx, mv)
-	}
-	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.EquipmentMutation", m)
-}
-
 // The HistoryFunc type is an adapter to allow the use of ordinary
 // function as History mutator.
 type HistoryFunc func(context.Context, *ent.HistoryMutation) (ent.Value, error)
@@ -79,6 +67,18 @@ func (f IndustryFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, er
 		return f(ctx, mv)
 	}
 	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.IndustryMutation", m)
+}
+
+// The TaxationSystemFunc type is an adapter to allow the use of ordinary
+// function as TaxationSystem mutator.
+type TaxationSystemFunc func(context.Context, *ent.TaxationSystemMutation) (ent.Value, error)
+
+// Mutate calls f(ctx, m).
+func (f TaxationSystemFunc) Mutate(ctx context.Context, m ent.Mutation) (ent.Value, error) {
+	if mv, ok := m.(*ent.TaxationSystemMutation); ok {
+		return f(ctx, mv)
+	}
+	return nil, fmt.Errorf("unexpected mutation type %T. expect *ent.TaxationSystemMutation", m)
 }
 
 // The UserFunc type is an adapter to allow the use of ordinary

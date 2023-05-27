@@ -10,25 +10,27 @@ import (
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/while-act/hackathon-backend/ent/businessactivity"
 	"github.com/while-act/hackathon-backend/ent/district"
-	"github.com/while-act/hackathon-backend/ent/equipment"
 	"github.com/while-act/hackathon-backend/ent/history"
 	"github.com/while-act/hackathon-backend/ent/industry"
 	"github.com/while-act/hackathon-backend/ent/predicate"
+	"github.com/while-act/hackathon-backend/ent/taxationsystem"
 	"github.com/while-act/hackathon-backend/ent/user"
 )
 
 // HistoryQuery is the builder for querying History entities.
 type HistoryQuery struct {
 	config
-	ctx           *QueryContext
-	order         []history.OrderOption
-	inters        []Interceptor
-	predicates    []predicate.History
-	withIndustry  *IndustryQuery
-	withDistrict  *DistrictQuery
-	withEquipment *EquipmentQuery
-	withUsers     *UserQuery
+	ctx                  *QueryContext
+	order                []history.OrderOption
+	inters               []Interceptor
+	predicates           []predicate.History
+	withIndustry         *IndustryQuery
+	withTaxationSystems  *TaxationSystemQuery
+	withBusinessActivity *BusinessActivityQuery
+	withDistrict         *DistrictQuery
+	withUsers            *UserQuery
 	// intermediate query (i.e. traversal path).
 	sql  *sql.Selector
 	path func(context.Context) (*sql.Selector, error)
@@ -87,6 +89,50 @@ func (hq *HistoryQuery) QueryIndustry() *IndustryQuery {
 	return query
 }
 
+// QueryTaxationSystems chains the current query on the "taxation_systems" edge.
+func (hq *HistoryQuery) QueryTaxationSystems() *TaxationSystemQuery {
+	query := (&TaxationSystemClient{config: hq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := hq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := hq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(history.Table, history.FieldID, selector),
+			sqlgraph.To(taxationsystem.Table, taxationsystem.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, history.TaxationSystemsTable, history.TaxationSystemsColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(hq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
+// QueryBusinessActivity chains the current query on the "business_activity" edge.
+func (hq *HistoryQuery) QueryBusinessActivity() *BusinessActivityQuery {
+	query := (&BusinessActivityClient{config: hq.config}).Query()
+	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
+		if err := hq.prepareQuery(ctx); err != nil {
+			return nil, err
+		}
+		selector := hq.sqlQuery(ctx)
+		if err := selector.Err(); err != nil {
+			return nil, err
+		}
+		step := sqlgraph.NewStep(
+			sqlgraph.From(history.Table, history.FieldID, selector),
+			sqlgraph.To(businessactivity.Table, businessactivity.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, history.BusinessActivityTable, history.BusinessActivityColumn),
+		)
+		fromU = sqlgraph.SetNeighbors(hq.driver.Dialect(), step)
+		return fromU, nil
+	}
+	return query
+}
+
 // QueryDistrict chains the current query on the "district" edge.
 func (hq *HistoryQuery) QueryDistrict() *DistrictQuery {
 	query := (&DistrictClient{config: hq.config}).Query()
@@ -102,28 +148,6 @@ func (hq *HistoryQuery) QueryDistrict() *DistrictQuery {
 			sqlgraph.From(history.Table, history.FieldID, selector),
 			sqlgraph.To(district.Table, district.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, history.DistrictTable, history.DistrictColumn),
-		)
-		fromU = sqlgraph.SetNeighbors(hq.driver.Dialect(), step)
-		return fromU, nil
-	}
-	return query
-}
-
-// QueryEquipment chains the current query on the "equipment" edge.
-func (hq *HistoryQuery) QueryEquipment() *EquipmentQuery {
-	query := (&EquipmentClient{config: hq.config}).Query()
-	query.path = func(ctx context.Context) (fromU *sql.Selector, err error) {
-		if err := hq.prepareQuery(ctx); err != nil {
-			return nil, err
-		}
-		selector := hq.sqlQuery(ctx)
-		if err := selector.Err(); err != nil {
-			return nil, err
-		}
-		step := sqlgraph.NewStep(
-			sqlgraph.From(history.Table, history.FieldID, selector),
-			sqlgraph.To(equipment.Table, equipment.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, history.EquipmentTable, history.EquipmentColumn),
 		)
 		fromU = sqlgraph.SetNeighbors(hq.driver.Dialect(), step)
 		return fromU, nil
@@ -340,15 +364,16 @@ func (hq *HistoryQuery) Clone() *HistoryQuery {
 		return nil
 	}
 	return &HistoryQuery{
-		config:        hq.config,
-		ctx:           hq.ctx.Clone(),
-		order:         append([]history.OrderOption{}, hq.order...),
-		inters:        append([]Interceptor{}, hq.inters...),
-		predicates:    append([]predicate.History{}, hq.predicates...),
-		withIndustry:  hq.withIndustry.Clone(),
-		withDistrict:  hq.withDistrict.Clone(),
-		withEquipment: hq.withEquipment.Clone(),
-		withUsers:     hq.withUsers.Clone(),
+		config:               hq.config,
+		ctx:                  hq.ctx.Clone(),
+		order:                append([]history.OrderOption{}, hq.order...),
+		inters:               append([]Interceptor{}, hq.inters...),
+		predicates:           append([]predicate.History{}, hq.predicates...),
+		withIndustry:         hq.withIndustry.Clone(),
+		withTaxationSystems:  hq.withTaxationSystems.Clone(),
+		withBusinessActivity: hq.withBusinessActivity.Clone(),
+		withDistrict:         hq.withDistrict.Clone(),
+		withUsers:            hq.withUsers.Clone(),
 		// clone intermediate query.
 		sql:  hq.sql.Clone(),
 		path: hq.path,
@@ -366,6 +391,28 @@ func (hq *HistoryQuery) WithIndustry(opts ...func(*IndustryQuery)) *HistoryQuery
 	return hq
 }
 
+// WithTaxationSystems tells the query-builder to eager-load the nodes that are connected to
+// the "taxation_systems" edge. The optional arguments are used to configure the query builder of the edge.
+func (hq *HistoryQuery) WithTaxationSystems(opts ...func(*TaxationSystemQuery)) *HistoryQuery {
+	query := (&TaxationSystemClient{config: hq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	hq.withTaxationSystems = query
+	return hq
+}
+
+// WithBusinessActivity tells the query-builder to eager-load the nodes that are connected to
+// the "business_activity" edge. The optional arguments are used to configure the query builder of the edge.
+func (hq *HistoryQuery) WithBusinessActivity(opts ...func(*BusinessActivityQuery)) *HistoryQuery {
+	query := (&BusinessActivityClient{config: hq.config}).Query()
+	for _, opt := range opts {
+		opt(query)
+	}
+	hq.withBusinessActivity = query
+	return hq
+}
+
 // WithDistrict tells the query-builder to eager-load the nodes that are connected to
 // the "district" edge. The optional arguments are used to configure the query builder of the edge.
 func (hq *HistoryQuery) WithDistrict(opts ...func(*DistrictQuery)) *HistoryQuery {
@@ -374,17 +421,6 @@ func (hq *HistoryQuery) WithDistrict(opts ...func(*DistrictQuery)) *HistoryQuery
 		opt(query)
 	}
 	hq.withDistrict = query
-	return hq
-}
-
-// WithEquipment tells the query-builder to eager-load the nodes that are connected to
-// the "equipment" edge. The optional arguments are used to configure the query builder of the edge.
-func (hq *HistoryQuery) WithEquipment(opts ...func(*EquipmentQuery)) *HistoryQuery {
-	query := (&EquipmentClient{config: hq.config}).Query()
-	for _, opt := range opts {
-		opt(query)
-	}
-	hq.withEquipment = query
 	return hq
 }
 
@@ -405,12 +441,12 @@ func (hq *HistoryQuery) WithUsers(opts ...func(*UserQuery)) *HistoryQuery {
 // Example:
 //
 //	var v []struct {
-//		CompanyName string `json:"company_name,omitempty"`
+//		Name string `json:"name,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.History.Query().
-//		GroupBy(history.FieldCompanyName).
+//		GroupBy(history.FieldName).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (hq *HistoryQuery) GroupBy(field string, fields ...string) *HistoryGroupBy {
@@ -428,11 +464,11 @@ func (hq *HistoryQuery) GroupBy(field string, fields ...string) *HistoryGroupBy 
 // Example:
 //
 //	var v []struct {
-//		CompanyName string `json:"company_name,omitempty"`
+//		Name string `json:"name,omitempty"`
 //	}
 //
 //	client.History.Query().
-//		Select(history.FieldCompanyName).
+//		Select(history.FieldName).
 //		Scan(ctx, &v)
 func (hq *HistoryQuery) Select(fields ...string) *HistorySelect {
 	hq.ctx.Fields = append(hq.ctx.Fields, fields...)
@@ -477,10 +513,11 @@ func (hq *HistoryQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Hist
 	var (
 		nodes       = []*History{}
 		_spec       = hq.querySpec()
-		loadedTypes = [4]bool{
+		loadedTypes = [5]bool{
 			hq.withIndustry != nil,
+			hq.withTaxationSystems != nil,
+			hq.withBusinessActivity != nil,
 			hq.withDistrict != nil,
-			hq.withEquipment != nil,
 			hq.withUsers != nil,
 		}
 	)
@@ -508,15 +545,21 @@ func (hq *HistoryQuery) sqlAll(ctx context.Context, hooks ...queryHook) ([]*Hist
 			return nil, err
 		}
 	}
-	if query := hq.withDistrict; query != nil {
-		if err := hq.loadDistrict(ctx, query, nodes, nil,
-			func(n *History, e *District) { n.Edges.District = e }); err != nil {
+	if query := hq.withTaxationSystems; query != nil {
+		if err := hq.loadTaxationSystems(ctx, query, nodes, nil,
+			func(n *History, e *TaxationSystem) { n.Edges.TaxationSystems = e }); err != nil {
 			return nil, err
 		}
 	}
-	if query := hq.withEquipment; query != nil {
-		if err := hq.loadEquipment(ctx, query, nodes, nil,
-			func(n *History, e *Equipment) { n.Edges.Equipment = e }); err != nil {
+	if query := hq.withBusinessActivity; query != nil {
+		if err := hq.loadBusinessActivity(ctx, query, nodes, nil,
+			func(n *History, e *BusinessActivity) { n.Edges.BusinessActivity = e }); err != nil {
+			return nil, err
+		}
+	}
+	if query := hq.withDistrict; query != nil {
+		if err := hq.loadDistrict(ctx, query, nodes, nil,
+			func(n *History, e *District) { n.Edges.District = e }); err != nil {
 			return nil, err
 		}
 	}
@@ -558,6 +601,64 @@ func (hq *HistoryQuery) loadIndustry(ctx context.Context, query *IndustryQuery, 
 	}
 	return nil
 }
+func (hq *HistoryQuery) loadTaxationSystems(ctx context.Context, query *TaxationSystemQuery, nodes []*History, init func(*History), assign func(*History, *TaxationSystem)) error {
+	ids := make([]int, 0, len(nodes))
+	nodeids := make(map[int][]*History)
+	for i := range nodes {
+		fk := nodes[i].TaxationSystemOperations
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(taxationsystem.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "taxation_system_operations" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
+func (hq *HistoryQuery) loadBusinessActivity(ctx context.Context, query *BusinessActivityQuery, nodes []*History, init func(*History), assign func(*History, *BusinessActivity)) error {
+	ids := make([]int, 0, len(nodes))
+	nodeids := make(map[int][]*History)
+	for i := range nodes {
+		fk := nodes[i].BusinessActivityID
+		if _, ok := nodeids[fk]; !ok {
+			ids = append(ids, fk)
+		}
+		nodeids[fk] = append(nodeids[fk], nodes[i])
+	}
+	if len(ids) == 0 {
+		return nil
+	}
+	query.Where(businessactivity.IDIn(ids...))
+	neighbors, err := query.All(ctx)
+	if err != nil {
+		return err
+	}
+	for _, n := range neighbors {
+		nodes, ok := nodeids[n.ID]
+		if !ok {
+			return fmt.Errorf(`unexpected foreign-key "business_activity_id" returned %v`, n.ID)
+		}
+		for i := range nodes {
+			assign(nodes[i], n)
+		}
+	}
+	return nil
+}
 func (hq *HistoryQuery) loadDistrict(ctx context.Context, query *DistrictQuery, nodes []*History, init func(*History), assign func(*History, *District)) error {
 	ids := make([]string, 0, len(nodes))
 	nodeids := make(map[string][]*History)
@@ -580,35 +681,6 @@ func (hq *HistoryQuery) loadDistrict(ctx context.Context, query *DistrictQuery, 
 		nodes, ok := nodeids[n.ID]
 		if !ok {
 			return fmt.Errorf(`unexpected foreign-key "district_title" returned %v`, n.ID)
-		}
-		for i := range nodes {
-			assign(nodes[i], n)
-		}
-	}
-	return nil
-}
-func (hq *HistoryQuery) loadEquipment(ctx context.Context, query *EquipmentQuery, nodes []*History, init func(*History), assign func(*History, *Equipment)) error {
-	ids := make([]string, 0, len(nodes))
-	nodeids := make(map[string][]*History)
-	for i := range nodes {
-		fk := nodes[i].EquipmentType
-		if _, ok := nodeids[fk]; !ok {
-			ids = append(ids, fk)
-		}
-		nodeids[fk] = append(nodeids[fk], nodes[i])
-	}
-	if len(ids) == 0 {
-		return nil
-	}
-	query.Where(equipment.IDIn(ids...))
-	neighbors, err := query.All(ctx)
-	if err != nil {
-		return err
-	}
-	for _, n := range neighbors {
-		nodes, ok := nodeids[n.ID]
-		if !ok {
-			return fmt.Errorf(`unexpected foreign-key "equipment_type" returned %v`, n.ID)
 		}
 		for i := range nodes {
 			assign(nodes[i], n)
@@ -674,11 +746,14 @@ func (hq *HistoryQuery) querySpec() *sqlgraph.QuerySpec {
 		if hq.withIndustry != nil {
 			_spec.Node.AddColumnOnce(history.FieldIndustryBranch)
 		}
+		if hq.withTaxationSystems != nil {
+			_spec.Node.AddColumnOnce(history.FieldTaxationSystemOperations)
+		}
+		if hq.withBusinessActivity != nil {
+			_spec.Node.AddColumnOnce(history.FieldBusinessActivityID)
+		}
 		if hq.withDistrict != nil {
 			_spec.Node.AddColumnOnce(history.FieldDistrictTitle)
-		}
-		if hq.withEquipment != nil {
-			_spec.Node.AddColumnOnce(history.FieldEquipmentType)
 		}
 		if hq.withUsers != nil {
 			_spec.Node.AddColumnOnce(history.FieldUserID)

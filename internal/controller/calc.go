@@ -56,7 +56,7 @@ func (h *Handler) calcData(c *gin.Context) {
 
 	p := service.Params{
 		IndustryBranch:      history.IndustryBranch,
-		OrganizationType:    history.OrganizationType,
+		OrganizationType:    history.OrganizationLegal,
 		FullTimeEmployers:   history.FullTimeEmployees,
 		LandArea:            history.LandArea,
 		Total:               0,

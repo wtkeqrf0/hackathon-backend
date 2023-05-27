@@ -12,46 +12,58 @@ const (
 	Label = "history"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "id"
-	// FieldCompanyName holds the string denoting the company_name field in the database.
-	FieldCompanyName = "company_name"
+	// FieldName holds the string denoting the name field in the database.
+	FieldName = "name"
+	// FieldOrganizationalLegal holds the string denoting the organizational_legal field in the database.
+	FieldOrganizationalLegal = "organizational_legal"
 	// FieldIndustryBranch holds the string denoting the industry_branch field in the database.
 	FieldIndustryBranch = "industry_branch"
 	// FieldFullTimeEmployees holds the string denoting the full_time_employees field in the database.
 	FieldFullTimeEmployees = "full_time_employees"
+	// FieldAvgSalary holds the string denoting the avg_salary field in the database.
+	FieldAvgSalary = "avg_salary"
 	// FieldDistrictTitle holds the string denoting the district_title field in the database.
 	FieldDistrictTitle = "district_title"
 	// FieldLandArea holds the string denoting the land_area field in the database.
 	FieldLandArea = "land_area"
+	// FieldIsBuy holds the string denoting the is_buy field in the database.
+	FieldIsBuy = "is_buy"
 	// FieldConstructionFacilitiesArea holds the string denoting the construction_facilities_area field in the database.
 	FieldConstructionFacilitiesArea = "construction_facilities_area"
-	// FieldEquipmentType holds the string denoting the equipment_type field in the database.
-	FieldEquipmentType = "equipment_type"
-	// FieldOrganizationType holds the string denoting the organization_type field in the database.
-	FieldOrganizationType = "organization_type"
-	// FieldFacilityType holds the string denoting the facility_type field in the database.
-	FieldFacilityType = "facility_type"
-	// FieldAccountingServices holds the string denoting the accounting_services field in the database.
-	FieldAccountingServices = "accounting_services"
-	// FieldPatent holds the string denoting the patent field in the database.
-	FieldPatent = "patent"
+	// FieldBuildingType holds the string denoting the building_type field in the database.
+	FieldBuildingType = "building_type"
+	// FieldEquipment holds the string denoting the equipment field in the database.
+	FieldEquipment = "equipment"
+	// FieldAccountingSupport holds the string denoting the accounting_support field in the database.
+	FieldAccountingSupport = "accounting_support"
+	// FieldTaxationSystemOperations holds the string denoting the taxation_system_operations field in the database.
+	FieldTaxationSystemOperations = "taxation_system_operations"
+	// FieldOperationsNum holds the string denoting the operations_num field in the database.
+	FieldOperationsNum = "operations_num"
+	// FieldPatentCalc holds the string denoting the patent_calc field in the database.
+	FieldPatentCalc = "patent_calc"
+	// FieldBusinessActivityID holds the string denoting the business_activity_id field in the database.
+	FieldBusinessActivityID = "business_activity_id"
 	// FieldOther holds the string denoting the other field in the database.
 	FieldOther = "other"
 	// FieldUserID holds the string denoting the user_id field in the database.
 	FieldUserID = "user_id"
 	// EdgeIndustry holds the string denoting the industry edge name in mutations.
 	EdgeIndustry = "industry"
+	// EdgeTaxationSystems holds the string denoting the taxation_systems edge name in mutations.
+	EdgeTaxationSystems = "taxation_systems"
+	// EdgeBusinessActivity holds the string denoting the business_activity edge name in mutations.
+	EdgeBusinessActivity = "business_activity"
 	// EdgeDistrict holds the string denoting the district edge name in mutations.
 	EdgeDistrict = "district"
-	// EdgeEquipment holds the string denoting the equipment edge name in mutations.
-	EdgeEquipment = "equipment"
 	// EdgeUsers holds the string denoting the users edge name in mutations.
 	EdgeUsers = "users"
 	// IndustryFieldID holds the string denoting the ID field of the Industry.
 	IndustryFieldID = "branch"
+	// TaxationSystemFieldID holds the string denoting the ID field of the TaxationSystem.
+	TaxationSystemFieldID = "operations"
 	// DistrictFieldID holds the string denoting the ID field of the District.
 	DistrictFieldID = "title"
-	// EquipmentFieldID holds the string denoting the ID field of the Equipment.
-	EquipmentFieldID = "type"
 	// Table holds the table name of the history in the database.
 	Table = "histories"
 	// IndustryTable is the table that holds the industry relation/edge.
@@ -61,6 +73,20 @@ const (
 	IndustryInverseTable = "industries"
 	// IndustryColumn is the table column denoting the industry relation/edge.
 	IndustryColumn = "industry_branch"
+	// TaxationSystemsTable is the table that holds the taxation_systems relation/edge.
+	TaxationSystemsTable = "histories"
+	// TaxationSystemsInverseTable is the table name for the TaxationSystem entity.
+	// It exists in this package in order to avoid circular dependency with the "taxationsystem" package.
+	TaxationSystemsInverseTable = "taxation_systems"
+	// TaxationSystemsColumn is the table column denoting the taxation_systems relation/edge.
+	TaxationSystemsColumn = "taxation_system_operations"
+	// BusinessActivityTable is the table that holds the business_activity relation/edge.
+	BusinessActivityTable = "histories"
+	// BusinessActivityInverseTable is the table name for the BusinessActivity entity.
+	// It exists in this package in order to avoid circular dependency with the "businessactivity" package.
+	BusinessActivityInverseTable = "business_activities"
+	// BusinessActivityColumn is the table column denoting the business_activity relation/edge.
+	BusinessActivityColumn = "business_activity_id"
 	// DistrictTable is the table that holds the district relation/edge.
 	DistrictTable = "histories"
 	// DistrictInverseTable is the table name for the District entity.
@@ -68,13 +94,6 @@ const (
 	DistrictInverseTable = "districts"
 	// DistrictColumn is the table column denoting the district relation/edge.
 	DistrictColumn = "district_title"
-	// EquipmentTable is the table that holds the equipment relation/edge.
-	EquipmentTable = "histories"
-	// EquipmentInverseTable is the table name for the Equipment entity.
-	// It exists in this package in order to avoid circular dependency with the "equipment" package.
-	EquipmentInverseTable = "equipment"
-	// EquipmentColumn is the table column denoting the equipment relation/edge.
-	EquipmentColumn = "equipment_type"
 	// UsersTable is the table that holds the users relation/edge.
 	UsersTable = "histories"
 	// UsersInverseTable is the table name for the User entity.
@@ -87,17 +106,22 @@ const (
 // Columns holds all SQL columns for history fields.
 var Columns = []string{
 	FieldID,
-	FieldCompanyName,
+	FieldName,
+	FieldOrganizationalLegal,
 	FieldIndustryBranch,
 	FieldFullTimeEmployees,
+	FieldAvgSalary,
 	FieldDistrictTitle,
 	FieldLandArea,
+	FieldIsBuy,
 	FieldConstructionFacilitiesArea,
-	FieldEquipmentType,
-	FieldOrganizationType,
-	FieldFacilityType,
-	FieldAccountingServices,
-	FieldPatent,
+	FieldBuildingType,
+	FieldEquipment,
+	FieldAccountingSupport,
+	FieldTaxationSystemOperations,
+	FieldOperationsNum,
+	FieldPatentCalc,
+	FieldBusinessActivityID,
 	FieldOther,
 	FieldUserID,
 }
@@ -113,8 +137,8 @@ func ValidColumn(column string) bool {
 }
 
 var (
-	// CompanyNameValidator is a validator for the "company_name" field. It is called by the builders before save.
-	CompanyNameValidator func(string) error
+	// NameValidator is a validator for the "name" field. It is called by the builders before save.
+	NameValidator func(string) error
 	// FullTimeEmployeesValidator is a validator for the "full_time_employees" field. It is called by the builders before save.
 	FullTimeEmployeesValidator func(int) error
 	// LandAreaValidator is a validator for the "land_area" field. It is called by the builders before save.
@@ -131,9 +155,14 @@ func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
 }
 
-// ByCompanyName orders the results by the company_name field.
-func ByCompanyName(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldCompanyName, opts...).ToFunc()
+// ByName orders the results by the name field.
+func ByName(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldName, opts...).ToFunc()
+}
+
+// ByOrganizationalLegal orders the results by the organizational_legal field.
+func ByOrganizationalLegal(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldOrganizationalLegal, opts...).ToFunc()
 }
 
 // ByIndustryBranch orders the results by the industry_branch field.
@@ -146,6 +175,11 @@ func ByFullTimeEmployees(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldFullTimeEmployees, opts...).ToFunc()
 }
 
+// ByAvgSalary orders the results by the avg_salary field.
+func ByAvgSalary(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAvgSalary, opts...).ToFunc()
+}
+
 // ByDistrictTitle orders the results by the district_title field.
 func ByDistrictTitle(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldDistrictTitle, opts...).ToFunc()
@@ -156,34 +190,44 @@ func ByLandArea(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldLandArea, opts...).ToFunc()
 }
 
+// ByIsBuy orders the results by the is_buy field.
+func ByIsBuy(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldIsBuy, opts...).ToFunc()
+}
+
 // ByConstructionFacilitiesArea orders the results by the construction_facilities_area field.
 func ByConstructionFacilitiesArea(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldConstructionFacilitiesArea, opts...).ToFunc()
 }
 
-// ByEquipmentType orders the results by the equipment_type field.
-func ByEquipmentType(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldEquipmentType, opts...).ToFunc()
+// ByBuildingType orders the results by the building_type field.
+func ByBuildingType(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldBuildingType, opts...).ToFunc()
 }
 
-// ByOrganizationType orders the results by the organization_type field.
-func ByOrganizationType(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldOrganizationType, opts...).ToFunc()
+// ByAccountingSupport orders the results by the accounting_support field.
+func ByAccountingSupport(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldAccountingSupport, opts...).ToFunc()
 }
 
-// ByFacilityType orders the results by the facility_type field.
-func ByFacilityType(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldFacilityType, opts...).ToFunc()
+// ByTaxationSystemOperations orders the results by the taxation_system_operations field.
+func ByTaxationSystemOperations(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldTaxationSystemOperations, opts...).ToFunc()
 }
 
-// ByAccountingServices orders the results by the accounting_services field.
-func ByAccountingServices(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldAccountingServices, opts...).ToFunc()
+// ByOperationsNum orders the results by the operations_num field.
+func ByOperationsNum(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldOperationsNum, opts...).ToFunc()
 }
 
-// ByPatent orders the results by the patent field.
-func ByPatent(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldPatent, opts...).ToFunc()
+// ByPatentCalc orders the results by the patent_calc field.
+func ByPatentCalc(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldPatentCalc, opts...).ToFunc()
+}
+
+// ByBusinessActivityID orders the results by the business_activity_id field.
+func ByBusinessActivityID(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldBusinessActivityID, opts...).ToFunc()
 }
 
 // ByOther orders the results by the other field.
@@ -203,17 +247,24 @@ func ByIndustryField(field string, opts ...sql.OrderTermOption) OrderOption {
 	}
 }
 
+// ByTaxationSystemsField orders the results by taxation_systems field.
+func ByTaxationSystemsField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newTaxationSystemsStep(), sql.OrderByField(field, opts...))
+	}
+}
+
+// ByBusinessActivityField orders the results by business_activity field.
+func ByBusinessActivityField(field string, opts ...sql.OrderTermOption) OrderOption {
+	return func(s *sql.Selector) {
+		sqlgraph.OrderByNeighborTerms(s, newBusinessActivityStep(), sql.OrderByField(field, opts...))
+	}
+}
+
 // ByDistrictField orders the results by district field.
 func ByDistrictField(field string, opts ...sql.OrderTermOption) OrderOption {
 	return func(s *sql.Selector) {
 		sqlgraph.OrderByNeighborTerms(s, newDistrictStep(), sql.OrderByField(field, opts...))
-	}
-}
-
-// ByEquipmentField orders the results by equipment field.
-func ByEquipmentField(field string, opts ...sql.OrderTermOption) OrderOption {
-	return func(s *sql.Selector) {
-		sqlgraph.OrderByNeighborTerms(s, newEquipmentStep(), sql.OrderByField(field, opts...))
 	}
 }
 
@@ -230,18 +281,25 @@ func newIndustryStep() *sqlgraph.Step {
 		sqlgraph.Edge(sqlgraph.M2O, true, IndustryTable, IndustryColumn),
 	)
 }
+func newTaxationSystemsStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(TaxationSystemsInverseTable, TaxationSystemFieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, TaxationSystemsTable, TaxationSystemsColumn),
+	)
+}
+func newBusinessActivityStep() *sqlgraph.Step {
+	return sqlgraph.NewStep(
+		sqlgraph.From(Table, FieldID),
+		sqlgraph.To(BusinessActivityInverseTable, FieldID),
+		sqlgraph.Edge(sqlgraph.M2O, true, BusinessActivityTable, BusinessActivityColumn),
+	)
+}
 func newDistrictStep() *sqlgraph.Step {
 	return sqlgraph.NewStep(
 		sqlgraph.From(Table, FieldID),
 		sqlgraph.To(DistrictInverseTable, DistrictFieldID),
 		sqlgraph.Edge(sqlgraph.M2O, true, DistrictTable, DistrictColumn),
-	)
-}
-func newEquipmentStep() *sqlgraph.Step {
-	return sqlgraph.NewStep(
-		sqlgraph.From(Table, FieldID),
-		sqlgraph.To(EquipmentInverseTable, EquipmentFieldID),
-		sqlgraph.Edge(sqlgraph.M2O, true, EquipmentTable, EquipmentColumn),
 	)
 }
 func newUsersStep() *sqlgraph.Step {

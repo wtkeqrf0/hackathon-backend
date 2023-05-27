@@ -9,11 +9,13 @@ import (
 
 	"entgo.io/ent/dialect/sql/sqlgraph"
 	"entgo.io/ent/schema/field"
+	"github.com/while-act/hackathon-backend/ent/businessactivity"
 	"github.com/while-act/hackathon-backend/ent/district"
-	"github.com/while-act/hackathon-backend/ent/equipment"
 	"github.com/while-act/hackathon-backend/ent/history"
 	"github.com/while-act/hackathon-backend/ent/industry"
+	"github.com/while-act/hackathon-backend/ent/taxationsystem"
 	"github.com/while-act/hackathon-backend/ent/user"
+	"github.com/while-act/hackathon-backend/internal/controller/dto"
 )
 
 // HistoryCreate is the builder for creating a History entity.
@@ -23,9 +25,15 @@ type HistoryCreate struct {
 	hooks    []Hook
 }
 
-// SetCompanyName sets the "company_name" field.
-func (hc *HistoryCreate) SetCompanyName(s string) *HistoryCreate {
-	hc.mutation.SetCompanyName(s)
+// SetName sets the "name" field.
+func (hc *HistoryCreate) SetName(s string) *HistoryCreate {
+	hc.mutation.SetName(s)
+	return hc
+}
+
+// SetOrganizationalLegal sets the "organizational_legal" field.
+func (hc *HistoryCreate) SetOrganizationalLegal(s string) *HistoryCreate {
+	hc.mutation.SetOrganizationalLegal(s)
 	return hc
 }
 
@@ -41,6 +49,12 @@ func (hc *HistoryCreate) SetFullTimeEmployees(i int) *HistoryCreate {
 	return hc
 }
 
+// SetAvgSalary sets the "avg_salary" field.
+func (hc *HistoryCreate) SetAvgSalary(f float64) *HistoryCreate {
+	hc.mutation.SetAvgSalary(f)
+	return hc
+}
+
 // SetDistrictTitle sets the "district_title" field.
 func (hc *HistoryCreate) SetDistrictTitle(s string) *HistoryCreate {
 	hc.mutation.SetDistrictTitle(s)
@@ -53,45 +67,95 @@ func (hc *HistoryCreate) SetLandArea(f float64) *HistoryCreate {
 	return hc
 }
 
+// SetIsBuy sets the "is_buy" field.
+func (hc *HistoryCreate) SetIsBuy(b bool) *HistoryCreate {
+	hc.mutation.SetIsBuy(b)
+	return hc
+}
+
 // SetConstructionFacilitiesArea sets the "construction_facilities_area" field.
 func (hc *HistoryCreate) SetConstructionFacilitiesArea(f float64) *HistoryCreate {
 	hc.mutation.SetConstructionFacilitiesArea(f)
 	return hc
 }
 
-// SetEquipmentType sets the "equipment_type" field.
-func (hc *HistoryCreate) SetEquipmentType(s string) *HistoryCreate {
-	hc.mutation.SetEquipmentType(s)
+// SetBuildingType sets the "building_type" field.
+func (hc *HistoryCreate) SetBuildingType(s string) *HistoryCreate {
+	hc.mutation.SetBuildingType(s)
 	return hc
 }
 
-// SetOrganizationType sets the "organization_type" field.
-func (hc *HistoryCreate) SetOrganizationType(s string) *HistoryCreate {
-	hc.mutation.SetOrganizationType(s)
+// SetEquipment sets the "equipment" field.
+func (hc *HistoryCreate) SetEquipment(d dto.Equipment) *HistoryCreate {
+	hc.mutation.SetEquipment(d)
 	return hc
 }
 
-// SetFacilityType sets the "facility_type" field.
-func (hc *HistoryCreate) SetFacilityType(s string) *HistoryCreate {
-	hc.mutation.SetFacilityType(s)
+// SetAccountingSupport sets the "accounting_support" field.
+func (hc *HistoryCreate) SetAccountingSupport(b bool) *HistoryCreate {
+	hc.mutation.SetAccountingSupport(b)
 	return hc
 }
 
-// SetAccountingServices sets the "accounting_services" field.
-func (hc *HistoryCreate) SetAccountingServices(b bool) *HistoryCreate {
-	hc.mutation.SetAccountingServices(b)
+// SetTaxationSystemOperations sets the "taxation_system_operations" field.
+func (hc *HistoryCreate) SetTaxationSystemOperations(i int) *HistoryCreate {
+	hc.mutation.SetTaxationSystemOperations(i)
 	return hc
 }
 
-// SetPatent sets the "patent" field.
-func (hc *HistoryCreate) SetPatent(b bool) *HistoryCreate {
-	hc.mutation.SetPatent(b)
+// SetNillableTaxationSystemOperations sets the "taxation_system_operations" field if the given value is not nil.
+func (hc *HistoryCreate) SetNillableTaxationSystemOperations(i *int) *HistoryCreate {
+	if i != nil {
+		hc.SetTaxationSystemOperations(*i)
+	}
+	return hc
+}
+
+// SetOperationsNum sets the "operations_num" field.
+func (hc *HistoryCreate) SetOperationsNum(i int) *HistoryCreate {
+	hc.mutation.SetOperationsNum(i)
+	return hc
+}
+
+// SetNillableOperationsNum sets the "operations_num" field if the given value is not nil.
+func (hc *HistoryCreate) SetNillableOperationsNum(i *int) *HistoryCreate {
+	if i != nil {
+		hc.SetOperationsNum(*i)
+	}
+	return hc
+}
+
+// SetPatentCalc sets the "patent_calc" field.
+func (hc *HistoryCreate) SetPatentCalc(b bool) *HistoryCreate {
+	hc.mutation.SetPatentCalc(b)
+	return hc
+}
+
+// SetBusinessActivityID sets the "business_activity_id" field.
+func (hc *HistoryCreate) SetBusinessActivityID(i int) *HistoryCreate {
+	hc.mutation.SetBusinessActivityID(i)
+	return hc
+}
+
+// SetNillableBusinessActivityID sets the "business_activity_id" field if the given value is not nil.
+func (hc *HistoryCreate) SetNillableBusinessActivityID(i *int) *HistoryCreate {
+	if i != nil {
+		hc.SetBusinessActivityID(*i)
+	}
 	return hc
 }
 
 // SetOther sets the "other" field.
 func (hc *HistoryCreate) SetOther(s string) *HistoryCreate {
 	hc.mutation.SetOther(s)
+	return hc
+}
+
+// SetNillableOther sets the "other" field if the given value is not nil.
+func (hc *HistoryCreate) SetNillableOther(s *string) *HistoryCreate {
+	if s != nil {
+		hc.SetOther(*s)
+	}
 	return hc
 }
 
@@ -112,6 +176,30 @@ func (hc *HistoryCreate) SetIndustry(i *Industry) *HistoryCreate {
 	return hc.SetIndustryID(i.ID)
 }
 
+// SetTaxationSystemsID sets the "taxation_systems" edge to the TaxationSystem entity by ID.
+func (hc *HistoryCreate) SetTaxationSystemsID(id int) *HistoryCreate {
+	hc.mutation.SetTaxationSystemsID(id)
+	return hc
+}
+
+// SetNillableTaxationSystemsID sets the "taxation_systems" edge to the TaxationSystem entity by ID if the given value is not nil.
+func (hc *HistoryCreate) SetNillableTaxationSystemsID(id *int) *HistoryCreate {
+	if id != nil {
+		hc = hc.SetTaxationSystemsID(*id)
+	}
+	return hc
+}
+
+// SetTaxationSystems sets the "taxation_systems" edge to the TaxationSystem entity.
+func (hc *HistoryCreate) SetTaxationSystems(t *TaxationSystem) *HistoryCreate {
+	return hc.SetTaxationSystemsID(t.ID)
+}
+
+// SetBusinessActivity sets the "business_activity" edge to the BusinessActivity entity.
+func (hc *HistoryCreate) SetBusinessActivity(b *BusinessActivity) *HistoryCreate {
+	return hc.SetBusinessActivityID(b.ID)
+}
+
 // SetDistrictID sets the "district" edge to the District entity by ID.
 func (hc *HistoryCreate) SetDistrictID(id string) *HistoryCreate {
 	hc.mutation.SetDistrictID(id)
@@ -121,17 +209,6 @@ func (hc *HistoryCreate) SetDistrictID(id string) *HistoryCreate {
 // SetDistrict sets the "district" edge to the District entity.
 func (hc *HistoryCreate) SetDistrict(d *District) *HistoryCreate {
 	return hc.SetDistrictID(d.ID)
-}
-
-// SetEquipmentID sets the "equipment" edge to the Equipment entity by ID.
-func (hc *HistoryCreate) SetEquipmentID(id string) *HistoryCreate {
-	hc.mutation.SetEquipmentID(id)
-	return hc
-}
-
-// SetEquipment sets the "equipment" edge to the Equipment entity.
-func (hc *HistoryCreate) SetEquipment(e *Equipment) *HistoryCreate {
-	return hc.SetEquipmentID(e.ID)
 }
 
 // SetUsersID sets the "users" edge to the User entity by ID.
@@ -179,13 +256,16 @@ func (hc *HistoryCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (hc *HistoryCreate) check() error {
-	if _, ok := hc.mutation.CompanyName(); !ok {
-		return &ValidationError{Name: "company_name", err: errors.New(`ent: missing required field "History.company_name"`)}
+	if _, ok := hc.mutation.Name(); !ok {
+		return &ValidationError{Name: "name", err: errors.New(`ent: missing required field "History.name"`)}
 	}
-	if v, ok := hc.mutation.CompanyName(); ok {
-		if err := history.CompanyNameValidator(v); err != nil {
-			return &ValidationError{Name: "company_name", err: fmt.Errorf(`ent: validator failed for field "History.company_name": %w`, err)}
+	if v, ok := hc.mutation.Name(); ok {
+		if err := history.NameValidator(v); err != nil {
+			return &ValidationError{Name: "name", err: fmt.Errorf(`ent: validator failed for field "History.name": %w`, err)}
 		}
+	}
+	if _, ok := hc.mutation.OrganizationalLegal(); !ok {
+		return &ValidationError{Name: "organizational_legal", err: errors.New(`ent: missing required field "History.organizational_legal"`)}
 	}
 	if _, ok := hc.mutation.IndustryBranch(); !ok {
 		return &ValidationError{Name: "industry_branch", err: errors.New(`ent: missing required field "History.industry_branch"`)}
@@ -198,6 +278,9 @@ func (hc *HistoryCreate) check() error {
 			return &ValidationError{Name: "full_time_employees", err: fmt.Errorf(`ent: validator failed for field "History.full_time_employees": %w`, err)}
 		}
 	}
+	if _, ok := hc.mutation.AvgSalary(); !ok {
+		return &ValidationError{Name: "avg_salary", err: errors.New(`ent: missing required field "History.avg_salary"`)}
+	}
 	if _, ok := hc.mutation.DistrictTitle(); !ok {
 		return &ValidationError{Name: "district_title", err: errors.New(`ent: missing required field "History.district_title"`)}
 	}
@@ -209,6 +292,9 @@ func (hc *HistoryCreate) check() error {
 			return &ValidationError{Name: "land_area", err: fmt.Errorf(`ent: validator failed for field "History.land_area": %w`, err)}
 		}
 	}
+	if _, ok := hc.mutation.IsBuy(); !ok {
+		return &ValidationError{Name: "is_buy", err: errors.New(`ent: missing required field "History.is_buy"`)}
+	}
 	if _, ok := hc.mutation.ConstructionFacilitiesArea(); !ok {
 		return &ValidationError{Name: "construction_facilities_area", err: errors.New(`ent: missing required field "History.construction_facilities_area"`)}
 	}
@@ -217,23 +303,17 @@ func (hc *HistoryCreate) check() error {
 			return &ValidationError{Name: "construction_facilities_area", err: fmt.Errorf(`ent: validator failed for field "History.construction_facilities_area": %w`, err)}
 		}
 	}
-	if _, ok := hc.mutation.EquipmentType(); !ok {
-		return &ValidationError{Name: "equipment_type", err: errors.New(`ent: missing required field "History.equipment_type"`)}
+	if _, ok := hc.mutation.BuildingType(); !ok {
+		return &ValidationError{Name: "building_type", err: errors.New(`ent: missing required field "History.building_type"`)}
 	}
-	if _, ok := hc.mutation.OrganizationType(); !ok {
-		return &ValidationError{Name: "organization_type", err: errors.New(`ent: missing required field "History.organization_type"`)}
+	if _, ok := hc.mutation.Equipment(); !ok {
+		return &ValidationError{Name: "equipment", err: errors.New(`ent: missing required field "History.equipment"`)}
 	}
-	if _, ok := hc.mutation.FacilityType(); !ok {
-		return &ValidationError{Name: "facility_type", err: errors.New(`ent: missing required field "History.facility_type"`)}
+	if _, ok := hc.mutation.AccountingSupport(); !ok {
+		return &ValidationError{Name: "accounting_support", err: errors.New(`ent: missing required field "History.accounting_support"`)}
 	}
-	if _, ok := hc.mutation.AccountingServices(); !ok {
-		return &ValidationError{Name: "accounting_services", err: errors.New(`ent: missing required field "History.accounting_services"`)}
-	}
-	if _, ok := hc.mutation.Patent(); !ok {
-		return &ValidationError{Name: "patent", err: errors.New(`ent: missing required field "History.patent"`)}
-	}
-	if _, ok := hc.mutation.Other(); !ok {
-		return &ValidationError{Name: "other", err: errors.New(`ent: missing required field "History.other"`)}
+	if _, ok := hc.mutation.PatentCalc(); !ok {
+		return &ValidationError{Name: "patent_calc", err: errors.New(`ent: missing required field "History.patent_calc"`)}
 	}
 	if _, ok := hc.mutation.UserID(); !ok {
 		return &ValidationError{Name: "user_id", err: errors.New(`ent: missing required field "History.user_id"`)}
@@ -243,9 +323,6 @@ func (hc *HistoryCreate) check() error {
 	}
 	if _, ok := hc.mutation.DistrictID(); !ok {
 		return &ValidationError{Name: "district", err: errors.New(`ent: missing required edge "History.district"`)}
-	}
-	if _, ok := hc.mutation.EquipmentID(); !ok {
-		return &ValidationError{Name: "equipment", err: errors.New(`ent: missing required edge "History.equipment"`)}
 	}
 	if _, ok := hc.mutation.UsersID(); !ok {
 		return &ValidationError{Name: "users", err: errors.New(`ent: missing required edge "History.users"`)}
@@ -276,37 +353,53 @@ func (hc *HistoryCreate) createSpec() (*History, *sqlgraph.CreateSpec) {
 		_node = &History{config: hc.config}
 		_spec = sqlgraph.NewCreateSpec(history.Table, sqlgraph.NewFieldSpec(history.FieldID, field.TypeInt))
 	)
-	if value, ok := hc.mutation.CompanyName(); ok {
-		_spec.SetField(history.FieldCompanyName, field.TypeString, value)
-		_node.CompanyName = value
+	if value, ok := hc.mutation.Name(); ok {
+		_spec.SetField(history.FieldName, field.TypeString, value)
+		_node.Name = value
+	}
+	if value, ok := hc.mutation.OrganizationalLegal(); ok {
+		_spec.SetField(history.FieldOrganizationalLegal, field.TypeString, value)
+		_node.OrganizationalLegal = value
 	}
 	if value, ok := hc.mutation.FullTimeEmployees(); ok {
 		_spec.SetField(history.FieldFullTimeEmployees, field.TypeInt, value)
 		_node.FullTimeEmployees = value
 	}
+	if value, ok := hc.mutation.AvgSalary(); ok {
+		_spec.SetField(history.FieldAvgSalary, field.TypeFloat64, value)
+		_node.AvgSalary = value
+	}
 	if value, ok := hc.mutation.LandArea(); ok {
 		_spec.SetField(history.FieldLandArea, field.TypeFloat64, value)
 		_node.LandArea = value
+	}
+	if value, ok := hc.mutation.IsBuy(); ok {
+		_spec.SetField(history.FieldIsBuy, field.TypeBool, value)
+		_node.IsBuy = value
 	}
 	if value, ok := hc.mutation.ConstructionFacilitiesArea(); ok {
 		_spec.SetField(history.FieldConstructionFacilitiesArea, field.TypeFloat64, value)
 		_node.ConstructionFacilitiesArea = value
 	}
-	if value, ok := hc.mutation.OrganizationType(); ok {
-		_spec.SetField(history.FieldOrganizationType, field.TypeString, value)
-		_node.OrganizationType = value
+	if value, ok := hc.mutation.BuildingType(); ok {
+		_spec.SetField(history.FieldBuildingType, field.TypeString, value)
+		_node.BuildingType = value
 	}
-	if value, ok := hc.mutation.FacilityType(); ok {
-		_spec.SetField(history.FieldFacilityType, field.TypeString, value)
-		_node.FacilityType = value
+	if value, ok := hc.mutation.Equipment(); ok {
+		_spec.SetField(history.FieldEquipment, field.TypeJSON, value)
+		_node.Equipment = value
 	}
-	if value, ok := hc.mutation.AccountingServices(); ok {
-		_spec.SetField(history.FieldAccountingServices, field.TypeBool, value)
-		_node.AccountingServices = value
+	if value, ok := hc.mutation.AccountingSupport(); ok {
+		_spec.SetField(history.FieldAccountingSupport, field.TypeBool, value)
+		_node.AccountingSupport = value
 	}
-	if value, ok := hc.mutation.Patent(); ok {
-		_spec.SetField(history.FieldPatent, field.TypeBool, value)
-		_node.Patent = value
+	if value, ok := hc.mutation.OperationsNum(); ok {
+		_spec.SetField(history.FieldOperationsNum, field.TypeInt, value)
+		_node.OperationsNum = value
+	}
+	if value, ok := hc.mutation.PatentCalc(); ok {
+		_spec.SetField(history.FieldPatentCalc, field.TypeBool, value)
+		_node.PatentCalc = value
 	}
 	if value, ok := hc.mutation.Other(); ok {
 		_spec.SetField(history.FieldOther, field.TypeString, value)
@@ -329,6 +422,40 @@ func (hc *HistoryCreate) createSpec() (*History, *sqlgraph.CreateSpec) {
 		_node.IndustryBranch = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
+	if nodes := hc.mutation.TaxationSystemsIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   history.TaxationSystemsTable,
+			Columns: []string{history.TaxationSystemsColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(taxationsystem.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.TaxationSystemOperations = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
+	if nodes := hc.mutation.BusinessActivityIDs(); len(nodes) > 0 {
+		edge := &sqlgraph.EdgeSpec{
+			Rel:     sqlgraph.M2O,
+			Inverse: true,
+			Table:   history.BusinessActivityTable,
+			Columns: []string{history.BusinessActivityColumn},
+			Bidi:    false,
+			Target: &sqlgraph.EdgeTarget{
+				IDSpec: sqlgraph.NewFieldSpec(businessactivity.FieldID, field.TypeInt),
+			},
+		}
+		for _, k := range nodes {
+			edge.Target.Nodes = append(edge.Target.Nodes, k)
+		}
+		_node.BusinessActivityID = nodes[0]
+		_spec.Edges = append(_spec.Edges, edge)
+	}
 	if nodes := hc.mutation.DistrictIDs(); len(nodes) > 0 {
 		edge := &sqlgraph.EdgeSpec{
 			Rel:     sqlgraph.M2O,
@@ -344,23 +471,6 @@ func (hc *HistoryCreate) createSpec() (*History, *sqlgraph.CreateSpec) {
 			edge.Target.Nodes = append(edge.Target.Nodes, k)
 		}
 		_node.DistrictTitle = nodes[0]
-		_spec.Edges = append(_spec.Edges, edge)
-	}
-	if nodes := hc.mutation.EquipmentIDs(); len(nodes) > 0 {
-		edge := &sqlgraph.EdgeSpec{
-			Rel:     sqlgraph.M2O,
-			Inverse: true,
-			Table:   history.EquipmentTable,
-			Columns: []string{history.EquipmentColumn},
-			Bidi:    false,
-			Target: &sqlgraph.EdgeTarget{
-				IDSpec: sqlgraph.NewFieldSpec(equipment.FieldID, field.TypeString),
-			},
-		}
-		for _, k := range nodes {
-			edge.Target.Nodes = append(edge.Target.Nodes, k)
-		}
-		_node.EquipmentType = nodes[0]
 		_spec.Edges = append(_spec.Edges, edge)
 	}
 	if nodes := hc.mutation.UsersIDs(); len(nodes) > 0 {

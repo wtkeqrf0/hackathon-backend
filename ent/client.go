@@ -14,12 +14,12 @@ import (
 	"entgo.io/ent/dialect"
 	"entgo.io/ent/dialect/sql"
 	"entgo.io/ent/dialect/sql/sqlgraph"
+	"github.com/while-act/hackathon-backend/ent/businessactivity"
 	"github.com/while-act/hackathon-backend/ent/company"
 	"github.com/while-act/hackathon-backend/ent/district"
-	"github.com/while-act/hackathon-backend/ent/entrepreneurship"
-	"github.com/while-act/hackathon-backend/ent/equipment"
 	"github.com/while-act/hackathon-backend/ent/history"
 	"github.com/while-act/hackathon-backend/ent/industry"
+	"github.com/while-act/hackathon-backend/ent/taxationsystem"
 	"github.com/while-act/hackathon-backend/ent/user"
 )
 
@@ -28,18 +28,18 @@ type Client struct {
 	config
 	// Schema is the client for creating, migrating and dropping schema.
 	Schema *migrate.Schema
+	// BusinessActivity is the client for interacting with the BusinessActivity builders.
+	BusinessActivity *BusinessActivityClient
 	// Company is the client for interacting with the Company builders.
 	Company *CompanyClient
 	// District is the client for interacting with the District builders.
 	District *DistrictClient
-	// Entrepreneurship is the client for interacting with the Entrepreneurship builders.
-	Entrepreneurship *EntrepreneurshipClient
-	// Equipment is the client for interacting with the Equipment builders.
-	Equipment *EquipmentClient
 	// History is the client for interacting with the History builders.
 	History *HistoryClient
 	// Industry is the client for interacting with the Industry builders.
 	Industry *IndustryClient
+	// TaxationSystem is the client for interacting with the TaxationSystem builders.
+	TaxationSystem *TaxationSystemClient
 	// User is the client for interacting with the User builders.
 	User *UserClient
 }
@@ -55,12 +55,12 @@ func NewClient(opts ...Option) *Client {
 
 func (c *Client) init() {
 	c.Schema = migrate.NewSchema(c.driver)
+	c.BusinessActivity = NewBusinessActivityClient(c.config)
 	c.Company = NewCompanyClient(c.config)
 	c.District = NewDistrictClient(c.config)
-	c.Entrepreneurship = NewEntrepreneurshipClient(c.config)
-	c.Equipment = NewEquipmentClient(c.config)
 	c.History = NewHistoryClient(c.config)
 	c.Industry = NewIndustryClient(c.config)
+	c.TaxationSystem = NewTaxationSystemClient(c.config)
 	c.User = NewUserClient(c.config)
 }
 
@@ -144,12 +144,12 @@ func (c *Client) Tx(ctx context.Context) (*Tx, error) {
 	return &Tx{
 		ctx:              ctx,
 		config:           cfg,
+		BusinessActivity: NewBusinessActivityClient(cfg),
 		Company:          NewCompanyClient(cfg),
 		District:         NewDistrictClient(cfg),
-		Entrepreneurship: NewEntrepreneurshipClient(cfg),
-		Equipment:        NewEquipmentClient(cfg),
 		History:          NewHistoryClient(cfg),
 		Industry:         NewIndustryClient(cfg),
+		TaxationSystem:   NewTaxationSystemClient(cfg),
 		User:             NewUserClient(cfg),
 	}, nil
 }
@@ -170,12 +170,12 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 	return &Tx{
 		ctx:              ctx,
 		config:           cfg,
+		BusinessActivity: NewBusinessActivityClient(cfg),
 		Company:          NewCompanyClient(cfg),
 		District:         NewDistrictClient(cfg),
-		Entrepreneurship: NewEntrepreneurshipClient(cfg),
-		Equipment:        NewEquipmentClient(cfg),
 		History:          NewHistoryClient(cfg),
 		Industry:         NewIndustryClient(cfg),
+		TaxationSystem:   NewTaxationSystemClient(cfg),
 		User:             NewUserClient(cfg),
 	}, nil
 }
@@ -183,7 +183,7 @@ func (c *Client) BeginTx(ctx context.Context, opts *sql.TxOptions) (*Tx, error) 
 // Debug returns a new debug-client. It's used to get verbose logging on specific operations.
 //
 //	client.Debug().
-//		Company.
+//		BusinessActivity.
 //		Query().
 //		Count(ctx)
 func (c *Client) Debug() *Client {
@@ -206,8 +206,8 @@ func (c *Client) Close() error {
 // In order to add hooks to a specific client, call: `client.Node.Use(...)`.
 func (c *Client) Use(hooks ...Hook) {
 	for _, n := range []interface{ Use(...Hook) }{
-		c.Company, c.District, c.Entrepreneurship, c.Equipment, c.History, c.Industry,
-		c.User,
+		c.BusinessActivity, c.Company, c.District, c.History, c.Industry,
+		c.TaxationSystem, c.User,
 	} {
 		n.Use(hooks...)
 	}
@@ -217,8 +217,8 @@ func (c *Client) Use(hooks ...Hook) {
 // In order to add interceptors to a specific client, call: `client.Node.Intercept(...)`.
 func (c *Client) Intercept(interceptors ...Interceptor) {
 	for _, n := range []interface{ Intercept(...Interceptor) }{
-		c.Company, c.District, c.Entrepreneurship, c.Equipment, c.History, c.Industry,
-		c.User,
+		c.BusinessActivity, c.Company, c.District, c.History, c.Industry,
+		c.TaxationSystem, c.User,
 	} {
 		n.Intercept(interceptors...)
 	}
@@ -227,22 +227,156 @@ func (c *Client) Intercept(interceptors ...Interceptor) {
 // Mutate implements the ent.Mutator interface.
 func (c *Client) Mutate(ctx context.Context, m Mutation) (Value, error) {
 	switch m := m.(type) {
+	case *BusinessActivityMutation:
+		return c.BusinessActivity.mutate(ctx, m)
 	case *CompanyMutation:
 		return c.Company.mutate(ctx, m)
 	case *DistrictMutation:
 		return c.District.mutate(ctx, m)
-	case *EntrepreneurshipMutation:
-		return c.Entrepreneurship.mutate(ctx, m)
-	case *EquipmentMutation:
-		return c.Equipment.mutate(ctx, m)
 	case *HistoryMutation:
 		return c.History.mutate(ctx, m)
 	case *IndustryMutation:
 		return c.Industry.mutate(ctx, m)
+	case *TaxationSystemMutation:
+		return c.TaxationSystem.mutate(ctx, m)
 	case *UserMutation:
 		return c.User.mutate(ctx, m)
 	default:
 		return nil, fmt.Errorf("ent: unknown mutation type %T", m)
+	}
+}
+
+// BusinessActivityClient is a client for the BusinessActivity schema.
+type BusinessActivityClient struct {
+	config
+}
+
+// NewBusinessActivityClient returns a client for the BusinessActivity from the given config.
+func NewBusinessActivityClient(c config) *BusinessActivityClient {
+	return &BusinessActivityClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `businessactivity.Hooks(f(g(h())))`.
+func (c *BusinessActivityClient) Use(hooks ...Hook) {
+	c.hooks.BusinessActivity = append(c.hooks.BusinessActivity, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `businessactivity.Intercept(f(g(h())))`.
+func (c *BusinessActivityClient) Intercept(interceptors ...Interceptor) {
+	c.inters.BusinessActivity = append(c.inters.BusinessActivity, interceptors...)
+}
+
+// Create returns a builder for creating a BusinessActivity entity.
+func (c *BusinessActivityClient) Create() *BusinessActivityCreate {
+	mutation := newBusinessActivityMutation(c.config, OpCreate)
+	return &BusinessActivityCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of BusinessActivity entities.
+func (c *BusinessActivityClient) CreateBulk(builders ...*BusinessActivityCreate) *BusinessActivityCreateBulk {
+	return &BusinessActivityCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for BusinessActivity.
+func (c *BusinessActivityClient) Update() *BusinessActivityUpdate {
+	mutation := newBusinessActivityMutation(c.config, OpUpdate)
+	return &BusinessActivityUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *BusinessActivityClient) UpdateOne(ba *BusinessActivity) *BusinessActivityUpdateOne {
+	mutation := newBusinessActivityMutation(c.config, OpUpdateOne, withBusinessActivity(ba))
+	return &BusinessActivityUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *BusinessActivityClient) UpdateOneID(id int) *BusinessActivityUpdateOne {
+	mutation := newBusinessActivityMutation(c.config, OpUpdateOne, withBusinessActivityID(id))
+	return &BusinessActivityUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for BusinessActivity.
+func (c *BusinessActivityClient) Delete() *BusinessActivityDelete {
+	mutation := newBusinessActivityMutation(c.config, OpDelete)
+	return &BusinessActivityDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *BusinessActivityClient) DeleteOne(ba *BusinessActivity) *BusinessActivityDeleteOne {
+	return c.DeleteOneID(ba.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *BusinessActivityClient) DeleteOneID(id int) *BusinessActivityDeleteOne {
+	builder := c.Delete().Where(businessactivity.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &BusinessActivityDeleteOne{builder}
+}
+
+// Query returns a query builder for BusinessActivity.
+func (c *BusinessActivityClient) Query() *BusinessActivityQuery {
+	return &BusinessActivityQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeBusinessActivity},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a BusinessActivity entity by its id.
+func (c *BusinessActivityClient) Get(ctx context.Context, id int) (*BusinessActivity, error) {
+	return c.Query().Where(businessactivity.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *BusinessActivityClient) GetX(ctx context.Context, id int) *BusinessActivity {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryHistories queries the histories edge of a BusinessActivity.
+func (c *BusinessActivityClient) QueryHistories(ba *BusinessActivity) *HistoryQuery {
+	query := (&HistoryClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ba.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(businessactivity.Table, businessactivity.FieldID, id),
+			sqlgraph.To(history.Table, history.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, businessactivity.HistoriesTable, businessactivity.HistoriesColumn),
+		)
+		fromV = sqlgraph.Neighbors(ba.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *BusinessActivityClient) Hooks() []Hook {
+	return c.hooks.BusinessActivity
+}
+
+// Interceptors returns the client interceptors.
+func (c *BusinessActivityClient) Interceptors() []Interceptor {
+	return c.inters.BusinessActivity
+}
+
+func (c *BusinessActivityClient) mutate(ctx context.Context, m *BusinessActivityMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&BusinessActivityCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&BusinessActivityUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&BusinessActivityUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&BusinessActivityDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown BusinessActivity mutation op: %q", m.Op())
 	}
 }
 
@@ -514,258 +648,6 @@ func (c *DistrictClient) mutate(ctx context.Context, m *DistrictMutation) (Value
 	}
 }
 
-// EntrepreneurshipClient is a client for the Entrepreneurship schema.
-type EntrepreneurshipClient struct {
-	config
-}
-
-// NewEntrepreneurshipClient returns a client for the Entrepreneurship from the given config.
-func NewEntrepreneurshipClient(c config) *EntrepreneurshipClient {
-	return &EntrepreneurshipClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `entrepreneurship.Hooks(f(g(h())))`.
-func (c *EntrepreneurshipClient) Use(hooks ...Hook) {
-	c.hooks.Entrepreneurship = append(c.hooks.Entrepreneurship, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `entrepreneurship.Intercept(f(g(h())))`.
-func (c *EntrepreneurshipClient) Intercept(interceptors ...Interceptor) {
-	c.inters.Entrepreneurship = append(c.inters.Entrepreneurship, interceptors...)
-}
-
-// Create returns a builder for creating a Entrepreneurship entity.
-func (c *EntrepreneurshipClient) Create() *EntrepreneurshipCreate {
-	mutation := newEntrepreneurshipMutation(c.config, OpCreate)
-	return &EntrepreneurshipCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of Entrepreneurship entities.
-func (c *EntrepreneurshipClient) CreateBulk(builders ...*EntrepreneurshipCreate) *EntrepreneurshipCreateBulk {
-	return &EntrepreneurshipCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for Entrepreneurship.
-func (c *EntrepreneurshipClient) Update() *EntrepreneurshipUpdate {
-	mutation := newEntrepreneurshipMutation(c.config, OpUpdate)
-	return &EntrepreneurshipUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *EntrepreneurshipClient) UpdateOne(e *Entrepreneurship) *EntrepreneurshipUpdateOne {
-	mutation := newEntrepreneurshipMutation(c.config, OpUpdateOne, withEntrepreneurship(e))
-	return &EntrepreneurshipUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *EntrepreneurshipClient) UpdateOneID(id int) *EntrepreneurshipUpdateOne {
-	mutation := newEntrepreneurshipMutation(c.config, OpUpdateOne, withEntrepreneurshipID(id))
-	return &EntrepreneurshipUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for Entrepreneurship.
-func (c *EntrepreneurshipClient) Delete() *EntrepreneurshipDelete {
-	mutation := newEntrepreneurshipMutation(c.config, OpDelete)
-	return &EntrepreneurshipDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *EntrepreneurshipClient) DeleteOne(e *Entrepreneurship) *EntrepreneurshipDeleteOne {
-	return c.DeleteOneID(e.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *EntrepreneurshipClient) DeleteOneID(id int) *EntrepreneurshipDeleteOne {
-	builder := c.Delete().Where(entrepreneurship.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &EntrepreneurshipDeleteOne{builder}
-}
-
-// Query returns a query builder for Entrepreneurship.
-func (c *EntrepreneurshipClient) Query() *EntrepreneurshipQuery {
-	return &EntrepreneurshipQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeEntrepreneurship},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a Entrepreneurship entity by its id.
-func (c *EntrepreneurshipClient) Get(ctx context.Context, id int) (*Entrepreneurship, error) {
-	return c.Query().Where(entrepreneurship.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *EntrepreneurshipClient) GetX(ctx context.Context, id int) *Entrepreneurship {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// Hooks returns the client hooks.
-func (c *EntrepreneurshipClient) Hooks() []Hook {
-	return c.hooks.Entrepreneurship
-}
-
-// Interceptors returns the client interceptors.
-func (c *EntrepreneurshipClient) Interceptors() []Interceptor {
-	return c.inters.Entrepreneurship
-}
-
-func (c *EntrepreneurshipClient) mutate(ctx context.Context, m *EntrepreneurshipMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&EntrepreneurshipCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&EntrepreneurshipUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&EntrepreneurshipUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&EntrepreneurshipDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown Entrepreneurship mutation op: %q", m.Op())
-	}
-}
-
-// EquipmentClient is a client for the Equipment schema.
-type EquipmentClient struct {
-	config
-}
-
-// NewEquipmentClient returns a client for the Equipment from the given config.
-func NewEquipmentClient(c config) *EquipmentClient {
-	return &EquipmentClient{config: c}
-}
-
-// Use adds a list of mutation hooks to the hooks stack.
-// A call to `Use(f, g, h)` equals to `equipment.Hooks(f(g(h())))`.
-func (c *EquipmentClient) Use(hooks ...Hook) {
-	c.hooks.Equipment = append(c.hooks.Equipment, hooks...)
-}
-
-// Intercept adds a list of query interceptors to the interceptors stack.
-// A call to `Intercept(f, g, h)` equals to `equipment.Intercept(f(g(h())))`.
-func (c *EquipmentClient) Intercept(interceptors ...Interceptor) {
-	c.inters.Equipment = append(c.inters.Equipment, interceptors...)
-}
-
-// Create returns a builder for creating a Equipment entity.
-func (c *EquipmentClient) Create() *EquipmentCreate {
-	mutation := newEquipmentMutation(c.config, OpCreate)
-	return &EquipmentCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// CreateBulk returns a builder for creating a bulk of Equipment entities.
-func (c *EquipmentClient) CreateBulk(builders ...*EquipmentCreate) *EquipmentCreateBulk {
-	return &EquipmentCreateBulk{config: c.config, builders: builders}
-}
-
-// Update returns an update builder for Equipment.
-func (c *EquipmentClient) Update() *EquipmentUpdate {
-	mutation := newEquipmentMutation(c.config, OpUpdate)
-	return &EquipmentUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOne returns an update builder for the given entity.
-func (c *EquipmentClient) UpdateOne(e *Equipment) *EquipmentUpdateOne {
-	mutation := newEquipmentMutation(c.config, OpUpdateOne, withEquipment(e))
-	return &EquipmentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// UpdateOneID returns an update builder for the given id.
-func (c *EquipmentClient) UpdateOneID(id string) *EquipmentUpdateOne {
-	mutation := newEquipmentMutation(c.config, OpUpdateOne, withEquipmentID(id))
-	return &EquipmentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// Delete returns a delete builder for Equipment.
-func (c *EquipmentClient) Delete() *EquipmentDelete {
-	mutation := newEquipmentMutation(c.config, OpDelete)
-	return &EquipmentDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
-}
-
-// DeleteOne returns a builder for deleting the given entity.
-func (c *EquipmentClient) DeleteOne(e *Equipment) *EquipmentDeleteOne {
-	return c.DeleteOneID(e.ID)
-}
-
-// DeleteOneID returns a builder for deleting the given entity by its id.
-func (c *EquipmentClient) DeleteOneID(id string) *EquipmentDeleteOne {
-	builder := c.Delete().Where(equipment.ID(id))
-	builder.mutation.id = &id
-	builder.mutation.op = OpDeleteOne
-	return &EquipmentDeleteOne{builder}
-}
-
-// Query returns a query builder for Equipment.
-func (c *EquipmentClient) Query() *EquipmentQuery {
-	return &EquipmentQuery{
-		config: c.config,
-		ctx:    &QueryContext{Type: TypeEquipment},
-		inters: c.Interceptors(),
-	}
-}
-
-// Get returns a Equipment entity by its id.
-func (c *EquipmentClient) Get(ctx context.Context, id string) (*Equipment, error) {
-	return c.Query().Where(equipment.ID(id)).Only(ctx)
-}
-
-// GetX is like Get, but panics if an error occurs.
-func (c *EquipmentClient) GetX(ctx context.Context, id string) *Equipment {
-	obj, err := c.Get(ctx, id)
-	if err != nil {
-		panic(err)
-	}
-	return obj
-}
-
-// QueryHistories queries the histories edge of a Equipment.
-func (c *EquipmentClient) QueryHistories(e *Equipment) *HistoryQuery {
-	query := (&HistoryClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := e.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(equipment.Table, equipment.FieldID, id),
-			sqlgraph.To(history.Table, history.FieldID),
-			sqlgraph.Edge(sqlgraph.O2M, false, equipment.HistoriesTable, equipment.HistoriesColumn),
-		)
-		fromV = sqlgraph.Neighbors(e.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// Hooks returns the client hooks.
-func (c *EquipmentClient) Hooks() []Hook {
-	return c.hooks.Equipment
-}
-
-// Interceptors returns the client interceptors.
-func (c *EquipmentClient) Interceptors() []Interceptor {
-	return c.inters.Equipment
-}
-
-func (c *EquipmentClient) mutate(ctx context.Context, m *EquipmentMutation) (Value, error) {
-	switch m.Op() {
-	case OpCreate:
-		return (&EquipmentCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdate:
-		return (&EquipmentUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpUpdateOne:
-		return (&EquipmentUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
-	case OpDelete, OpDeleteOne:
-		return (&EquipmentDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
-	default:
-		return nil, fmt.Errorf("ent: unknown Equipment mutation op: %q", m.Op())
-	}
-}
-
 // HistoryClient is a client for the History schema.
 type HistoryClient struct {
 	config
@@ -875,6 +757,38 @@ func (c *HistoryClient) QueryIndustry(h *History) *IndustryQuery {
 	return query
 }
 
+// QueryTaxationSystems queries the taxation_systems edge of a History.
+func (c *HistoryClient) QueryTaxationSystems(h *History) *TaxationSystemQuery {
+	query := (&TaxationSystemClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := h.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(history.Table, history.FieldID, id),
+			sqlgraph.To(taxationsystem.Table, taxationsystem.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, history.TaxationSystemsTable, history.TaxationSystemsColumn),
+		)
+		fromV = sqlgraph.Neighbors(h.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// QueryBusinessActivity queries the business_activity edge of a History.
+func (c *HistoryClient) QueryBusinessActivity(h *History) *BusinessActivityQuery {
+	query := (&BusinessActivityClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := h.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(history.Table, history.FieldID, id),
+			sqlgraph.To(businessactivity.Table, businessactivity.FieldID),
+			sqlgraph.Edge(sqlgraph.M2O, true, history.BusinessActivityTable, history.BusinessActivityColumn),
+		)
+		fromV = sqlgraph.Neighbors(h.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
 // QueryDistrict queries the district edge of a History.
 func (c *HistoryClient) QueryDistrict(h *History) *DistrictQuery {
 	query := (&DistrictClient{config: c.config}).Query()
@@ -884,22 +798,6 @@ func (c *HistoryClient) QueryDistrict(h *History) *DistrictQuery {
 			sqlgraph.From(history.Table, history.FieldID, id),
 			sqlgraph.To(district.Table, district.FieldID),
 			sqlgraph.Edge(sqlgraph.M2O, true, history.DistrictTable, history.DistrictColumn),
-		)
-		fromV = sqlgraph.Neighbors(h.driver.Dialect(), step)
-		return fromV, nil
-	}
-	return query
-}
-
-// QueryEquipment queries the equipment edge of a History.
-func (c *HistoryClient) QueryEquipment(h *History) *EquipmentQuery {
-	query := (&EquipmentClient{config: c.config}).Query()
-	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
-		id := h.ID
-		step := sqlgraph.NewStep(
-			sqlgraph.From(history.Table, history.FieldID, id),
-			sqlgraph.To(equipment.Table, equipment.FieldID),
-			sqlgraph.Edge(sqlgraph.M2O, true, history.EquipmentTable, history.EquipmentColumn),
 		)
 		fromV = sqlgraph.Neighbors(h.driver.Dialect(), step)
 		return fromV, nil
@@ -1082,6 +980,140 @@ func (c *IndustryClient) mutate(ctx context.Context, m *IndustryMutation) (Value
 	}
 }
 
+// TaxationSystemClient is a client for the TaxationSystem schema.
+type TaxationSystemClient struct {
+	config
+}
+
+// NewTaxationSystemClient returns a client for the TaxationSystem from the given config.
+func NewTaxationSystemClient(c config) *TaxationSystemClient {
+	return &TaxationSystemClient{config: c}
+}
+
+// Use adds a list of mutation hooks to the hooks stack.
+// A call to `Use(f, g, h)` equals to `taxationsystem.Hooks(f(g(h())))`.
+func (c *TaxationSystemClient) Use(hooks ...Hook) {
+	c.hooks.TaxationSystem = append(c.hooks.TaxationSystem, hooks...)
+}
+
+// Intercept adds a list of query interceptors to the interceptors stack.
+// A call to `Intercept(f, g, h)` equals to `taxationsystem.Intercept(f(g(h())))`.
+func (c *TaxationSystemClient) Intercept(interceptors ...Interceptor) {
+	c.inters.TaxationSystem = append(c.inters.TaxationSystem, interceptors...)
+}
+
+// Create returns a builder for creating a TaxationSystem entity.
+func (c *TaxationSystemClient) Create() *TaxationSystemCreate {
+	mutation := newTaxationSystemMutation(c.config, OpCreate)
+	return &TaxationSystemCreate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// CreateBulk returns a builder for creating a bulk of TaxationSystem entities.
+func (c *TaxationSystemClient) CreateBulk(builders ...*TaxationSystemCreate) *TaxationSystemCreateBulk {
+	return &TaxationSystemCreateBulk{config: c.config, builders: builders}
+}
+
+// Update returns an update builder for TaxationSystem.
+func (c *TaxationSystemClient) Update() *TaxationSystemUpdate {
+	mutation := newTaxationSystemMutation(c.config, OpUpdate)
+	return &TaxationSystemUpdate{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOne returns an update builder for the given entity.
+func (c *TaxationSystemClient) UpdateOne(ts *TaxationSystem) *TaxationSystemUpdateOne {
+	mutation := newTaxationSystemMutation(c.config, OpUpdateOne, withTaxationSystem(ts))
+	return &TaxationSystemUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// UpdateOneID returns an update builder for the given id.
+func (c *TaxationSystemClient) UpdateOneID(id int) *TaxationSystemUpdateOne {
+	mutation := newTaxationSystemMutation(c.config, OpUpdateOne, withTaxationSystemID(id))
+	return &TaxationSystemUpdateOne{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// Delete returns a delete builder for TaxationSystem.
+func (c *TaxationSystemClient) Delete() *TaxationSystemDelete {
+	mutation := newTaxationSystemMutation(c.config, OpDelete)
+	return &TaxationSystemDelete{config: c.config, hooks: c.Hooks(), mutation: mutation}
+}
+
+// DeleteOne returns a builder for deleting the given entity.
+func (c *TaxationSystemClient) DeleteOne(ts *TaxationSystem) *TaxationSystemDeleteOne {
+	return c.DeleteOneID(ts.ID)
+}
+
+// DeleteOneID returns a builder for deleting the given entity by its id.
+func (c *TaxationSystemClient) DeleteOneID(id int) *TaxationSystemDeleteOne {
+	builder := c.Delete().Where(taxationsystem.ID(id))
+	builder.mutation.id = &id
+	builder.mutation.op = OpDeleteOne
+	return &TaxationSystemDeleteOne{builder}
+}
+
+// Query returns a query builder for TaxationSystem.
+func (c *TaxationSystemClient) Query() *TaxationSystemQuery {
+	return &TaxationSystemQuery{
+		config: c.config,
+		ctx:    &QueryContext{Type: TypeTaxationSystem},
+		inters: c.Interceptors(),
+	}
+}
+
+// Get returns a TaxationSystem entity by its id.
+func (c *TaxationSystemClient) Get(ctx context.Context, id int) (*TaxationSystem, error) {
+	return c.Query().Where(taxationsystem.ID(id)).Only(ctx)
+}
+
+// GetX is like Get, but panics if an error occurs.
+func (c *TaxationSystemClient) GetX(ctx context.Context, id int) *TaxationSystem {
+	obj, err := c.Get(ctx, id)
+	if err != nil {
+		panic(err)
+	}
+	return obj
+}
+
+// QueryHistories queries the histories edge of a TaxationSystem.
+func (c *TaxationSystemClient) QueryHistories(ts *TaxationSystem) *HistoryQuery {
+	query := (&HistoryClient{config: c.config}).Query()
+	query.path = func(context.Context) (fromV *sql.Selector, _ error) {
+		id := ts.ID
+		step := sqlgraph.NewStep(
+			sqlgraph.From(taxationsystem.Table, taxationsystem.FieldID, id),
+			sqlgraph.To(history.Table, history.FieldID),
+			sqlgraph.Edge(sqlgraph.O2M, false, taxationsystem.HistoriesTable, taxationsystem.HistoriesColumn),
+		)
+		fromV = sqlgraph.Neighbors(ts.driver.Dialect(), step)
+		return fromV, nil
+	}
+	return query
+}
+
+// Hooks returns the client hooks.
+func (c *TaxationSystemClient) Hooks() []Hook {
+	return c.hooks.TaxationSystem
+}
+
+// Interceptors returns the client interceptors.
+func (c *TaxationSystemClient) Interceptors() []Interceptor {
+	return c.inters.TaxationSystem
+}
+
+func (c *TaxationSystemClient) mutate(ctx context.Context, m *TaxationSystemMutation) (Value, error) {
+	switch m.Op() {
+	case OpCreate:
+		return (&TaxationSystemCreate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdate:
+		return (&TaxationSystemUpdate{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpUpdateOne:
+		return (&TaxationSystemUpdateOne{config: c.config, hooks: c.Hooks(), mutation: m}).Save(ctx)
+	case OpDelete, OpDeleteOne:
+		return (&TaxationSystemDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
+	default:
+		return nil, fmt.Errorf("ent: unknown TaxationSystem mutation op: %q", m.Op())
+	}
+}
+
 // UserClient is a client for the User schema.
 type UserClient struct {
 	config
@@ -1236,11 +1268,11 @@ func (c *UserClient) mutate(ctx context.Context, m *UserMutation) (Value, error)
 // hooks and interceptors per client, for fast access.
 type (
 	hooks struct {
-		Company, District, Entrepreneurship, Equipment, History, Industry,
+		BusinessActivity, Company, District, History, Industry, TaxationSystem,
 		User []ent.Hook
 	}
 	inters struct {
-		Company, District, Entrepreneurship, Equipment, History, Industry,
+		BusinessActivity, Company, District, History, Industry, TaxationSystem,
 		User []ent.Interceptor
 	}
 )
