@@ -54,12 +54,8 @@ func init() {
 	district.AvgCadastralValValidator = districtDescAvgCadastralVal.Validators[0].(func(float64) error)
 	equipmentFields := schema.Equipment{}.Fields()
 	_ = equipmentFields
-	// equipmentDescAvgPriceDol is the schema descriptor for avg_price_dol field.
-	equipmentDescAvgPriceDol := equipmentFields[1].Descriptor()
-	// equipment.AvgPriceDolValidator is a validator for the "avg_price_dol" field. It is called by the builders before save.
-	equipment.AvgPriceDolValidator = equipmentDescAvgPriceDol.Validators[0].(func(float64) error)
 	// equipmentDescAvgPriceRub is the schema descriptor for avg_price_rub field.
-	equipmentDescAvgPriceRub := equipmentFields[2].Descriptor()
+	equipmentDescAvgPriceRub := equipmentFields[1].Descriptor()
 	// equipment.AvgPriceRubValidator is a validator for the "avg_price_rub" field. It is called by the builders before save.
 	equipment.AvgPriceRubValidator = equipmentDescAvgPriceRub.Validators[0].(func(float64) error)
 	historyFields := schema.History{}.Fields()

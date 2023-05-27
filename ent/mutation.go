@@ -1380,8 +1380,6 @@ type EquipmentMutation struct {
 	op               Op
 	typ              string
 	id               *string
-	avg_price_dol    *float64
-	addavg_price_dol *float64
 	avg_price_rub    *float64
 	addavg_price_rub *float64
 	clearedFields    map[string]struct{}
@@ -1495,62 +1493,6 @@ func (m *EquipmentMutation) IDs(ctx context.Context) ([]string, error) {
 	default:
 		return nil, fmt.Errorf("IDs is not allowed on %s operations", m.op)
 	}
-}
-
-// SetAvgPriceDol sets the "avg_price_dol" field.
-func (m *EquipmentMutation) SetAvgPriceDol(f float64) {
-	m.avg_price_dol = &f
-	m.addavg_price_dol = nil
-}
-
-// AvgPriceDol returns the value of the "avg_price_dol" field in the mutation.
-func (m *EquipmentMutation) AvgPriceDol() (r float64, exists bool) {
-	v := m.avg_price_dol
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// OldAvgPriceDol returns the old "avg_price_dol" field's value of the Equipment entity.
-// If the Equipment object wasn't provided to the builder, the object is fetched from the database.
-// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *EquipmentMutation) OldAvgPriceDol(ctx context.Context) (v float64, err error) {
-	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldAvgPriceDol is only allowed on UpdateOne operations")
-	}
-	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldAvgPriceDol requires an ID field in the mutation")
-	}
-	oldValue, err := m.oldValue(ctx)
-	if err != nil {
-		return v, fmt.Errorf("querying old value for OldAvgPriceDol: %w", err)
-	}
-	return oldValue.AvgPriceDol, nil
-}
-
-// AddAvgPriceDol adds f to the "avg_price_dol" field.
-func (m *EquipmentMutation) AddAvgPriceDol(f float64) {
-	if m.addavg_price_dol != nil {
-		*m.addavg_price_dol += f
-	} else {
-		m.addavg_price_dol = &f
-	}
-}
-
-// AddedAvgPriceDol returns the value that was added to the "avg_price_dol" field in this mutation.
-func (m *EquipmentMutation) AddedAvgPriceDol() (r float64, exists bool) {
-	v := m.addavg_price_dol
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ResetAvgPriceDol resets all changes to the "avg_price_dol" field.
-func (m *EquipmentMutation) ResetAvgPriceDol() {
-	m.avg_price_dol = nil
-	m.addavg_price_dol = nil
 }
 
 // SetAvgPriceRub sets the "avg_price_rub" field.
@@ -1697,10 +1639,7 @@ func (m *EquipmentMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *EquipmentMutation) Fields() []string {
-	fields := make([]string, 0, 2)
-	if m.avg_price_dol != nil {
-		fields = append(fields, equipment.FieldAvgPriceDol)
-	}
+	fields := make([]string, 0, 1)
 	if m.avg_price_rub != nil {
 		fields = append(fields, equipment.FieldAvgPriceRub)
 	}
@@ -1712,8 +1651,6 @@ func (m *EquipmentMutation) Fields() []string {
 // schema.
 func (m *EquipmentMutation) Field(name string) (ent.Value, bool) {
 	switch name {
-	case equipment.FieldAvgPriceDol:
-		return m.AvgPriceDol()
 	case equipment.FieldAvgPriceRub:
 		return m.AvgPriceRub()
 	}
@@ -1725,8 +1662,6 @@ func (m *EquipmentMutation) Field(name string) (ent.Value, bool) {
 // database failed.
 func (m *EquipmentMutation) OldField(ctx context.Context, name string) (ent.Value, error) {
 	switch name {
-	case equipment.FieldAvgPriceDol:
-		return m.OldAvgPriceDol(ctx)
 	case equipment.FieldAvgPriceRub:
 		return m.OldAvgPriceRub(ctx)
 	}
@@ -1738,13 +1673,6 @@ func (m *EquipmentMutation) OldField(ctx context.Context, name string) (ent.Valu
 // type.
 func (m *EquipmentMutation) SetField(name string, value ent.Value) error {
 	switch name {
-	case equipment.FieldAvgPriceDol:
-		v, ok := value.(float64)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.SetAvgPriceDol(v)
-		return nil
 	case equipment.FieldAvgPriceRub:
 		v, ok := value.(float64)
 		if !ok {
@@ -1760,9 +1688,6 @@ func (m *EquipmentMutation) SetField(name string, value ent.Value) error {
 // this mutation.
 func (m *EquipmentMutation) AddedFields() []string {
 	var fields []string
-	if m.addavg_price_dol != nil {
-		fields = append(fields, equipment.FieldAvgPriceDol)
-	}
 	if m.addavg_price_rub != nil {
 		fields = append(fields, equipment.FieldAvgPriceRub)
 	}
@@ -1774,8 +1699,6 @@ func (m *EquipmentMutation) AddedFields() []string {
 // was not set, or was not defined in the schema.
 func (m *EquipmentMutation) AddedField(name string) (ent.Value, bool) {
 	switch name {
-	case equipment.FieldAvgPriceDol:
-		return m.AddedAvgPriceDol()
 	case equipment.FieldAvgPriceRub:
 		return m.AddedAvgPriceRub()
 	}
@@ -1787,13 +1710,6 @@ func (m *EquipmentMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *EquipmentMutation) AddField(name string, value ent.Value) error {
 	switch name {
-	case equipment.FieldAvgPriceDol:
-		v, ok := value.(float64)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddAvgPriceDol(v)
-		return nil
 	case equipment.FieldAvgPriceRub:
 		v, ok := value.(float64)
 		if !ok {
@@ -1828,9 +1744,6 @@ func (m *EquipmentMutation) ClearField(name string) error {
 // It returns an error if the field is not defined in the schema.
 func (m *EquipmentMutation) ResetField(name string) error {
 	switch name {
-	case equipment.FieldAvgPriceDol:
-		m.ResetAvgPriceDol()
-		return nil
 	case equipment.FieldAvgPriceRub:
 		m.ResetAvgPriceRub()
 		return nil

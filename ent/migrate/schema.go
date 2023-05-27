@@ -46,7 +46,6 @@ var (
 	// EquipmentColumns holds the columns for the "equipment" table.
 	EquipmentColumns = []*schema.Column{
 		{Name: "type", Type: field.TypeString, Unique: true},
-		{Name: "avg_price_dol", Type: field.TypeFloat64},
 		{Name: "avg_price_rub", Type: field.TypeFloat64},
 	}
 	// EquipmentTable holds the schema information for the "equipment" table.

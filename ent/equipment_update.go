@@ -28,19 +28,6 @@ func (eu *EquipmentUpdate) Where(ps ...predicate.Equipment) *EquipmentUpdate {
 	return eu
 }
 
-// SetAvgPriceDol sets the "avg_price_dol" field.
-func (eu *EquipmentUpdate) SetAvgPriceDol(f float64) *EquipmentUpdate {
-	eu.mutation.ResetAvgPriceDol()
-	eu.mutation.SetAvgPriceDol(f)
-	return eu
-}
-
-// AddAvgPriceDol adds f to the "avg_price_dol" field.
-func (eu *EquipmentUpdate) AddAvgPriceDol(f float64) *EquipmentUpdate {
-	eu.mutation.AddAvgPriceDol(f)
-	return eu
-}
-
 // SetAvgPriceRub sets the "avg_price_rub" field.
 func (eu *EquipmentUpdate) SetAvgPriceRub(f float64) *EquipmentUpdate {
 	eu.mutation.ResetAvgPriceRub()
@@ -124,11 +111,6 @@ func (eu *EquipmentUpdate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (eu *EquipmentUpdate) check() error {
-	if v, ok := eu.mutation.AvgPriceDol(); ok {
-		if err := equipment.AvgPriceDolValidator(v); err != nil {
-			return &ValidationError{Name: "avg_price_dol", err: fmt.Errorf(`ent: validator failed for field "Equipment.avg_price_dol": %w`, err)}
-		}
-	}
 	if v, ok := eu.mutation.AvgPriceRub(); ok {
 		if err := equipment.AvgPriceRubValidator(v); err != nil {
 			return &ValidationError{Name: "avg_price_rub", err: fmt.Errorf(`ent: validator failed for field "Equipment.avg_price_rub": %w`, err)}
@@ -148,12 +130,6 @@ func (eu *EquipmentUpdate) sqlSave(ctx context.Context) (n int, err error) {
 				ps[i](selector)
 			}
 		}
-	}
-	if value, ok := eu.mutation.AvgPriceDol(); ok {
-		_spec.SetField(equipment.FieldAvgPriceDol, field.TypeFloat64, value)
-	}
-	if value, ok := eu.mutation.AddedAvgPriceDol(); ok {
-		_spec.AddField(equipment.FieldAvgPriceDol, field.TypeFloat64, value)
 	}
 	if value, ok := eu.mutation.AvgPriceRub(); ok {
 		_spec.SetField(equipment.FieldAvgPriceRub, field.TypeFloat64, value)
@@ -224,19 +200,6 @@ type EquipmentUpdateOne struct {
 	fields   []string
 	hooks    []Hook
 	mutation *EquipmentMutation
-}
-
-// SetAvgPriceDol sets the "avg_price_dol" field.
-func (euo *EquipmentUpdateOne) SetAvgPriceDol(f float64) *EquipmentUpdateOne {
-	euo.mutation.ResetAvgPriceDol()
-	euo.mutation.SetAvgPriceDol(f)
-	return euo
-}
-
-// AddAvgPriceDol adds f to the "avg_price_dol" field.
-func (euo *EquipmentUpdateOne) AddAvgPriceDol(f float64) *EquipmentUpdateOne {
-	euo.mutation.AddAvgPriceDol(f)
-	return euo
 }
 
 // SetAvgPriceRub sets the "avg_price_rub" field.
@@ -335,11 +298,6 @@ func (euo *EquipmentUpdateOne) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (euo *EquipmentUpdateOne) check() error {
-	if v, ok := euo.mutation.AvgPriceDol(); ok {
-		if err := equipment.AvgPriceDolValidator(v); err != nil {
-			return &ValidationError{Name: "avg_price_dol", err: fmt.Errorf(`ent: validator failed for field "Equipment.avg_price_dol": %w`, err)}
-		}
-	}
 	if v, ok := euo.mutation.AvgPriceRub(); ok {
 		if err := equipment.AvgPriceRubValidator(v); err != nil {
 			return &ValidationError{Name: "avg_price_rub", err: fmt.Errorf(`ent: validator failed for field "Equipment.avg_price_rub": %w`, err)}
@@ -376,12 +334,6 @@ func (euo *EquipmentUpdateOne) sqlSave(ctx context.Context) (_node *Equipment, e
 				ps[i](selector)
 			}
 		}
-	}
-	if value, ok := euo.mutation.AvgPriceDol(); ok {
-		_spec.SetField(equipment.FieldAvgPriceDol, field.TypeFloat64, value)
-	}
-	if value, ok := euo.mutation.AddedAvgPriceDol(); ok {
-		_spec.AddField(equipment.FieldAvgPriceDol, field.TypeFloat64, value)
 	}
 	if value, ok := euo.mutation.AvgPriceRub(); ok {
 		_spec.SetField(equipment.FieldAvgPriceRub, field.TypeFloat64, value)

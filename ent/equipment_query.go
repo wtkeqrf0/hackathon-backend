@@ -298,12 +298,12 @@ func (eq *EquipmentQuery) WithHistories(opts ...func(*HistoryQuery)) *EquipmentQ
 // Example:
 //
 //	var v []struct {
-//		AvgPriceDol float64 `json:"avg_price_dol,omitempty"`
+//		AvgPriceRub float64 `json:"avg_price_rub,omitempty"`
 //		Count int `json:"count,omitempty"`
 //	}
 //
 //	client.Equipment.Query().
-//		GroupBy(equipment.FieldAvgPriceDol).
+//		GroupBy(equipment.FieldAvgPriceRub).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
 func (eq *EquipmentQuery) GroupBy(field string, fields ...string) *EquipmentGroupBy {
@@ -321,11 +321,11 @@ func (eq *EquipmentQuery) GroupBy(field string, fields ...string) *EquipmentGrou
 // Example:
 //
 //	var v []struct {
-//		AvgPriceDol float64 `json:"avg_price_dol,omitempty"`
+//		AvgPriceRub float64 `json:"avg_price_rub,omitempty"`
 //	}
 //
 //	client.Equipment.Query().
-//		Select(equipment.FieldAvgPriceDol).
+//		Select(equipment.FieldAvgPriceRub).
 //		Scan(ctx, &v)
 func (eq *EquipmentQuery) Select(fields ...string) *EquipmentSelect {
 	eq.ctx.Fields = append(eq.ctx.Fields, fields...)

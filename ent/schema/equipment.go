@@ -16,8 +16,6 @@ func (Equipment) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("id").StorageKey("type").Unique(),
 
-		field.Float("avg_price_dol").Positive(),
-
 		field.Float("avg_price_rub").Positive(),
 	}
 }

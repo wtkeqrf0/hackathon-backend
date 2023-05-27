@@ -20,12 +20,6 @@ type EquipmentCreate struct {
 	hooks    []Hook
 }
 
-// SetAvgPriceDol sets the "avg_price_dol" field.
-func (ec *EquipmentCreate) SetAvgPriceDol(f float64) *EquipmentCreate {
-	ec.mutation.SetAvgPriceDol(f)
-	return ec
-}
-
 // SetAvgPriceRub sets the "avg_price_rub" field.
 func (ec *EquipmentCreate) SetAvgPriceRub(f float64) *EquipmentCreate {
 	ec.mutation.SetAvgPriceRub(f)
@@ -87,14 +81,6 @@ func (ec *EquipmentCreate) ExecX(ctx context.Context) {
 
 // check runs all checks and user-defined validators on the builder.
 func (ec *EquipmentCreate) check() error {
-	if _, ok := ec.mutation.AvgPriceDol(); !ok {
-		return &ValidationError{Name: "avg_price_dol", err: errors.New(`ent: missing required field "Equipment.avg_price_dol"`)}
-	}
-	if v, ok := ec.mutation.AvgPriceDol(); ok {
-		if err := equipment.AvgPriceDolValidator(v); err != nil {
-			return &ValidationError{Name: "avg_price_dol", err: fmt.Errorf(`ent: validator failed for field "Equipment.avg_price_dol": %w`, err)}
-		}
-	}
 	if _, ok := ec.mutation.AvgPriceRub(); !ok {
 		return &ValidationError{Name: "avg_price_rub", err: errors.New(`ent: missing required field "Equipment.avg_price_rub"`)}
 	}
@@ -137,10 +123,6 @@ func (ec *EquipmentCreate) createSpec() (*Equipment, *sqlgraph.CreateSpec) {
 	if id, ok := ec.mutation.ID(); ok {
 		_node.ID = id
 		_spec.ID.Value = id
-	}
-	if value, ok := ec.mutation.AvgPriceDol(); ok {
-		_spec.SetField(equipment.FieldAvgPriceDol, field.TypeFloat64, value)
-		_node.AvgPriceDol = value
 	}
 	if value, ok := ec.mutation.AvgPriceRub(); ok {
 		_spec.SetField(equipment.FieldAvgPriceRub, field.TypeFloat64, value)

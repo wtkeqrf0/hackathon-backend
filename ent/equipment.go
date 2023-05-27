@@ -16,8 +16,6 @@ type Equipment struct {
 	config `json:"-"`
 	// ID of the ent.
 	ID string `json:"id,omitempty"`
-	// AvgPriceDol holds the value of the "avg_price_dol" field.
-	AvgPriceDol float64 `json:"avg_price_dol,omitempty"`
 	// AvgPriceRub holds the value of the "avg_price_rub" field.
 	AvgPriceRub float64 `json:"avg_price_rub,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
@@ -49,7 +47,7 @@ func (*Equipment) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
-		case equipment.FieldAvgPriceDol, equipment.FieldAvgPriceRub:
+		case equipment.FieldAvgPriceRub:
 			values[i] = new(sql.NullFloat64)
 		case equipment.FieldID:
 			values[i] = new(sql.NullString)
@@ -73,12 +71,6 @@ func (e *Equipment) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field id", values[i])
 			} else if value.Valid {
 				e.ID = value.String
-			}
-		case equipment.FieldAvgPriceDol:
-			if value, ok := values[i].(*sql.NullFloat64); !ok {
-				return fmt.Errorf("unexpected type %T for field avg_price_dol", values[i])
-			} else if value.Valid {
-				e.AvgPriceDol = value.Float64
 			}
 		case equipment.FieldAvgPriceRub:
 			if value, ok := values[i].(*sql.NullFloat64); !ok {
@@ -127,9 +119,6 @@ func (e *Equipment) String() string {
 	var builder strings.Builder
 	builder.WriteString("Equipment(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", e.ID))
-	builder.WriteString("avg_price_dol=")
-	builder.WriteString(fmt.Sprintf("%v", e.AvgPriceDol))
-	builder.WriteString(", ")
 	builder.WriteString("avg_price_rub=")
 	builder.WriteString(fmt.Sprintf("%v", e.AvgPriceRub))
 	builder.WriteByte(')')

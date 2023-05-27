@@ -23,7 +23,7 @@ const docTemplate = `{
         },
         "version": "{{.Version}}"
     },
-    "host": "{{.Host}}",
+    "host": "{{.DomainName}}",
     "basePath": "{{.BasePath}}",
     "paths": {
         "/auth/session": {

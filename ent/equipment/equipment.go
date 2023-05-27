@@ -12,8 +12,6 @@ const (
 	Label = "equipment"
 	// FieldID holds the string denoting the id field in the database.
 	FieldID = "type"
-	// FieldAvgPriceDol holds the string denoting the avg_price_dol field in the database.
-	FieldAvgPriceDol = "avg_price_dol"
 	// FieldAvgPriceRub holds the string denoting the avg_price_rub field in the database.
 	FieldAvgPriceRub = "avg_price_rub"
 	// EdgeHistories holds the string denoting the histories edge name in mutations.
@@ -34,7 +32,6 @@ const (
 // Columns holds all SQL columns for equipment fields.
 var Columns = []string{
 	FieldID,
-	FieldAvgPriceDol,
 	FieldAvgPriceRub,
 }
 
@@ -49,8 +46,6 @@ func ValidColumn(column string) bool {
 }
 
 var (
-	// AvgPriceDolValidator is a validator for the "avg_price_dol" field. It is called by the builders before save.
-	AvgPriceDolValidator func(float64) error
 	// AvgPriceRubValidator is a validator for the "avg_price_rub" field. It is called by the builders before save.
 	AvgPriceRubValidator func(float64) error
 )
@@ -61,11 +56,6 @@ type OrderOption func(*sql.Selector)
 // ByID orders the results by the id field.
 func ByID(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldID, opts...).ToFunc()
-}
-
-// ByAvgPriceDol orders the results by the avg_price_dol field.
-func ByAvgPriceDol(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldAvgPriceDol, opts...).ToFunc()
 }
 
 // ByAvgPriceRub orders the results by the avg_price_rub field.

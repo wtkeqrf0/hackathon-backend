@@ -63,54 +63,9 @@ func IDContainsFold(id string) predicate.Equipment {
 	return predicate.Equipment(sql.FieldContainsFold(FieldID, id))
 }
 
-// AvgPriceDol applies equality check predicate on the "avg_price_dol" field. It's identical to AvgPriceDolEQ.
-func AvgPriceDol(v float64) predicate.Equipment {
-	return predicate.Equipment(sql.FieldEQ(FieldAvgPriceDol, v))
-}
-
 // AvgPriceRub applies equality check predicate on the "avg_price_rub" field. It's identical to AvgPriceRubEQ.
 func AvgPriceRub(v float64) predicate.Equipment {
 	return predicate.Equipment(sql.FieldEQ(FieldAvgPriceRub, v))
-}
-
-// AvgPriceDolEQ applies the EQ predicate on the "avg_price_dol" field.
-func AvgPriceDolEQ(v float64) predicate.Equipment {
-	return predicate.Equipment(sql.FieldEQ(FieldAvgPriceDol, v))
-}
-
-// AvgPriceDolNEQ applies the NEQ predicate on the "avg_price_dol" field.
-func AvgPriceDolNEQ(v float64) predicate.Equipment {
-	return predicate.Equipment(sql.FieldNEQ(FieldAvgPriceDol, v))
-}
-
-// AvgPriceDolIn applies the In predicate on the "avg_price_dol" field.
-func AvgPriceDolIn(vs ...float64) predicate.Equipment {
-	return predicate.Equipment(sql.FieldIn(FieldAvgPriceDol, vs...))
-}
-
-// AvgPriceDolNotIn applies the NotIn predicate on the "avg_price_dol" field.
-func AvgPriceDolNotIn(vs ...float64) predicate.Equipment {
-	return predicate.Equipment(sql.FieldNotIn(FieldAvgPriceDol, vs...))
-}
-
-// AvgPriceDolGT applies the GT predicate on the "avg_price_dol" field.
-func AvgPriceDolGT(v float64) predicate.Equipment {
-	return predicate.Equipment(sql.FieldGT(FieldAvgPriceDol, v))
-}
-
-// AvgPriceDolGTE applies the GTE predicate on the "avg_price_dol" field.
-func AvgPriceDolGTE(v float64) predicate.Equipment {
-	return predicate.Equipment(sql.FieldGTE(FieldAvgPriceDol, v))
-}
-
-// AvgPriceDolLT applies the LT predicate on the "avg_price_dol" field.
-func AvgPriceDolLT(v float64) predicate.Equipment {
-	return predicate.Equipment(sql.FieldLT(FieldAvgPriceDol, v))
-}
-
-// AvgPriceDolLTE applies the LTE predicate on the "avg_price_dol" field.
-func AvgPriceDolLTE(v float64) predicate.Equipment {
-	return predicate.Equipment(sql.FieldLTE(FieldAvgPriceDol, v))
 }
 
 // AvgPriceRubEQ applies the EQ predicate on the "avg_price_rub" field.
