@@ -2,41 +2,52 @@ package service
 
 import (
 	"bytes"
-	gen "github.com/SebastiaanKlippert/go-wkhtmltopdf"
+	pdff "github.com/SebastiaanKlippert/go-wkhtmltopdf"
 	"github.com/sirupsen/logrus"
 	"html/template"
 	"io"
+	"log"
 )
 
 type PDF struct {
 	t *template.Template
 }
 
+type Params struct {
+}
+
 func NewPDF(templatePath string) *PDF {
 	t, err := template.ParseFiles(templatePath)
 	if err != nil {
-		logrus.WithError(err).Fatal("can't parse template file")
+		log.Fatalln(err)
 	}
+
+	pdff.SetPath("pkg/wkhtmltopdf/wkhtmltopdf.exe")
+
+	_, err = pdff.NewPDFGenerator()
+	if err != nil {
+		logrus.WithError(err).Fatal("can't find wkhtmltopdf.exe")
+	}
+
 	return &PDF{t: t}
 }
 
-func (r *PDF) GeneratePDF(out io.Writer, data any) error {
-	buf := new(bytes.Buffer)
+func (r *PDF) GeneratePDF(out io.Writer, data Params) error {
 
-	if err := r.t.Execute(buf, data); err != nil {
+	pdf, err := pdff.NewPDFGenerator()
+	if err != nil {
 		return err
 	}
 
-	pdf, err := gen.NewPDFGenerator()
-	if err != nil {
+	buf := new(bytes.Buffer)
+	if err = r.t.Execute(buf, data); err != nil {
 		return err
 	}
 
 	pdf.NoPdfCompression.Set(true)
-	pdf.PageSize.Set(gen.PageSizeA4)
-	pdf.Dpi.Set(300)
 	pdf.SetOutput(out)
-	pdf.AddPage(gen.NewPageReader(buf))
+	pdf.PageSize.Set(pdff.PageSizeA4)
+	pdf.AddPage(pdff.NewPageReader(buf))
 
 	return pdf.Create()
 }

@@ -3,6 +3,7 @@ package controller
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/while-act/hackathon-backend/internal/controller/dto"
+	"github.com/while-act/hackathon-backend/internal/service"
 	"github.com/while-act/hackathon-backend/pkg/bind"
 	"github.com/while-act/hackathon-backend/pkg/middleware/errs"
 	"net/http"
@@ -20,19 +21,18 @@ import (
 // @Failure 500 {object} errs.MyError
 // @Router /calc/save [post]
 func (h *Handler) saveCalcData(c *gin.Context) {
-	s, err := h.session.GetSession(c)
-	if err != nil {
+	s := h.session.GetSession(c)
+	if s == nil {
 		return
 	}
 
-	history, err := bind.FillStructJSON[dto.History](c)
-	if err != nil {
-		c.Error(errs.ValidError.AddErr(err))
+	history := bind.FillStructJSON[dto.History](c)
+	if history == nil {
 		return
 	}
 
-	if err = h.history.CreateHistory(history, s.ID); err != nil {
-		c.Error(errs.ServerError.AddErr(err))
+	if err := h.history.CreateHistory(history, s.ID); err != nil {
+		c.Error(err)
 		return
 	}
 
@@ -49,13 +49,22 @@ func (h *Handler) saveCalcData(c *gin.Context) {
 // @Failure 500 {object} errs.MyError
 // @Router /calc [post]
 func (h *Handler) calcData(c *gin.Context) {
-	_, err := bind.FillStructJSON[dto.History](c)
-	if err != nil {
-		c.Error(errs.ValidError.AddErr(err))
+	history := bind.FillStructJSON[dto.History](c)
+	if history == nil {
 		return
 	}
 
-	c.Status(http.StatusNotModified)
+	p := service.Params{}
+
+	err := h.pdf.GeneratePDF(c.Writer, p)
+	if err != nil {
+		c.Error(errs.PDFError.AddErr(err))
+		return
+	}
+
+	c.Header("Content-Disposition", "attachment; filename=result.pdf")
+	c.Header("Content-Type", "application/pdf")
+	c.Status(http.StatusOK)
 }
 
 // GetIndustryInfo godoc
@@ -70,7 +79,7 @@ func (h *Handler) calcData(c *gin.Context) {
 func (h *Handler) getIndustryInfo(c *gin.Context) {
 	industry, err := h.industry.GetIndustry(c.Param("industry"))
 	if err != nil {
-		c.Error(errs.NoSuchIndustry.AddErr(err))
+		c.Error(err)
 		return
 	}
 

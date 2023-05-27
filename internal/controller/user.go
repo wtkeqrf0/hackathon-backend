@@ -2,8 +2,8 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/while-act/hackathon-backend/ent"
 	"github.com/while-act/hackathon-backend/internal/controller/dto"
+	"github.com/while-act/hackathon-backend/internal/service"
 	"github.com/while-act/hackathon-backend/pkg/bind"
 	"github.com/while-act/hackathon-backend/pkg/middleware/errs"
 	"net/http"
@@ -20,14 +20,14 @@ import (
 // @Failure 500 {object} errs.MyError
 // @Router /auth/session [get]
 func (h *Handler) getMe(c *gin.Context) {
-	s, err := h.session.GetSession(c)
-	if err != nil {
+	s := h.session.GetSession(c)
+	if s == nil {
 		return
 	}
 
 	user, err := h.user.FindUserByID(s.ID)
 	if err != nil {
-		c.Error(errs.ValidError.AddErr(err))
+		c.Error(err)
 		return
 	}
 
@@ -46,26 +46,18 @@ func (h *Handler) getMe(c *gin.Context) {
 // @Failure 500 {object} errs.MyError
 // @Router /user [patch]
 func (h *Handler) updateMe(c *gin.Context) {
-	s, err := h.session.GetSession(c)
-	if err != nil {
+	s := h.session.GetSession(c)
+	if s == nil {
 		return
 	}
 
-	updFields, err := bind.FillStructJSON[dto.UpdateUser](c)
-	if err != nil {
-		c.Error(errs.ValidError.AddErr(err))
+	updFields := bind.FillStructJSON[dto.UpdateUser](c)
+	if updFields == nil {
 		return
 	}
 
-	if err = h.user.UpdateUser(updFields, s.ID); err != nil {
-		switch {
-		case ent.IsNotFound(err):
-			c.Error(errs.NoSuchUser.AddErr(err))
-		case ent.IsValidationError(err):
-			c.Error(errs.ValidError.AddErr(err))
-		default:
-			c.Error(errs.ServerError.AddErr(err))
-		}
+	if err := h.user.UpdateUser(updFields, s.ID); err != nil {
+		c.Error(err)
 		return
 	}
 
@@ -82,9 +74,8 @@ func (h *Handler) updateMe(c *gin.Context) {
 // @Failure 500 {object} errs.MyError
 // @Router /user/password [patch]
 func (h *Handler) updatePassword(c *gin.Context) {
-	updPassword, err := bind.FillStructJSON[dto.UpdatePassword](c)
-	if err != nil {
-		c.Error(errs.ValidError.AddErr(err))
+	updPassword := bind.FillStructJSON[dto.UpdatePassword](c)
+	if updPassword == nil {
 		return
 	}
 
@@ -96,15 +87,8 @@ func (h *Handler) updatePassword(c *gin.Context) {
 		return
 	}
 
-	if err = h.user.UpdatePassword([]byte(updPassword.NewPassword), updPassword.Email); err != nil {
-		switch {
-		case ent.IsNotFound(err):
-			c.Error(errs.NoSuchUser.AddErr(err))
-		case ent.IsValidationError(err):
-			c.Error(errs.ValidError.AddErr(err))
-		default:
-			c.Error(errs.ServerError.AddErr(err))
-		}
+	if err := h.user.UpdatePassword([]byte(updPassword.NewPassword), updPassword.Email); err != nil {
+		c.Error(err)
 		return
 	}
 
@@ -123,26 +107,18 @@ func (h *Handler) updatePassword(c *gin.Context) {
 // @Failure 500 {object} errs.MyError
 // @Router /user/email [patch]
 func (h *Handler) updateEmail(c *gin.Context) {
-	s, err := h.session.GetSession(c)
-	if err != nil {
+	s := h.session.GetSession(c)
+	if s == nil {
 		return
 	}
 
-	updEmail, err := bind.FillStructJSON[dto.UpdateEmail](c)
-	if err != nil {
-		c.Error(errs.ValidError.AddErr(err))
+	updEmail := bind.FillStructJSON[dto.UpdateEmail](c)
+	if updEmail == nil {
 		return
 	}
 
-	if err = h.user.UpdateEmail([]byte(updEmail.Password), updEmail.NewEmail, s.ID); err != nil {
-		switch {
-		case ent.IsNotFound(err):
-			c.Error(errs.NoSuchUser.AddErr(err))
-		case ent.IsValidationError(err):
-			c.Error(errs.ValidError.AddErr(err))
-		default:
-			c.Error(errs.ServerError.AddErr(err))
-		}
+	if err := h.user.UpdateEmail([]byte(updEmail.Password), updEmail.NewEmail, s.ID); err != nil {
+		c.Error(err)
 		return
 	}
 
@@ -161,15 +137,25 @@ func (h *Handler) updateEmail(c *gin.Context) {
 // @Failure 500 {object} errs.MyError
 // @Router /user/{company_name} [get]
 func (h *Handler) getHistory(c *gin.Context) {
-	s, err := h.session.GetSession(c)
+	s := h.session.GetSession(c)
+	if s == nil {
+		return
+	}
+
+	_, err := h.user.GetOneHistory(c.Param("company_name"), s.ID)
 	if err != nil {
 		return
 	}
 
-	_, err = h.user.GetOneHistory(c.Param("company_name"), s.ID)
+	p := service.Params{}
+
+	err = h.pdf.GeneratePDF(c.Writer, p)
 	if err != nil {
+		c.Error(errs.PDFError.AddErr(err))
 		return
 	}
 
-	c.Status(http.StatusNotModified)
+	c.Header("Content-Disposition", "attachment; filename=result.pdf")
+	c.Header("Content-Type", "application/pdf")
+	c.Status(http.StatusOK)
 }

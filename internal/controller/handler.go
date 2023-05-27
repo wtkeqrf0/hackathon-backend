@@ -7,6 +7,7 @@ import (
 	"github.com/while-act/hackathon-backend/ent"
 	"github.com/while-act/hackathon-backend/internal/controller/dao"
 	"github.com/while-act/hackathon-backend/internal/controller/dto"
+	"github.com/while-act/hackathon-backend/internal/service"
 	"github.com/while-act/hackathon-backend/pkg/conf"
 	"io"
 	"time"
@@ -57,14 +58,14 @@ type HistoryService interface {
 }
 
 type PDFGenerator interface {
-	GeneratePDF(out io.Writer, data any) error
+	GeneratePDF(out io.Writer, data service.Params) error
 }
 
 type AuthMiddleware interface {
 	RequireSession(c *gin.Context)
 	GenerateSession(id int, ip, userAgent string) (string, error)
 	SetNewCookie(id int, c *gin.Context)
-	GetSession(c *gin.Context) (*dao.Session, error)
+	GetSession(c *gin.Context) *dao.Session
 	PopCookie(c *gin.Context)
 }
 
