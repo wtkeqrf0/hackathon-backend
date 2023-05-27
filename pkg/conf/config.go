@@ -23,7 +23,7 @@ type Config struct {
 
 	Listen struct {
 		MainPath   string `yaml:"main_path" env:"MAIN_PATH" env-default:"/api"`
-		DomainName string `yaml:"domain_name" env:"DOMAIN_NAME" env-default:"37.230.195.26:3000"`
+		DomainName string `yaml:"domain_name" env:"DOMAIN_NAME" env-default:"localhost"`
 		Port       int    `yaml:"port" env:"PORT" env-default:"3000"`
 	} `yaml:"listen"`
 

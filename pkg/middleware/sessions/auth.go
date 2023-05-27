@@ -8,7 +8,6 @@ import (
 	"github.com/while-act/hackathon-backend/internal/controller/dao"
 	"github.com/while-act/hackathon-backend/pkg/bind"
 	"github.com/while-act/hackathon-backend/pkg/middleware/errs"
-	"net/http"
 	"time"
 )
 
@@ -91,7 +90,6 @@ func (a Auth) SetNewCookie(id int, c *gin.Context) {
 		return
 	}
 
-	c.SetSameSite(http.SameSiteNoneMode)
 	c.SetCookie(cfg.Session.CookieName, session, int(cfg.Session.Duration.Seconds()),
 		cfg.Session.CookiePath, cfg.Listen.DomainName, false, true)
 }

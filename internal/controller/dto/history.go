@@ -1,22 +1,23 @@
 package dto
 
 type History struct {
-	CompanyName                string  `json:"companyName,omitempty" validate:"required,gte=2,lte=150" example:"ООО 'Парк'"`
-	IndustryBranch             string  `json:"industryBranch,omitempty" validate:"required" example:"Авиационная_промышленность"`
-	OrganizationType           string  `json:"organizationType,omitempty" validate:"required" example:"ООО"`
-	FullTimeEmployees          int     `json:"fullTimeEmployees,omitempty" validate:"required,lte=0" example:"50"`
-	DistrictTitle              string  `json:"districtTitle,omitempty" validate:"required" example:"ВАО"`
-	LandArea                   float64 `json:"landArea,omitempty" validate:"required,lte=0" example:"120"`
-	ConstructionFacilitiesArea float64 `json:"constructionFacilitiesArea,omitempty" validate:"required,lte=0" example:"50"`
-	EquipmentType              string  `json:"equipmentType,omitempty" validate:"required" example:"Токарные станки"`
-	FacilityType               string  `json:"facilityType,omitempty" validate:"required" example:"idk"` //TODO
-	AccountingServices         bool    `json:"accountingServices,omitempty" validate:"required" example:"true"`
-	Patent                     bool    `json:"patent,omitempty" validate:"required" example:"true"`
-	Other                      string  `json:"other,omitempty" validate:"required" example:"I want some cookies"`
-}
-
-type CompanyName struct {
-	CompanyName string `json:"companyName,omitempty" validate:"required,gte=2,lte=150" example:"ООО 'Парк'"`
+	Name                       string           `json:"name,omitempty" validate:"required,gte=2,lte=200" example:"ООО 'Парк'"`
+	OrganizationLegal          string           `json:"organizationLegal,omitempty" validate:"required" example:"ИП"`
+	IndustryBranch             string           `json:"industryBranch,omitempty" validate:"required" example:"Авиационная_промышленность"`
+	FullTimeEmployees          int              `json:"fullTimeEmployees,omitempty" validate:"required,lte=0" example:"50"`
+	AvgSalary                  float64          `json:"avgSalary,omitempty" validate:"required,lte=0" example:"3058.12"`
+	DistrictTitle              string           `json:"districtTitle,omitempty" validate:"required" example:"ВАО"`
+	LandArea                   float64          `json:"landArea,omitempty" validate:"required,lte=0" example:"120"`
+	IsBuy                      bool             `json:"isBuy,omitempty" validate:"required" example:"true"`
+	ConstructionFacilitiesArea float64          `json:"constructionFacilitiesArea,omitempty" validate:"required,lte=0" example:"50"`
+	BuildingType               string           `json:"buildingType,omitempty" validate:"required" example:"Энергетическое"`
+	Equipment                  []Equipment      `json:"equipment,omitempty"`
+	AccountingSupport          bool             `json:"accountingSupport,omitempty" validate:"required" example:"true"`
+	TaxationSystemOperations   TaxationSystem   `json:"taxationSystemOperations,omitempty" validate:"omitempty"`
+	OperationsNum              int              `json:"operationsNum,omitempty" validate:"omitempty,lte=0"`
+	PatentCalc                 bool             `json:"patentCalc,omitempty" validate:"required" example:"true"`
+	BusinessActivity           BusinessActivity `json:"business_activity,omitempty" validate:"omitempty"`
+	Other                      string           `json:"other,omitempty" validate:"omitempty" example:"I want some cookies"`
 }
 
 type HistoryId struct {
