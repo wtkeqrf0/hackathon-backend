@@ -543,7 +543,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/{company_name}": {
+        "/user/{history_id}": {
             "get": {
                 "security": [
                     {
@@ -558,8 +558,8 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Unique company name from history",
-                        "name": "company_name",
+                        "description": "Unique id from history",
+                        "name": "history_id",
                         "in": "path",
                         "required": true
                     }
@@ -716,6 +716,7 @@ const docTemplate = `{
                 "fullTimeEmployees",
                 "industryBranch",
                 "landArea",
+                "organizationType",
                 "other",
                 "patent"
             ],
@@ -731,7 +732,7 @@ const docTemplate = `{
                     "example": "ООО 'Парк'"
                 },
                 "constructionFacilitiesArea": {
-                    "type": "integer",
+                    "type": "number",
                     "maximum": 0,
                     "example": 50
                 },
@@ -755,12 +756,16 @@ const docTemplate = `{
                 },
                 "industryBranch": {
                     "type": "string",
-                    "example": "Авиационная промышленность"
+                    "example": "Авиационная_промышленность"
                 },
                 "landArea": {
-                    "type": "integer",
+                    "type": "number",
                     "maximum": 0,
                     "example": 120
+                },
+                "organizationType": {
+                    "type": "string",
+                    "example": "ООО"
                 },
                 "other": {
                     "type": "string",

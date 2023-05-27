@@ -98,7 +98,7 @@ definitions:
       constructionFacilitiesArea:
         example: 50
         maximum: 0
-        type: integer
+        type: number
       districtTitle:
         example: ВАО
         type: string
@@ -114,12 +114,15 @@ definitions:
         maximum: 0
         type: integer
       industryBranch:
-        example: Авиационная промышленность
+        example: Авиационная_промышленность
         type: string
       landArea:
         example: 120
         maximum: 0
-        type: integer
+        type: number
+      organizationType:
+        example: ООО
+        type: string
       other:
         example: I want some cookies
         type: string
@@ -136,6 +139,7 @@ definitions:
     - fullTimeEmployees
     - industryBranch
     - landArea
+    - organizationType
     - other
     - patent
     type: object
@@ -578,13 +582,13 @@ paths:
       summary: Update user's data
       tags:
       - User
-  /user/{company_name}:
+  /user/{history_id}:
     get:
       description: Returns PDF file got from user history
       parameters:
-      - description: Unique company name from history
+      - description: Unique id from history
         in: path
-        name: company_name
+        name: history_id
         required: true
         type: string
       responses:
