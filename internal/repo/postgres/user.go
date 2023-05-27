@@ -57,20 +57,26 @@ func (r *UserStorage) UpdateEmail(ctx context.Context, password []byte, newEmail
 	return r.userClient.UpdateOneID(id).SetEmail(newEmail).Exec(ctx)
 }
 
-func (r *UserStorage) GetAllHistory(ctx context.Context, userId int) ([]string, error) {
+func (r *UserStorage) GetAllHistory(ctx context.Context, userId int) ([]*dao.Histories, error) {
 	customer, err := r.userClient.Get(ctx, userId)
 	if err != nil {
 		return nil, err
 	}
 
-	return customer.QueryHistories().IDs(ctx)
+	var histories []*dao.Histories
+	err = customer.QueryHistories().Select(history.FieldID, history.FieldCompanyName).Scan(ctx, &histories)
+
+	if histories != nil {
+		return histories, nil
+	}
+	return nil, err
 }
 
-func (r *UserStorage) GetOneHistory(ctx context.Context, companyName string, userId int) (*ent.History, error) {
+func (r *UserStorage) GetOneHistory(ctx context.Context, historyId int, userId int) (*ent.History, error) {
 	customer, err := r.userClient.Get(ctx, userId)
 	if err != nil {
 		return nil, err
 	}
 
-	return customer.QueryHistories().Where(history.ID(companyName)).Only(ctx)
+	return customer.QueryHistories().Where(history.ID(historyId)).Only(ctx)
 }

@@ -26,8 +26,8 @@ type UserService interface {
 	UpdatePassword(newPassword []byte, email string) error
 	UpdateEmail(password []byte, newEmail string, id int) error
 
-	GetAllHistory(userId int) ([]string, error)
-	GetOneHistory(companyName string, userId int) (*ent.History, error)
+	GetAllHistory(userId int) ([]*dao.Histories, error)
+	GetOneHistory(historyId int, userId int) (*ent.History, error)
 
 	ContainsKeys(keys ...string) (int64, error)
 	SetVariable(key string, value any, exp time.Duration) error
@@ -53,7 +53,7 @@ type IndustryService interface {
 }
 
 type HistoryService interface {
-	GetHistory(companyName string) (*ent.History, error)
+	GetHistory(historyId int) (*ent.History, error)
 	CreateHistory(h *dto.History, id int) error
 }
 
@@ -119,7 +119,7 @@ func (h *Handler) InitRoutes(rg *gin.RouterGroup, mailSet bool) {
 		user.PATCH("", h.session.RequireSession, h.updateMe)
 		user.PATCH("/password", h.session.RequireSession, h.updatePassword)
 		user.PATCH("/email", h.session.RequireSession, h.updateEmail)
-		user.GET("/:company_name", h.session.RequireSession, h.getHistory)
+		user.GET("/:history_id", h.session.RequireSession, h.getHistory)
 	}
 
 	company := rg.Group("/company")
@@ -160,7 +160,6 @@ func (m *Middlewares) InitGlobalMiddleWares(r *gin.Engine) {
 func (m *Middlewares) cors(c *gin.Context) {
 	if origin := c.GetHeader("Origin"); origin != "" {
 		c.Header("Access-Control-Allow-Origin", "http://localhost:3000")
-		c.Header("Access-Control-Allow-Origin", "http://localhost")
 		c.Header("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 		c.Header("Access-Control-Allow-Headers", "Content-Type, User-Agent, Accept-Language, Accept, Cache-Control, Content-Length, Host, Accept-Encoding, Connection")
 		c.Header("Access-Control-Expose-Headers", "Authorization")

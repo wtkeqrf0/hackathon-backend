@@ -14,13 +14,13 @@ func NewHistoryStorage(historyClient *ent.HistoryClient) *HistoryStorage {
 	return &HistoryStorage{historyClient: historyClient}
 }
 
-func (h *HistoryStorage) GetHistory(ctx context.Context, companyName string) (*ent.History, error) {
-	return h.historyClient.Get(ctx, companyName)
+func (h *HistoryStorage) GetHistory(ctx context.Context, historyId int) (*ent.History, error) {
+	return h.historyClient.Get(ctx, historyId)
 }
 
 func (h *HistoryStorage) CreateHistory(ctx context.Context, data *dto.History, userId int) error {
 	return h.historyClient.Create().
-		SetID(data.CompanyName).
+		SetCompanyName(data.CompanyName).
 		SetDistrictTitle(data.DistrictTitle).
 		SetAccountingServices(data.AccountingServices).
 		SetEquipmentType(data.EquipmentType).

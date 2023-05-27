@@ -7,7 +7,7 @@ import (
 )
 
 type HistoryPostgres interface {
-	GetHistory(ctx context.Context, companyName string) (*ent.History, error)
+	GetHistory(ctx context.Context, historyId int) (*ent.History, error)
 	CreateHistory(ctx context.Context, h *dto.History, userId int) error
 }
 
@@ -19,8 +19,8 @@ func NewHistoryService(postgres HistoryPostgres) *HistoryService {
 	return &HistoryService{postgres: postgres}
 }
 
-func (i *HistoryService) GetHistory(companyName string) (*ent.History, error) {
-	return i.postgres.GetHistory(context.Background(), companyName)
+func (i *HistoryService) GetHistory(historyId int) (*ent.History, error) {
+	return i.postgres.GetHistory(context.Background(), historyId)
 }
 
 func (i *HistoryService) CreateHistory(h *dto.History, id int) error {

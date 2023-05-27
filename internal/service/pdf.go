@@ -14,6 +14,22 @@ type PDF struct {
 }
 
 type Params struct {
+	IndustryBranch      string
+	OrganizationType    string
+	FullTimeEmployers   int
+	LandArea            float64
+	Total               float64
+	Staff               float64
+	RentalProperty      float64
+	Taxes               float64
+	Services            float64
+	StaffNum            int
+	MinStaffMaintenance float64
+	MaxStaffMaintenance float64
+	MinPensionInsurance float64
+	MaxPensionInsurance float64
+	MinHealthInsurance  float64
+	MaxHealthInsurance  float64
 }
 
 func NewPDF(templatePath string) *PDF {

@@ -13,8 +13,8 @@ type UserPostgres interface {
 	UpdateUser(ctx context.Context, updateUser *dto.UpdateUser, id int) error
 	UpdatePassword(ctx context.Context, newPassword []byte, email string) error
 	UpdateEmail(ctx context.Context, password []byte, newEmail string, id int) error
-	GetAllHistory(ctx context.Context, userId int) ([]string, error)
-	GetOneHistory(ctx context.Context, companyName string, userId int) (*ent.History, error)
+	GetAllHistory(ctx context.Context, userId int) ([]*dao.Histories, error)
+	GetOneHistory(ctx context.Context, historyId int, userId int) (*ent.History, error)
 }
 
 type UserService struct {
@@ -42,12 +42,12 @@ func (u *UserService) UpdateEmail(password []byte, newEmail string, id int) erro
 	return u.postgres.UpdateEmail(context.Background(), password, newEmail, id)
 }
 
-func (u *UserService) GetAllHistory(userId int) ([]string, error) {
+func (u *UserService) GetAllHistory(userId int) ([]*dao.Histories, error) {
 	return u.postgres.GetAllHistory(context.Background(), userId)
 }
 
-func (u *UserService) GetOneHistory(companyName string, userId int) (*ent.History, error) {
-	return u.postgres.GetOneHistory(context.Background(), companyName, userId)
+func (u *UserService) GetOneHistory(historyId int, userId int) (*ent.History, error) {
+	return u.postgres.GetOneHistory(context.Background(), historyId, userId)
 }
 
 type UserRedis interface {

@@ -54,7 +54,24 @@ func (h *Handler) calcData(c *gin.Context) {
 		return
 	}
 
-	p := service.Params{}
+	p := service.Params{
+		IndustryBranch:      history.IndustryBranch,
+		OrganizationType:    history.OrganizationType,
+		FullTimeEmployers:   history.FullTimeEmployees,
+		LandArea:            history.LandArea,
+		Total:               0,
+		Staff:               0,
+		RentalProperty:      0,
+		Taxes:               0,
+		Services:            0,
+		StaffNum:            0,
+		MinStaffMaintenance: 0,
+		MaxStaffMaintenance: 0,
+		MinPensionInsurance: 0,
+		MaxPensionInsurance: 0,
+		MinHealthInsurance:  0,
+		MaxHealthInsurance:  0,
+	}
 
 	err := h.pdf.GeneratePDF(c.Writer, p)
 	if err != nil {
