@@ -10,7 +10,7 @@ import (
 )
 
 // The BusinessActivityFunc type is an adapter to allow the use of ordinary
-// function as BusinessActivity mutator.
+// function as BusinessActivityId mutator.
 type BusinessActivityFunc func(context.Context, *ent.BusinessActivityMutation) (ent.Value, error)
 
 // Mutate calls f(ctx, m).

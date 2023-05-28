@@ -302,7 +302,7 @@ func (baq *BusinessActivityQuery) WithHistories(opts ...func(*HistoryQuery)) *Bu
 //		Count int `json:"count,omitempty"`
 //	}
 //
-//	client.BusinessActivity.Query().
+//	client.BusinessActivityId.Query().
 //		GroupBy(businessactivity.FieldType).
 //		Aggregate(ent.Count()).
 //		Scan(ctx, &v)
@@ -324,7 +324,7 @@ func (baq *BusinessActivityQuery) GroupBy(field string, fields ...string) *Busin
 //		Type string `json:"type,omitempty"`
 //	}
 //
-//	client.BusinessActivity.Query().
+//	client.BusinessActivityId.Query().
 //		Select(businessactivity.FieldType).
 //		Scan(ctx, &v)
 func (baq *BusinessActivityQuery) Select(fields ...string) *BusinessActivitySelect {

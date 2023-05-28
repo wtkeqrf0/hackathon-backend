@@ -744,7 +744,7 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.BusinessActivity": {
+        "dto.BusinessActivityId": {
             "type": "object",
             "required": [
                 "id",
@@ -832,7 +832,7 @@ const docTemplate = `{
                     "example": "Энергетическое"
                 },
                 "business_activity": {
-                    "$ref": "#/definitions/dto.BusinessActivity"
+                    "$ref": "#/definitions/dto.BusinessActivityId"
                 },
                 "constructionFacilitiesArea": {
                     "type": "number",

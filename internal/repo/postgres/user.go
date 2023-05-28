@@ -64,7 +64,7 @@ func (r *UserStorage) GetAllHistory(ctx context.Context, userId int) ([]*dao.His
 	}
 
 	var histories []*dao.Histories
-	err = customer.QueryHistories().Select(history.FieldID, history.FieldCompanyName).Scan(ctx, &histories)
+	err = customer.QueryHistories().Select(history.FieldID, history.FieldName).Scan(ctx, &histories)
 
 	if histories != nil {
 		return histories, nil

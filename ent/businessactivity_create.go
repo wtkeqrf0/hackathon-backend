@@ -88,17 +88,17 @@ func (bac *BusinessActivityCreate) ExecX(ctx context.Context) {
 // check runs all checks and user-defined validators on the builder.
 func (bac *BusinessActivityCreate) check() error {
 	if _, ok := bac.mutation.GetType(); !ok {
-		return &ValidationError{Name: "type", err: errors.New(`ent: missing required field "BusinessActivity.type"`)}
+		return &ValidationError{Name: "type", err: errors.New(`ent: missing required field "BusinessActivityId.type"`)}
 	}
 	if _, ok := bac.mutation.SubType(); !ok {
-		return &ValidationError{Name: "sub_type", err: errors.New(`ent: missing required field "BusinessActivity.sub_type"`)}
+		return &ValidationError{Name: "sub_type", err: errors.New(`ent: missing required field "BusinessActivityId.sub_type"`)}
 	}
 	if _, ok := bac.mutation.Total(); !ok {
-		return &ValidationError{Name: "total", err: errors.New(`ent: missing required field "BusinessActivity.total"`)}
+		return &ValidationError{Name: "total", err: errors.New(`ent: missing required field "BusinessActivityId.total"`)}
 	}
 	if v, ok := bac.mutation.Total(); ok {
 		if err := businessactivity.TotalValidator(v); err != nil {
-			return &ValidationError{Name: "total", err: fmt.Errorf(`ent: validator failed for field "BusinessActivity.total": %w`, err)}
+			return &ValidationError{Name: "total", err: fmt.Errorf(`ent: validator failed for field "BusinessActivityId.total": %w`, err)}
 		}
 	}
 	return nil

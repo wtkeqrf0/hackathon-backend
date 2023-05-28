@@ -31,7 +31,7 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypeBusinessActivity = "BusinessActivity"
+	TypeBusinessActivity = "BusinessActivityId"
 	TypeCompany          = "Company"
 	TypeDistrict         = "District"
 	TypeHistory          = "History"
@@ -413,7 +413,7 @@ func (m *BusinessActivityMutation) OldField(ctx context.Context, name string) (e
 	case businessactivity.FieldTotal:
 		return m.OldTotal(ctx)
 	}
-	return nil, fmt.Errorf("unknown BusinessActivity field %s", name)
+	return nil, fmt.Errorf("unknown BusinessActivityId field %s", name)
 }
 
 // SetField sets the value of a field with the given name. It returns an error if
@@ -443,7 +443,7 @@ func (m *BusinessActivityMutation) SetField(name string, value ent.Value) error 
 		m.SetTotal(v)
 		return nil
 	}
-	return fmt.Errorf("unknown BusinessActivity field %s", name)
+	return fmt.Errorf("unknown BusinessActivityId field %s", name)
 }
 
 // AddedFields returns all numeric fields that were incremented/decremented during
@@ -480,7 +480,7 @@ func (m *BusinessActivityMutation) AddField(name string, value ent.Value) error 
 		m.AddTotal(v)
 		return nil
 	}
-	return fmt.Errorf("unknown BusinessActivity numeric field %s", name)
+	return fmt.Errorf("unknown BusinessActivityId numeric field %s", name)
 }
 
 // ClearedFields returns all nullable fields that were cleared during this
@@ -499,7 +499,7 @@ func (m *BusinessActivityMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *BusinessActivityMutation) ClearField(name string) error {
-	return fmt.Errorf("unknown BusinessActivity nullable field %s", name)
+	return fmt.Errorf("unknown BusinessActivityId nullable field %s", name)
 }
 
 // ResetField resets all changes in the mutation for the field with the given name.
@@ -516,7 +516,7 @@ func (m *BusinessActivityMutation) ResetField(name string) error {
 		m.ResetTotal()
 		return nil
 	}
-	return fmt.Errorf("unknown BusinessActivity field %s", name)
+	return fmt.Errorf("unknown BusinessActivityId field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
@@ -589,7 +589,7 @@ func (m *BusinessActivityMutation) EdgeCleared(name string) bool {
 func (m *BusinessActivityMutation) ClearEdge(name string) error {
 	switch name {
 	}
-	return fmt.Errorf("unknown BusinessActivity unique edge %s", name)
+	return fmt.Errorf("unknown BusinessActivityId unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
@@ -600,7 +600,7 @@ func (m *BusinessActivityMutation) ResetEdge(name string) error {
 		m.ResetHistories()
 		return nil
 	}
-	return fmt.Errorf("unknown BusinessActivity edge %s", name)
+	return fmt.Errorf("unknown BusinessActivityId edge %s", name)
 }
 
 // CompanyMutation represents an operation that mutates the Company nodes in the graph.
@@ -1630,7 +1630,8 @@ type HistoryMutation struct {
 	construction_facilities_area    *float64
 	addconstruction_facilities_area *float64
 	building_type                   *string
-	equipment                       *dto.Equipment
+	equipment                       *[]dto.Equipment
+	appendequipment                 []dto.Equipment
 	accounting_support              *bool
 	operations_num                  *int
 	addoperations_num               *int
@@ -2191,12 +2192,13 @@ func (m *HistoryMutation) ResetBuildingType() {
 }
 
 // SetEquipment sets the "equipment" field.
-func (m *HistoryMutation) SetEquipment(d dto.Equipment) {
+func (m *HistoryMutation) SetEquipment(d []dto.Equipment) {
 	m.equipment = &d
+	m.appendequipment = nil
 }
 
 // Equipment returns the value of the "equipment" field in the mutation.
-func (m *HistoryMutation) Equipment() (r dto.Equipment, exists bool) {
+func (m *HistoryMutation) Equipment() (r []dto.Equipment, exists bool) {
 	v := m.equipment
 	if v == nil {
 		return
@@ -2207,7 +2209,7 @@ func (m *HistoryMutation) Equipment() (r dto.Equipment, exists bool) {
 // OldEquipment returns the old "equipment" field's value of the History entity.
 // If the History object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *HistoryMutation) OldEquipment(ctx context.Context) (v dto.Equipment, err error) {
+func (m *HistoryMutation) OldEquipment(ctx context.Context) (v []dto.Equipment, err error) {
 	if !m.op.Is(OpUpdateOne) {
 		return v, errors.New("OldEquipment is only allowed on UpdateOne operations")
 	}
@@ -2221,9 +2223,23 @@ func (m *HistoryMutation) OldEquipment(ctx context.Context) (v dto.Equipment, er
 	return oldValue.Equipment, nil
 }
 
+// AppendEquipment adds d to the "equipment" field.
+func (m *HistoryMutation) AppendEquipment(d []dto.Equipment) {
+	m.appendequipment = append(m.appendequipment, d...)
+}
+
+// AppendedEquipment returns the list of values that were appended to the "equipment" field in this mutation.
+func (m *HistoryMutation) AppendedEquipment() ([]dto.Equipment, bool) {
+	if len(m.appendequipment) == 0 {
+		return nil, false
+	}
+	return m.appendequipment, true
+}
+
 // ResetEquipment resets all changes to the "equipment" field.
 func (m *HistoryMutation) ResetEquipment() {
 	m.equipment = nil
+	m.appendequipment = nil
 }
 
 // SetAccountingSupport sets the "accounting_support" field.
@@ -2991,7 +3007,7 @@ func (m *HistoryMutation) SetField(name string, value ent.Value) error {
 		m.SetBuildingType(v)
 		return nil
 	case history.FieldEquipment:
-		v, ok := value.(dto.Equipment)
+		v, ok := value.([]dto.Equipment)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}

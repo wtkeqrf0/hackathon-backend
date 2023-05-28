@@ -8,10 +8,8 @@ type TaxationSystem struct {
 }
 
 type BusinessActivity struct {
-	Id      int     `json:"id,omitempty" validate:"required,lte=0" sql:"id" example:"12"`
-	Type    string  `json:"type,omitempty" validate:"required" sql:"type" example:"Много букав"`
-	SubType string  `json:"subType,omitempty" validate:"required" sql:"sub_type" example:"Много букав"`
-	Total   float64 `json:"total,omitempty" validate:"required" sql:"total" example:"35.235"`
+	Type    string `json:"type,omitempty" validate:"required" sql:"type" example:"Много букав"`
+	SubType string `json:"subType,omitempty" validate:"required" sql:"sub_type" example:"Много букав"`
 }
 
 type Equipment struct {

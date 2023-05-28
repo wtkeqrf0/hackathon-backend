@@ -18,18 +18,25 @@ func (h *HistoryStorage) GetHistory(ctx context.Context, historyId int) (*ent.Hi
 	return h.historyClient.Get(ctx, historyId)
 }
 
-func (h *HistoryStorage) CreateHistory(ctx context.Context, data *dto.History, userId int) error {
+func (h *HistoryStorage) CreateHistory(ctx context.Context, data *dto.History, busactId *int, userId int) error {
 	return h.historyClient.Create().
-		SetCompanyName(data.CompanyName).
-		SetDistrictTitle(data.DistrictTitle).
-		SetAccountingServices(data.AccountingServices).
-		SetEquipmentType(data.EquipmentType).
-		SetFacilityType(data.FacilityType).
-		SetConstructionFacilitiesArea(data.ConstructionFacilitiesArea).
-		SetLandArea(data.LandArea).
-		SetFullTimeEmployees(data.FullTimeEmployees).
+		SetName(data.Name).
+		SetOrganizationalLegal(data.OrganizationLegal).
 		SetIndustryBranch(data.IndustryBranch).
-		SetOther(data.Other).
-		SetPatent(data.Patent).
+		SetFullTimeEmployees(data.FullTimeEmployees).
+		SetAvgSalary(data.AvgSalary).
+		SetDistrictTitle(data.DistrictTitle).
+		SetLandArea(data.LandArea).
+		SetIsBuy(data.IsBuy).
+		SetConstructionFacilitiesArea(data.ConstructionFacilitiesArea).
+		SetBuildingType(data.BuildingType).
+		SetEquipment(data.Equipment).
+		SetAccountingSupport(data.AccountingSupport).
+		SetNillableTaxationSystemOperations(data.TaxationSystemOperations).
+		SetNillableOperationsNum(data.OperationsNum).
+		SetPatentCalc(data.PatentCalc).
+		SetNillableBusinessActivityID(busactId).
+		SetNillableOther(data.Other).
 		SetUserID(userId).Exec(ctx)
+
 }

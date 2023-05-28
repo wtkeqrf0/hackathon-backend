@@ -82,7 +82,7 @@ const (
 	TaxationSystemsColumn = "taxation_system_operations"
 	// BusinessActivityTable is the table that holds the business_activity relation/edge.
 	BusinessActivityTable = "histories"
-	// BusinessActivityInverseTable is the table name for the BusinessActivity entity.
+	// BusinessActivityInverseTable is the table name for the BusinessActivityId entity.
 	// It exists in this package in order to avoid circular dependency with the "businessactivity" package.
 	BusinessActivityInverseTable = "business_activities"
 	// BusinessActivityColumn is the table column denoting the business_activity relation/edge.

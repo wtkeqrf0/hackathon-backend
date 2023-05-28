@@ -30,8 +30,13 @@ func (h *Handler) saveCalcData(c *gin.Context) {
 	if history == nil {
 		return
 	}
+	id, err := h.business.GetBusiness(history.BusinessActivity)
+	if err != nil {
+		c.Error(err)
+		return
+	}
 
-	if err := h.history.CreateHistory(history, s.ID); err != nil {
+	if err = h.history.CreateHistory(history, id, s.ID); err != nil {
 		c.Error(err)
 		return
 	}

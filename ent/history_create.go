@@ -86,7 +86,7 @@ func (hc *HistoryCreate) SetBuildingType(s string) *HistoryCreate {
 }
 
 // SetEquipment sets the "equipment" field.
-func (hc *HistoryCreate) SetEquipment(d dto.Equipment) *HistoryCreate {
+func (hc *HistoryCreate) SetEquipment(d []dto.Equipment) *HistoryCreate {
 	hc.mutation.SetEquipment(d)
 	return hc
 }

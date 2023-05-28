@@ -35,7 +35,7 @@ func (History) Fields() []ent.Field {
 
 		field.String("building_type").Immutable(),
 
-		field.JSON("equipment", dto.Equipment{}).Immutable(),
+		field.JSON("equipment", []dto.Equipment{}).Immutable(),
 
 		field.Bool("accounting_support").Immutable(), //true == next two
 

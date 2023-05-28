@@ -44,7 +44,7 @@ type History struct {
 	// BuildingType holds the value of the "building_type" field.
 	BuildingType string `json:"building_type,omitempty"`
 	// Equipment holds the value of the "equipment" field.
-	Equipment dto.Equipment `json:"equipment,omitempty"`
+	Equipment []dto.Equipment `json:"equipment,omitempty"`
 	// AccountingSupport holds the value of the "accounting_support" field.
 	AccountingSupport bool `json:"accounting_support,omitempty"`
 	// TaxationSystemOperations holds the value of the "taxation_system_operations" field.
