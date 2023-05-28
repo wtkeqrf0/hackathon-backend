@@ -138,6 +138,10 @@ func (e *ErrHandler) HandleErrors(c *gin.Context) {
 			res[message] = "There is no such object"
 			res[advice] = "But you can still find another existing object!"
 			status = http.StatusBadRequest
+		case ent.IsNotSingular(err):
+			res[message] = "There are many objects"
+			res[advice] = "You must find a unique object"
+			status = http.StatusBadRequest
 		}
 
 		e.log.WithError(resErr).Errorf("%02d# %s", i+1, res[message])
