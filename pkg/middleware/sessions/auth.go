@@ -8,6 +8,7 @@ import (
 	"github.com/while-act/hackathon-backend/internal/controller/dao"
 	"github.com/while-act/hackathon-backend/pkg/bind"
 	"github.com/while-act/hackathon-backend/pkg/middleware/errs"
+	"net/http"
 	"time"
 )
 
@@ -89,9 +90,9 @@ func (a Auth) SetNewCookie(id int, c *gin.Context) {
 		c.Error(errs.ServerError.AddErr(err))
 		return
 	}
-
+	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie(cfg.Session.CookieName, session, int(cfg.Session.Duration.Seconds()),
-		cfg.Session.CookiePath, cfg.Listen.DomainName, false, true)
+		cfg.Session.CookiePath, cfg.Listen.DomainName, true, true)
 }
 
 // PopCookie from cookie storage only if equals to uuid4

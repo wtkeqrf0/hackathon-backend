@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/while-act/hackathon-backend/pkg/conf"
 	"github.com/while-act/hackathon-backend/pkg/middleware/errs"
+	"net/http"
 )
 
 var cfg = conf.GetConfig()
@@ -18,6 +19,7 @@ func (a Auth) RequireSession(c *gin.Context) {
 	}
 
 	if ok {
+		c.SetSameSite(http.SameSiteLaxMode)
 		c.SetCookie(cfg.Session.CookieName, session, int(cfg.Session.Duration.Seconds()),
 			cfg.Session.CookiePath, cfg.Listen.DomainName, true, true)
 	}
