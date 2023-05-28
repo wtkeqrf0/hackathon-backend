@@ -85,7 +85,8 @@ func (h *Handler) calcData(c *gin.Context) {
 	p.InsurancePayment = wageFund * 0.3
 	p.IncomeTax = wageFund * 0.13
 	p.WageFund = wageFund + p.InsurancePayment + p.IncomeTax
-	p.Total += p.WageFund
+	p.SocialInsurance = wageFund * 30
+	p.Total += p.WageFund + p.SocialInsurance + p.InsurancePayment + p.IncomeTax
 
 	if history.IsBuy {
 		p.LandValue = history.LandArea * dist.AvgCadastralVal

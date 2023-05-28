@@ -26,6 +26,7 @@ type Params struct {
 	LandValue         float64
 	Equipment         float64
 	Taxes             float64
+	SocialInsurance   float64
 	Other             *string
 	Total             float64
 	///////
@@ -35,10 +36,6 @@ type Params struct {
 	StaffNum            int
 	MinStaffMaintenance float64
 	MaxStaffMaintenance float64
-	MinPensionInsurance float64
-	MaxPensionInsurance float64
-	MinHealthInsurance  float64
-	MaxHealthInsurance  float64
 }
 
 func NewPDF(templatePath string) *PDF {

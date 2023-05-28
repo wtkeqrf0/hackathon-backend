@@ -142,12 +142,16 @@ func initHandler(pClient *ent.Client, rClient *redis.Client, mailClient *smtp.Cl
 	pComp := postgres.NewCompanyStorage(pClient.Company)
 	pHist := postgres.NewHistoryStorage(pClient.History)
 	pInd := postgres.NewIndustryStorage(pClient.Industry)
+	pDist := postgres.NewDistrictStorage(pClient.District)
+	pTax := postgres.NewTaxStorage(pClient.TaxationSystem)
 	pBus := postgres.NewBusinessStorage(pClient.BusinessActivity)
 	rConn := redisRepo.NewRClient(rClient)
 
 	auth := service.NewAuthService(pUser, rConn)
 	history := service.NewHistoryService(pHist)
 	industry := service.NewIndustryService(pInd)
+	district := service.NewDistrictService(pDist)
+	taxationSystem := service.NewTaxService(pTax)
 	business := service.NewBusinessService(pBus)
 	user := service.NewUserService(pUser, rConn)
 	pdf := service.NewPDF(tPath)
@@ -160,6 +164,8 @@ func initHandler(pClient *ent.Client, rClient *redis.Client, mailClient *smtp.Cl
 		auth,
 		history,
 		industry,
+		district,
+		taxationSystem,
 		business,
 		pdf,
 		sessions.NewAuth(auth),
