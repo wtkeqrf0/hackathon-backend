@@ -58,7 +58,7 @@ var (
 		{Name: "building_type", Type: field.TypeString},
 		{Name: "equipment", Type: field.TypeJSON},
 		{Name: "accounting_support", Type: field.TypeBool},
-		{Name: "operations_num", Type: field.TypeInt, Nullable: true},
+		{Name: "operation_type", Type: field.TypeString, Nullable: true},
 		{Name: "patent_calc", Type: field.TypeBool},
 		{Name: "other", Type: field.TypeString, Nullable: true, Size: 2147483647},
 		{Name: "business_activity_id", Type: field.TypeInt, Nullable: true},

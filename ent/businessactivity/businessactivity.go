@@ -54,7 +54,7 @@ var (
 	TotalValidator func(float64) error
 )
 
-// OrderOption defines the ordering options for the BusinessActivityId queries.
+// OrderOption defines the ordering options for the BusinessActivity queries.
 type OrderOption func(*sql.Selector)
 
 // ByID orders the results by the id field.

@@ -376,7 +376,7 @@ func (c *BusinessActivityClient) mutate(ctx context.Context, m *BusinessActivity
 	case OpDelete, OpDeleteOne:
 		return (&BusinessActivityDelete{config: c.config, hooks: c.Hooks(), mutation: m}).Exec(ctx)
 	default:
-		return nil, fmt.Errorf("ent: unknown BusinessActivityId mutation op: %q", m.Op())
+		return nil, fmt.Errorf("ent: unknown BusinessActivity mutation op: %q", m.Op())
 	}
 }
 

@@ -14,7 +14,7 @@ type History struct {
 	Equipment                  []Equipment       `json:"equipment,omitempty" validate:"omitempty"`
 	AccountingSupport          bool              `json:"accountingSupport,omitempty" validate:"required" example:"true"`
 	TaxationSystemOperations   *int              `json:"taxationSystemOperations,omitempty" validate:"omitempty"`
-	OperationsNum              *int              `json:"operationsNum,omitempty" validate:"omitempty,lte=0"`
+	OperationsType             *string           `json:"operationsType,omitempty" validate:"omitempty"`
 	PatentCalc                 bool              `json:"patentCalc,omitempty" validate:"required" example:"true"`
 	BusinessActivity           *BusinessActivity `json:"business_activity,omitempty" validate:"omitempty"`
 	Other                      *string           `json:"other,omitempty" validate:"omitempty" example:"I want some cookies"`

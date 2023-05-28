@@ -99,8 +99,8 @@ func (hu *HistoryUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := hu.mutation.Name(); ok {
 		_spec.SetField(history.FieldName, field.TypeString, value)
 	}
-	if hu.mutation.OperationsNumCleared() {
-		_spec.ClearField(history.FieldOperationsNum, field.TypeInt)
+	if hu.mutation.OperationTypeCleared() {
+		_spec.ClearField(history.FieldOperationType, field.TypeString)
 	}
 	if hu.mutation.OtherCleared() {
 		_spec.ClearField(history.FieldOther, field.TypeString)
@@ -227,8 +227,8 @@ func (huo *HistoryUpdateOne) sqlSave(ctx context.Context) (_node *History, err e
 	if value, ok := huo.mutation.Name(); ok {
 		_spec.SetField(history.FieldName, field.TypeString, value)
 	}
-	if huo.mutation.OperationsNumCleared() {
-		_spec.ClearField(history.FieldOperationsNum, field.TypeInt)
+	if huo.mutation.OperationTypeCleared() {
+		_spec.ClearField(history.FieldOperationType, field.TypeString)
 	}
 	if huo.mutation.OtherCleared() {
 		_spec.ClearField(history.FieldOther, field.TypeString)

@@ -33,7 +33,7 @@ func (h *HistoryStorage) CreateHistory(ctx context.Context, data *dto.History, b
 		SetEquipment(data.Equipment).
 		SetAccountingSupport(data.AccountingSupport).
 		SetNillableTaxationSystemOperations(data.TaxationSystemOperations).
-		SetNillableOperationsNum(data.OperationsNum).
+		SetNillableOperationType(data.OperationsType).
 		SetPatentCalc(data.PatentCalc).
 		SetNillableBusinessActivityID(busactId).
 		SetNillableOther(data.Other).

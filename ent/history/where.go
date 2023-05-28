@@ -113,9 +113,9 @@ func TaxationSystemOperations(v int) predicate.History {
 	return predicate.History(sql.FieldEQ(FieldTaxationSystemOperations, v))
 }
 
-// OperationsNum applies equality check predicate on the "operations_num" field. It's identical to OperationsNumEQ.
-func OperationsNum(v int) predicate.History {
-	return predicate.History(sql.FieldEQ(FieldOperationsNum, v))
+// OperationType applies equality check predicate on the "operation_type" field. It's identical to OperationTypeEQ.
+func OperationType(v string) predicate.History {
+	return predicate.History(sql.FieldEQ(FieldOperationType, v))
 }
 
 // PatentCalc applies equality check predicate on the "patent_calc" field. It's identical to PatentCalcEQ.
@@ -673,54 +673,79 @@ func TaxationSystemOperationsNotNil() predicate.History {
 	return predicate.History(sql.FieldNotNull(FieldTaxationSystemOperations))
 }
 
-// OperationsNumEQ applies the EQ predicate on the "operations_num" field.
-func OperationsNumEQ(v int) predicate.History {
-	return predicate.History(sql.FieldEQ(FieldOperationsNum, v))
+// OperationTypeEQ applies the EQ predicate on the "operation_type" field.
+func OperationTypeEQ(v string) predicate.History {
+	return predicate.History(sql.FieldEQ(FieldOperationType, v))
 }
 
-// OperationsNumNEQ applies the NEQ predicate on the "operations_num" field.
-func OperationsNumNEQ(v int) predicate.History {
-	return predicate.History(sql.FieldNEQ(FieldOperationsNum, v))
+// OperationTypeNEQ applies the NEQ predicate on the "operation_type" field.
+func OperationTypeNEQ(v string) predicate.History {
+	return predicate.History(sql.FieldNEQ(FieldOperationType, v))
 }
 
-// OperationsNumIn applies the In predicate on the "operations_num" field.
-func OperationsNumIn(vs ...int) predicate.History {
-	return predicate.History(sql.FieldIn(FieldOperationsNum, vs...))
+// OperationTypeIn applies the In predicate on the "operation_type" field.
+func OperationTypeIn(vs ...string) predicate.History {
+	return predicate.History(sql.FieldIn(FieldOperationType, vs...))
 }
 
-// OperationsNumNotIn applies the NotIn predicate on the "operations_num" field.
-func OperationsNumNotIn(vs ...int) predicate.History {
-	return predicate.History(sql.FieldNotIn(FieldOperationsNum, vs...))
+// OperationTypeNotIn applies the NotIn predicate on the "operation_type" field.
+func OperationTypeNotIn(vs ...string) predicate.History {
+	return predicate.History(sql.FieldNotIn(FieldOperationType, vs...))
 }
 
-// OperationsNumGT applies the GT predicate on the "operations_num" field.
-func OperationsNumGT(v int) predicate.History {
-	return predicate.History(sql.FieldGT(FieldOperationsNum, v))
+// OperationTypeGT applies the GT predicate on the "operation_type" field.
+func OperationTypeGT(v string) predicate.History {
+	return predicate.History(sql.FieldGT(FieldOperationType, v))
 }
 
-// OperationsNumGTE applies the GTE predicate on the "operations_num" field.
-func OperationsNumGTE(v int) predicate.History {
-	return predicate.History(sql.FieldGTE(FieldOperationsNum, v))
+// OperationTypeGTE applies the GTE predicate on the "operation_type" field.
+func OperationTypeGTE(v string) predicate.History {
+	return predicate.History(sql.FieldGTE(FieldOperationType, v))
 }
 
-// OperationsNumLT applies the LT predicate on the "operations_num" field.
-func OperationsNumLT(v int) predicate.History {
-	return predicate.History(sql.FieldLT(FieldOperationsNum, v))
+// OperationTypeLT applies the LT predicate on the "operation_type" field.
+func OperationTypeLT(v string) predicate.History {
+	return predicate.History(sql.FieldLT(FieldOperationType, v))
 }
 
-// OperationsNumLTE applies the LTE predicate on the "operations_num" field.
-func OperationsNumLTE(v int) predicate.History {
-	return predicate.History(sql.FieldLTE(FieldOperationsNum, v))
+// OperationTypeLTE applies the LTE predicate on the "operation_type" field.
+func OperationTypeLTE(v string) predicate.History {
+	return predicate.History(sql.FieldLTE(FieldOperationType, v))
 }
 
-// OperationsNumIsNil applies the IsNil predicate on the "operations_num" field.
-func OperationsNumIsNil() predicate.History {
-	return predicate.History(sql.FieldIsNull(FieldOperationsNum))
+// OperationTypeContains applies the Contains predicate on the "operation_type" field.
+func OperationTypeContains(v string) predicate.History {
+	return predicate.History(sql.FieldContains(FieldOperationType, v))
 }
 
-// OperationsNumNotNil applies the NotNil predicate on the "operations_num" field.
-func OperationsNumNotNil() predicate.History {
-	return predicate.History(sql.FieldNotNull(FieldOperationsNum))
+// OperationTypeHasPrefix applies the HasPrefix predicate on the "operation_type" field.
+func OperationTypeHasPrefix(v string) predicate.History {
+	return predicate.History(sql.FieldHasPrefix(FieldOperationType, v))
+}
+
+// OperationTypeHasSuffix applies the HasSuffix predicate on the "operation_type" field.
+func OperationTypeHasSuffix(v string) predicate.History {
+	return predicate.History(sql.FieldHasSuffix(FieldOperationType, v))
+}
+
+// OperationTypeIsNil applies the IsNil predicate on the "operation_type" field.
+func OperationTypeIsNil() predicate.History {
+	return predicate.History(sql.FieldIsNull(FieldOperationType))
+}
+
+// OperationTypeNotNil applies the NotNil predicate on the "operation_type" field.
+func OperationTypeNotNil() predicate.History {
+	return predicate.History(sql.FieldNotNull(FieldOperationType))
+}
+
+// OperationTypeEqualFold applies the EqualFold predicate on the "operation_type" field.
+func OperationTypeEqualFold(v string) predicate.History {
+	return predicate.History(sql.FieldEqualFold(FieldOperationType, v))
+}
+
+// OperationTypeContainsFold applies the ContainsFold predicate on the "operation_type" field.
+func OperationTypeContainsFold(v string) predicate.History {
+	return predicate.History(sql.FieldContainsFold(FieldOperationType, v))
 }
 
 // PatentCalcEQ applies the EQ predicate on the "patent_calc" field.

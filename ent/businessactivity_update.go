@@ -125,7 +125,7 @@ func (bau *BusinessActivityUpdate) ExecX(ctx context.Context) {
 func (bau *BusinessActivityUpdate) check() error {
 	if v, ok := bau.mutation.Total(); ok {
 		if err := businessactivity.TotalValidator(v); err != nil {
-			return &ValidationError{Name: "total", err: fmt.Errorf(`ent: validator failed for field "BusinessActivityId.total": %w`, err)}
+			return &ValidationError{Name: "total", err: fmt.Errorf(`ent: validator failed for field "BusinessActivity.total": %w`, err)}
 		}
 	}
 	return nil
@@ -330,7 +330,7 @@ func (bauo *BusinessActivityUpdateOne) ExecX(ctx context.Context) {
 func (bauo *BusinessActivityUpdateOne) check() error {
 	if v, ok := bauo.mutation.Total(); ok {
 		if err := businessactivity.TotalValidator(v); err != nil {
-			return &ValidationError{Name: "total", err: fmt.Errorf(`ent: validator failed for field "BusinessActivityId.total": %w`, err)}
+			return &ValidationError{Name: "total", err: fmt.Errorf(`ent: validator failed for field "BusinessActivity.total": %w`, err)}
 		}
 	}
 	return nil
@@ -343,7 +343,7 @@ func (bauo *BusinessActivityUpdateOne) sqlSave(ctx context.Context) (_node *Busi
 	_spec := sqlgraph.NewUpdateSpec(businessactivity.Table, businessactivity.Columns, sqlgraph.NewFieldSpec(businessactivity.FieldID, field.TypeInt))
 	id, ok := bauo.mutation.ID()
 	if !ok {
-		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "BusinessActivityId.id" for update`)}
+		return nil, &ValidationError{Name: "id", err: errors.New(`ent: missing "BusinessActivity.id" for update`)}
 	}
 	_spec.Node.ID.Value = id
 	if fields := bauo.fields; len(fields) > 0 {

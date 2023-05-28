@@ -111,16 +111,16 @@ func (hc *HistoryCreate) SetNillableTaxationSystemOperations(i *int) *HistoryCre
 	return hc
 }
 
-// SetOperationsNum sets the "operations_num" field.
-func (hc *HistoryCreate) SetOperationsNum(i int) *HistoryCreate {
-	hc.mutation.SetOperationsNum(i)
+// SetOperationType sets the "operation_type" field.
+func (hc *HistoryCreate) SetOperationType(s string) *HistoryCreate {
+	hc.mutation.SetOperationType(s)
 	return hc
 }
 
-// SetNillableOperationsNum sets the "operations_num" field if the given value is not nil.
-func (hc *HistoryCreate) SetNillableOperationsNum(i *int) *HistoryCreate {
-	if i != nil {
-		hc.SetOperationsNum(*i)
+// SetNillableOperationType sets the "operation_type" field if the given value is not nil.
+func (hc *HistoryCreate) SetNillableOperationType(s *string) *HistoryCreate {
+	if s != nil {
+		hc.SetOperationType(*s)
 	}
 	return hc
 }
@@ -393,9 +393,9 @@ func (hc *HistoryCreate) createSpec() (*History, *sqlgraph.CreateSpec) {
 		_spec.SetField(history.FieldAccountingSupport, field.TypeBool, value)
 		_node.AccountingSupport = value
 	}
-	if value, ok := hc.mutation.OperationsNum(); ok {
-		_spec.SetField(history.FieldOperationsNum, field.TypeInt, value)
-		_node.OperationsNum = value
+	if value, ok := hc.mutation.OperationType(); ok {
+		_spec.SetField(history.FieldOperationType, field.TypeString, value)
+		_node.OperationType = value
 	}
 	if value, ok := hc.mutation.PatentCalc(); ok {
 		_spec.SetField(history.FieldPatentCalc, field.TypeBool, value)

@@ -38,8 +38,8 @@ const (
 	FieldAccountingSupport = "accounting_support"
 	// FieldTaxationSystemOperations holds the string denoting the taxation_system_operations field in the database.
 	FieldTaxationSystemOperations = "taxation_system_operations"
-	// FieldOperationsNum holds the string denoting the operations_num field in the database.
-	FieldOperationsNum = "operations_num"
+	// FieldOperationType holds the string denoting the operation_type field in the database.
+	FieldOperationType = "operation_type"
 	// FieldPatentCalc holds the string denoting the patent_calc field in the database.
 	FieldPatentCalc = "patent_calc"
 	// FieldBusinessActivityID holds the string denoting the business_activity_id field in the database.
@@ -82,7 +82,7 @@ const (
 	TaxationSystemsColumn = "taxation_system_operations"
 	// BusinessActivityTable is the table that holds the business_activity relation/edge.
 	BusinessActivityTable = "histories"
-	// BusinessActivityInverseTable is the table name for the BusinessActivityId entity.
+	// BusinessActivityInverseTable is the table name for the BusinessActivity entity.
 	// It exists in this package in order to avoid circular dependency with the "businessactivity" package.
 	BusinessActivityInverseTable = "business_activities"
 	// BusinessActivityColumn is the table column denoting the business_activity relation/edge.
@@ -119,7 +119,7 @@ var Columns = []string{
 	FieldEquipment,
 	FieldAccountingSupport,
 	FieldTaxationSystemOperations,
-	FieldOperationsNum,
+	FieldOperationType,
 	FieldPatentCalc,
 	FieldBusinessActivityID,
 	FieldOther,
@@ -215,9 +215,9 @@ func ByTaxationSystemOperations(opts ...sql.OrderTermOption) OrderOption {
 	return sql.OrderByField(FieldTaxationSystemOperations, opts...).ToFunc()
 }
 
-// ByOperationsNum orders the results by the operations_num field.
-func ByOperationsNum(opts ...sql.OrderTermOption) OrderOption {
-	return sql.OrderByField(FieldOperationsNum, opts...).ToFunc()
+// ByOperationType orders the results by the operation_type field.
+func ByOperationType(opts ...sql.OrderTermOption) OrderOption {
+	return sql.OrderByField(FieldOperationType, opts...).ToFunc()
 }
 
 // ByPatentCalc orders the results by the patent_calc field.

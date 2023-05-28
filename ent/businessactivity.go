@@ -126,7 +126,7 @@ func (ba *BusinessActivity) Update() *BusinessActivityUpdateOne {
 func (ba *BusinessActivity) Unwrap() *BusinessActivity {
 	_tx, ok := ba.config.driver.(*txDriver)
 	if !ok {
-		panic("ent: BusinessActivityId is not a transactional entity")
+		panic("ent: BusinessActivity is not a transactional entity")
 	}
 	ba.config.driver = _tx.drv
 	return ba
@@ -135,7 +135,7 @@ func (ba *BusinessActivity) Unwrap() *BusinessActivity {
 // String implements the fmt.Stringer.
 func (ba *BusinessActivity) String() string {
 	var builder strings.Builder
-	builder.WriteString("BusinessActivityId(")
+	builder.WriteString("BusinessActivity(")
 	builder.WriteString(fmt.Sprintf("id=%v, ", ba.ID))
 	builder.WriteString("type=")
 	builder.WriteString(ba.Type)

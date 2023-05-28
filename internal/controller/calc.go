@@ -59,26 +59,52 @@ func (h *Handler) calcData(c *gin.Context) {
 		return
 	}
 
-	p := service.Params{
-		IndustryBranch:      history.IndustryBranch,
-		OrganizationType:    history.OrganizationLegal,
-		FullTimeEmployers:   history.FullTimeEmployees,
-		LandArea:            history.LandArea,
-		Total:               0,
-		Staff:               0,
-		RentalProperty:      0,
-		Taxes:               0,
-		Services:            0,
-		StaffNum:            0,
-		MinStaffMaintenance: 0,
-		MaxStaffMaintenance: 0,
-		MinPensionInsurance: 0,
-		MaxPensionInsurance: 0,
-		MinHealthInsurance:  0,
-		MaxHealthInsurance:  0,
+	dist, err := h.district.GetDistrict(history.DistrictTitle)
+	if err != nil {
+		c.Error(err)
+		return
+	}
+	var tax float64
+	if history.AccountingSupport {
+		tax, err = h.tax.GetTax(history.TaxationSystemOperations, history.OperationsType)
+		if err != nil {
+			c.Error(err)
+			return
+		}
 	}
 
-	err := h.pdf.GeneratePDF(c.Writer, p)
+	p := service.Params{
+		Other:             history.Other,
+		IndustryBranch:    history.IndustryBranch,
+		OrganizationType:  history.OrganizationLegal,
+		FullTimeEmployers: history.FullTimeEmployees,
+		LandArea:          history.LandArea,
+	}
+
+	wageFund := float64(history.FullTimeEmployees) * history.AvgSalary * 12
+	p.InsurancePayment = wageFund * 0.3
+	p.IncomeTax = wageFund * 0.13
+	p.WageFund = wageFund + p.InsurancePayment + p.IncomeTax
+	p.Total += p.WageFund
+
+	if history.IsBuy {
+		p.LandValue = history.LandArea * dist.AvgCadastralVal
+		p.LandValueMin = history.ConstructionFacilitiesArea * 80
+		p.LandValueMax = history.ConstructionFacilitiesArea * 120
+	} else {
+		p.LandValue = history.LandArea * dist.AvgCadastralVal * 0.003
+	}
+	p.Total += p.LandValue
+	for _, v := range history.Equipment {
+		p.Equipment += v.Price
+	}
+	p.Total += p.Equipment
+	if history.AccountingSupport {
+		p.Taxes = tax + (0.5 * float64(history.FullTimeEmployees))
+		p.Total += p.Taxes
+	}
+
+	err = h.pdf.GeneratePDF(c.Writer, p)
 	if err != nil {
 		c.Error(errs.PDFError.AddErr(err))
 		return

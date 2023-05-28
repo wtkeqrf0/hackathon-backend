@@ -31,7 +31,7 @@ const (
 	OpUpdateOne = ent.OpUpdateOne
 
 	// Node types.
-	TypeBusinessActivity = "BusinessActivityId"
+	TypeBusinessActivity = "BusinessActivity"
 	TypeCompany          = "Company"
 	TypeDistrict         = "District"
 	TypeHistory          = "History"
@@ -413,7 +413,7 @@ func (m *BusinessActivityMutation) OldField(ctx context.Context, name string) (e
 	case businessactivity.FieldTotal:
 		return m.OldTotal(ctx)
 	}
-	return nil, fmt.Errorf("unknown BusinessActivityId field %s", name)
+	return nil, fmt.Errorf("unknown BusinessActivity field %s", name)
 }
 
 // SetField sets the value of a field with the given name. It returns an error if
@@ -443,7 +443,7 @@ func (m *BusinessActivityMutation) SetField(name string, value ent.Value) error 
 		m.SetTotal(v)
 		return nil
 	}
-	return fmt.Errorf("unknown BusinessActivityId field %s", name)
+	return fmt.Errorf("unknown BusinessActivity field %s", name)
 }
 
 // AddedFields returns all numeric fields that were incremented/decremented during
@@ -480,7 +480,7 @@ func (m *BusinessActivityMutation) AddField(name string, value ent.Value) error 
 		m.AddTotal(v)
 		return nil
 	}
-	return fmt.Errorf("unknown BusinessActivityId numeric field %s", name)
+	return fmt.Errorf("unknown BusinessActivity numeric field %s", name)
 }
 
 // ClearedFields returns all nullable fields that were cleared during this
@@ -499,7 +499,7 @@ func (m *BusinessActivityMutation) FieldCleared(name string) bool {
 // ClearField clears the value of the field with the given name. It returns an
 // error if the field is not defined in the schema.
 func (m *BusinessActivityMutation) ClearField(name string) error {
-	return fmt.Errorf("unknown BusinessActivityId nullable field %s", name)
+	return fmt.Errorf("unknown BusinessActivity nullable field %s", name)
 }
 
 // ResetField resets all changes in the mutation for the field with the given name.
@@ -516,7 +516,7 @@ func (m *BusinessActivityMutation) ResetField(name string) error {
 		m.ResetTotal()
 		return nil
 	}
-	return fmt.Errorf("unknown BusinessActivityId field %s", name)
+	return fmt.Errorf("unknown BusinessActivity field %s", name)
 }
 
 // AddedEdges returns all edge names that were set/added in this mutation.
@@ -589,7 +589,7 @@ func (m *BusinessActivityMutation) EdgeCleared(name string) bool {
 func (m *BusinessActivityMutation) ClearEdge(name string) error {
 	switch name {
 	}
-	return fmt.Errorf("unknown BusinessActivityId unique edge %s", name)
+	return fmt.Errorf("unknown BusinessActivity unique edge %s", name)
 }
 
 // ResetEdge resets all changes to the edge with the given name in this mutation.
@@ -600,7 +600,7 @@ func (m *BusinessActivityMutation) ResetEdge(name string) error {
 		m.ResetHistories()
 		return nil
 	}
-	return fmt.Errorf("unknown BusinessActivityId edge %s", name)
+	return fmt.Errorf("unknown BusinessActivity edge %s", name)
 }
 
 // CompanyMutation represents an operation that mutates the Company nodes in the graph.
@@ -1633,8 +1633,7 @@ type HistoryMutation struct {
 	equipment                       *[]dto.Equipment
 	appendequipment                 []dto.Equipment
 	accounting_support              *bool
-	operations_num                  *int
-	addoperations_num               *int
+	operation_type                  *string
 	patent_calc                     *bool
 	other                           *string
 	clearedFields                   map[string]struct{}
@@ -2327,74 +2326,53 @@ func (m *HistoryMutation) ResetTaxationSystemOperations() {
 	delete(m.clearedFields, history.FieldTaxationSystemOperations)
 }
 
-// SetOperationsNum sets the "operations_num" field.
-func (m *HistoryMutation) SetOperationsNum(i int) {
-	m.operations_num = &i
-	m.addoperations_num = nil
+// SetOperationType sets the "operation_type" field.
+func (m *HistoryMutation) SetOperationType(s string) {
+	m.operation_type = &s
 }
 
-// OperationsNum returns the value of the "operations_num" field in the mutation.
-func (m *HistoryMutation) OperationsNum() (r int, exists bool) {
-	v := m.operations_num
+// OperationType returns the value of the "operation_type" field in the mutation.
+func (m *HistoryMutation) OperationType() (r string, exists bool) {
+	v := m.operation_type
 	if v == nil {
 		return
 	}
 	return *v, true
 }
 
-// OldOperationsNum returns the old "operations_num" field's value of the History entity.
+// OldOperationType returns the old "operation_type" field's value of the History entity.
 // If the History object wasn't provided to the builder, the object is fetched from the database.
 // An error is returned if the mutation operation is not UpdateOne, or the database query fails.
-func (m *HistoryMutation) OldOperationsNum(ctx context.Context) (v int, err error) {
+func (m *HistoryMutation) OldOperationType(ctx context.Context) (v string, err error) {
 	if !m.op.Is(OpUpdateOne) {
-		return v, errors.New("OldOperationsNum is only allowed on UpdateOne operations")
+		return v, errors.New("OldOperationType is only allowed on UpdateOne operations")
 	}
 	if m.id == nil || m.oldValue == nil {
-		return v, errors.New("OldOperationsNum requires an ID field in the mutation")
+		return v, errors.New("OldOperationType requires an ID field in the mutation")
 	}
 	oldValue, err := m.oldValue(ctx)
 	if err != nil {
-		return v, fmt.Errorf("querying old value for OldOperationsNum: %w", err)
+		return v, fmt.Errorf("querying old value for OldOperationType: %w", err)
 	}
-	return oldValue.OperationsNum, nil
+	return oldValue.OperationType, nil
 }
 
-// AddOperationsNum adds i to the "operations_num" field.
-func (m *HistoryMutation) AddOperationsNum(i int) {
-	if m.addoperations_num != nil {
-		*m.addoperations_num += i
-	} else {
-		m.addoperations_num = &i
-	}
+// ClearOperationType clears the value of the "operation_type" field.
+func (m *HistoryMutation) ClearOperationType() {
+	m.operation_type = nil
+	m.clearedFields[history.FieldOperationType] = struct{}{}
 }
 
-// AddedOperationsNum returns the value that was added to the "operations_num" field in this mutation.
-func (m *HistoryMutation) AddedOperationsNum() (r int, exists bool) {
-	v := m.addoperations_num
-	if v == nil {
-		return
-	}
-	return *v, true
-}
-
-// ClearOperationsNum clears the value of the "operations_num" field.
-func (m *HistoryMutation) ClearOperationsNum() {
-	m.operations_num = nil
-	m.addoperations_num = nil
-	m.clearedFields[history.FieldOperationsNum] = struct{}{}
-}
-
-// OperationsNumCleared returns if the "operations_num" field was cleared in this mutation.
-func (m *HistoryMutation) OperationsNumCleared() bool {
-	_, ok := m.clearedFields[history.FieldOperationsNum]
+// OperationTypeCleared returns if the "operation_type" field was cleared in this mutation.
+func (m *HistoryMutation) OperationTypeCleared() bool {
+	_, ok := m.clearedFields[history.FieldOperationType]
 	return ok
 }
 
-// ResetOperationsNum resets all changes to the "operations_num" field.
-func (m *HistoryMutation) ResetOperationsNum() {
-	m.operations_num = nil
-	m.addoperations_num = nil
-	delete(m.clearedFields, history.FieldOperationsNum)
+// ResetOperationType resets all changes to the "operation_type" field.
+func (m *HistoryMutation) ResetOperationType() {
+	m.operation_type = nil
+	delete(m.clearedFields, history.FieldOperationType)
 }
 
 // SetPatentCalc sets the "patent_calc" field.
@@ -2823,8 +2801,8 @@ func (m *HistoryMutation) Fields() []string {
 	if m.taxation_systems != nil {
 		fields = append(fields, history.FieldTaxationSystemOperations)
 	}
-	if m.operations_num != nil {
-		fields = append(fields, history.FieldOperationsNum)
+	if m.operation_type != nil {
+		fields = append(fields, history.FieldOperationType)
 	}
 	if m.patent_calc != nil {
 		fields = append(fields, history.FieldPatentCalc)
@@ -2872,8 +2850,8 @@ func (m *HistoryMutation) Field(name string) (ent.Value, bool) {
 		return m.AccountingSupport()
 	case history.FieldTaxationSystemOperations:
 		return m.TaxationSystemOperations()
-	case history.FieldOperationsNum:
-		return m.OperationsNum()
+	case history.FieldOperationType:
+		return m.OperationType()
 	case history.FieldPatentCalc:
 		return m.PatentCalc()
 	case history.FieldBusinessActivityID:
@@ -2917,8 +2895,8 @@ func (m *HistoryMutation) OldField(ctx context.Context, name string) (ent.Value,
 		return m.OldAccountingSupport(ctx)
 	case history.FieldTaxationSystemOperations:
 		return m.OldTaxationSystemOperations(ctx)
-	case history.FieldOperationsNum:
-		return m.OldOperationsNum(ctx)
+	case history.FieldOperationType:
+		return m.OldOperationType(ctx)
 	case history.FieldPatentCalc:
 		return m.OldPatentCalc(ctx)
 	case history.FieldBusinessActivityID:
@@ -3027,12 +3005,12 @@ func (m *HistoryMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetTaxationSystemOperations(v)
 		return nil
-	case history.FieldOperationsNum:
-		v, ok := value.(int)
+	case history.FieldOperationType:
+		v, ok := value.(string)
 		if !ok {
 			return fmt.Errorf("unexpected type %T for field %s", value, name)
 		}
-		m.SetOperationsNum(v)
+		m.SetOperationType(v)
 		return nil
 	case history.FieldPatentCalc:
 		v, ok := value.(bool)
@@ -3082,9 +3060,6 @@ func (m *HistoryMutation) AddedFields() []string {
 	if m.addconstruction_facilities_area != nil {
 		fields = append(fields, history.FieldConstructionFacilitiesArea)
 	}
-	if m.addoperations_num != nil {
-		fields = append(fields, history.FieldOperationsNum)
-	}
 	return fields
 }
 
@@ -3101,8 +3076,6 @@ func (m *HistoryMutation) AddedField(name string) (ent.Value, bool) {
 		return m.AddedLandArea()
 	case history.FieldConstructionFacilitiesArea:
 		return m.AddedConstructionFacilitiesArea()
-	case history.FieldOperationsNum:
-		return m.AddedOperationsNum()
 	}
 	return nil, false
 }
@@ -3140,13 +3113,6 @@ func (m *HistoryMutation) AddField(name string, value ent.Value) error {
 		}
 		m.AddConstructionFacilitiesArea(v)
 		return nil
-	case history.FieldOperationsNum:
-		v, ok := value.(int)
-		if !ok {
-			return fmt.Errorf("unexpected type %T for field %s", value, name)
-		}
-		m.AddOperationsNum(v)
-		return nil
 	}
 	return fmt.Errorf("unknown History numeric field %s", name)
 }
@@ -3158,8 +3124,8 @@ func (m *HistoryMutation) ClearedFields() []string {
 	if m.FieldCleared(history.FieldTaxationSystemOperations) {
 		fields = append(fields, history.FieldTaxationSystemOperations)
 	}
-	if m.FieldCleared(history.FieldOperationsNum) {
-		fields = append(fields, history.FieldOperationsNum)
+	if m.FieldCleared(history.FieldOperationType) {
+		fields = append(fields, history.FieldOperationType)
 	}
 	if m.FieldCleared(history.FieldBusinessActivityID) {
 		fields = append(fields, history.FieldBusinessActivityID)
@@ -3184,8 +3150,8 @@ func (m *HistoryMutation) ClearField(name string) error {
 	case history.FieldTaxationSystemOperations:
 		m.ClearTaxationSystemOperations()
 		return nil
-	case history.FieldOperationsNum:
-		m.ClearOperationsNum()
+	case history.FieldOperationType:
+		m.ClearOperationType()
 		return nil
 	case history.FieldBusinessActivityID:
 		m.ClearBusinessActivityID()
@@ -3240,8 +3206,8 @@ func (m *HistoryMutation) ResetField(name string) error {
 	case history.FieldTaxationSystemOperations:
 		m.ResetTaxationSystemOperations()
 		return nil
-	case history.FieldOperationsNum:
-		m.ResetOperationsNum()
+	case history.FieldOperationType:
+		m.ResetOperationType()
 		return nil
 	case history.FieldPatentCalc:
 		m.ResetPatentCalc()

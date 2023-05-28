@@ -49,8 +49,8 @@ type History struct {
 	AccountingSupport bool `json:"accounting_support,omitempty"`
 	// TaxationSystemOperations holds the value of the "taxation_system_operations" field.
 	TaxationSystemOperations int `json:"taxation_system_operations,omitempty"`
-	// OperationsNum holds the value of the "operations_num" field.
-	OperationsNum int `json:"operations_num,omitempty"`
+	// OperationType holds the value of the "operation_type" field.
+	OperationType string `json:"operation_type,omitempty"`
 	// PatentCalc holds the value of the "patent_calc" field.
 	PatentCalc bool `json:"patent_calc,omitempty"`
 	// BusinessActivityID holds the value of the "business_activity_id" field.
@@ -158,9 +158,9 @@ func (*History) scanValues(columns []string) ([]any, error) {
 			values[i] = new(sql.NullBool)
 		case history.FieldAvgSalary, history.FieldLandArea, history.FieldConstructionFacilitiesArea:
 			values[i] = new(sql.NullFloat64)
-		case history.FieldID, history.FieldFullTimeEmployees, history.FieldTaxationSystemOperations, history.FieldOperationsNum, history.FieldBusinessActivityID, history.FieldUserID:
+		case history.FieldID, history.FieldFullTimeEmployees, history.FieldTaxationSystemOperations, history.FieldBusinessActivityID, history.FieldUserID:
 			values[i] = new(sql.NullInt64)
-		case history.FieldName, history.FieldOrganizationalLegal, history.FieldIndustryBranch, history.FieldDistrictTitle, history.FieldBuildingType, history.FieldOther:
+		case history.FieldName, history.FieldOrganizationalLegal, history.FieldIndustryBranch, history.FieldDistrictTitle, history.FieldBuildingType, history.FieldOperationType, history.FieldOther:
 			values[i] = new(sql.NullString)
 		default:
 			values[i] = new(sql.UnknownType)
@@ -263,11 +263,11 @@ func (h *History) assignValues(columns []string, values []any) error {
 			} else if value.Valid {
 				h.TaxationSystemOperations = int(value.Int64)
 			}
-		case history.FieldOperationsNum:
-			if value, ok := values[i].(*sql.NullInt64); !ok {
-				return fmt.Errorf("unexpected type %T for field operations_num", values[i])
+		case history.FieldOperationType:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field operation_type", values[i])
 			} else if value.Valid {
-				h.OperationsNum = int(value.Int64)
+				h.OperationType = value.String
 			}
 		case history.FieldPatentCalc:
 			if value, ok := values[i].(*sql.NullBool); !ok {
@@ -393,8 +393,8 @@ func (h *History) String() string {
 	builder.WriteString("taxation_system_operations=")
 	builder.WriteString(fmt.Sprintf("%v", h.TaxationSystemOperations))
 	builder.WriteString(", ")
-	builder.WriteString("operations_num=")
-	builder.WriteString(fmt.Sprintf("%v", h.OperationsNum))
+	builder.WriteString("operation_type=")
+	builder.WriteString(h.OperationType)
 	builder.WriteString(", ")
 	builder.WriteString("patent_calc=")
 	builder.WriteString(fmt.Sprintf("%v", h.PatentCalc))

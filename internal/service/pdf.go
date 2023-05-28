@@ -14,14 +14,23 @@ type PDF struct {
 }
 
 type Params struct {
-	IndustryBranch      string
-	OrganizationType    string
-	FullTimeEmployers   int
-	LandArea            float64
-	Total               float64
+	IndustryBranch    string
+	OrganizationType  string
+	FullTimeEmployers int
+	LandArea          float64
+	WageFund          float64
+	InsurancePayment  float64
+	IncomeTax         float64
+	LandValueMin      float64
+	LandValueMax      float64
+	LandValue         float64
+	Equipment         float64
+	Taxes             float64
+	Other             *string
+	Total             float64
+	///////
 	Staff               float64
 	RentalProperty      float64
-	Taxes               float64
 	Services            float64
 	StaffNum            int
 	MinStaffMaintenance float64

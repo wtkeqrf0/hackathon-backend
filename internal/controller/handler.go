@@ -52,6 +52,10 @@ type IndustryService interface {
 	GetIndustry(title string) (*dao.Industry, error)
 }
 
+type DistrictService interface {
+	GetDistrict(title string) (*ent.District, error)
+}
+
 type HistoryService interface {
 	GetHistory(historyId int) (*ent.History, error)
 	CreateHistory(h *dto.History, busactId *int, id int) error
@@ -59,6 +63,10 @@ type HistoryService interface {
 
 type BusinessActivityService interface {
 	GetBusiness(bus *dto.BusinessActivity) (*int, error)
+}
+
+type TaxService interface {
+	GetTax(num *int, tax *string) (float64, error)
 }
 
 type PDFGenerator interface {
@@ -83,14 +91,16 @@ type Handler struct {
 	auth     AuthService
 	history  HistoryService
 	industry IndustryService
+	district DistrictService
+	tax      TaxService
 	business BusinessActivityService
 	pdf      PDFGenerator
 	session  AuthMiddleware
 	mail     MailSender
 }
 
-func NewHandler(user UserService, company CompanyService, auth AuthService, history HistoryService, industry IndustryService, business BusinessActivityService, pdf PDFGenerator, session AuthMiddleware, mail MailSender) *Handler {
-	return &Handler{user: user, company: company, auth: auth, history: history, industry: industry, business: business, pdf: pdf, session: session, mail: mail}
+func NewHandler(user UserService, company CompanyService, auth AuthService, history HistoryService, industry IndustryService, district DistrictService, tax TaxService, business BusinessActivityService, pdf PDFGenerator, session AuthMiddleware, mail MailSender) *Handler {
+	return &Handler{user: user, company: company, auth: auth, history: history, industry: industry, district: district, tax: tax, business: business, pdf: pdf, session: session, mail: mail}
 }
 
 func (h *Handler) InitRoutes(rg *gin.RouterGroup, mailSet bool) {

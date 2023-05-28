@@ -41,7 +41,7 @@ func (History) Fields() []ent.Field {
 
 		field.Int("taxation_system_operations").Optional().Immutable(),
 
-		field.Int("operations_num").Optional().Immutable(),
+		field.String("operation_type").Optional().Immutable(),
 
 		field.Bool("patent_calc").Immutable(), //true == next one
 
