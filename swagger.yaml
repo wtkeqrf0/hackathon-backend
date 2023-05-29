@@ -1,0 +1,782 @@
+basePath: /api
+consumes:
+- application/json
+definitions:
+  dao.Company:
+    properties:
+      inn:
+        example: "7707083893"
+        type: string
+      name:
+        example: ООО 'Парк'
+        maxLength: 150
+        minLength: 2
+        type: string
+      website:
+        example: https://www.rusprofile.ru
+        type: string
+    required:
+    - inn
+    type: object
+  dao.Histories:
+    properties:
+      companyName:
+        example: ООО 'Парк'
+        type: string
+      id:
+        example: 12
+        type: integer
+    required:
+    - companyName
+    - id
+    type: object
+  dao.Industry:
+    properties:
+      avgSalary:
+        example: 72.7825875
+        type: number
+      avgSalaryCad:
+        example: 95.54196489
+        type: number
+      avgWorkersNum:
+        example: 1.208
+        type: number
+      avgWorkersNumCad:
+        example: 1243
+        type: number
+    required:
+    - avgSalary
+    - avgSalaryCad
+    - avgWorkersNum
+    - avgWorkersNumCad
+    type: object
+  dao.Me:
+    properties:
+      biography:
+        example: I'd like to relax
+        type: string
+      city:
+        example: Москва
+        type: string
+      country:
+        example: Россия
+        type: string
+      email:
+        example: myemail@gmail.com
+        type: string
+      fatherName:
+        example: Ivanovich
+        type: string
+      firstName:
+        example: Ivan
+        type: string
+      lastName:
+        example: Ivanov
+        type: string
+      name:
+        example: user94
+        type: string
+      position:
+        example: Director
+        type: string
+      role:
+        example: USER
+        type: string
+    required:
+    - email
+    - firstName
+    - lastName
+    - name
+    - role
+    type: object
+  dto.BusinessActivity:
+    properties:
+      id:
+        example: 12
+        maximum: 0
+        type: integer
+      subType:
+        example: Много букав
+        type: string
+      total:
+        example: 35.235
+        type: number
+      type:
+        example: Много букав
+        type: string
+    required:
+    - id
+    - subType
+    - total
+    - type
+    type: object
+  dto.Email:
+    properties:
+      email:
+        example: myemail@gmail.com
+        type: string
+    required:
+    - email
+    type: object
+  dto.Equipment:
+    properties:
+      price:
+        example: 3058.12
+        maximum: 0
+        type: number
+      type:
+        example: Станок
+        type: string
+    required:
+    - type
+    type: object
+  dto.History:
+    properties:
+      accountingSupport:
+        example: true
+        type: boolean
+      avgSalary:
+        example: 3058.12
+        maximum: 0
+        type: number
+      buildingType:
+        example: Энергетическое
+        type: string
+      business_activity:
+        $ref: '#/definitions/dto.BusinessActivity'
+      constructionFacilitiesArea:
+        example: 50
+        maximum: 0
+        type: number
+      districtTitle:
+        example: ВАО
+        type: string
+      equipment:
+        items:
+          $ref: '#/definitions/dto.Equipment'
+        type: array
+      fullTimeEmployees:
+        example: 50
+        maximum: 0
+        type: integer
+      industryBranch:
+        example: Авиационная_промышленность
+        type: string
+      isBuy:
+        example: true
+        type: boolean
+      landArea:
+        example: 120
+        maximum: 0
+        type: number
+      name:
+        example: ООО 'Парк'
+        maxLength: 200
+        minLength: 2
+        type: string
+      operationsNum:
+        maximum: 0
+        type: integer
+      organizationLegal:
+        example: ИП
+        type: string
+      other:
+        example: I want some cookies
+        type: string
+      patentCalc:
+        example: true
+        type: boolean
+      taxationSystemOperations:
+        $ref: '#/definitions/dto.TaxationSystem'
+    required:
+    - accountingSupport
+    - avgSalary
+    - buildingType
+    - constructionFacilitiesArea
+    - districtTitle
+    - fullTimeEmployees
+    - industryBranch
+    - isBuy
+    - landArea
+    - name
+    - organizationLegal
+    - patentCalc
+    type: object
+  dto.SignIn:
+    properties:
+      email:
+        example: myemail@gmail.com
+        type: string
+      password:
+        example: bob126
+        maxLength: 20
+        minLength: 4
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  dto.SignUp:
+    properties:
+      biography:
+        example: I'd like to relax
+        maxLength: 1024
+        type: string
+      city:
+        example: Москва
+        type: string
+      company:
+        $ref: '#/definitions/dao.Company'
+      country:
+        example: Россия
+        type: string
+      email:
+        example: myemail@gmail.com
+        type: string
+      fatherName:
+        example: Ivanovich
+        maxLength: 30
+        minLength: 2
+        type: string
+      firstName:
+        example: Ivan
+        maxLength: 30
+        minLength: 2
+        type: string
+      lastName:
+        example: Ivanov
+        maxLength: 30
+        minLength: 2
+        type: string
+      password:
+        example: bob126
+        maxLength: 20
+        minLength: 4
+        type: string
+      position:
+        example: Director
+        maxLength: 50
+        minLength: 2
+        type: string
+    required:
+    - email
+    - firstName
+    - lastName
+    - password
+    type: object
+  dto.TaxationSystem:
+    properties:
+      operations:
+        example: 20
+        maximum: 0
+        type: integer
+      osn:
+        example: 49.5
+        maximum: 0
+        type: number
+      usn6:
+        example: 84.2
+        maximum: 0
+        type: number
+      usn15:
+        example: 57.2
+        maximum: 0
+        type: number
+    required:
+    - operations
+    - osn
+    - usn15
+    - usn6
+    type: object
+  dto.UpdateCompany:
+    properties:
+      inn:
+        example: "7707083893"
+        type: string
+      name:
+        example: ООО 'Парк'
+        maxLength: 150
+        minLength: 2
+        type: string
+      website:
+        example: https://www.rusprofile.ru
+        type: string
+    type: object
+  dto.UpdateEmail:
+    properties:
+      newEmail:
+        example: myemail@gmail.com
+        type: string
+      password:
+        example: mob126
+        maxLength: 20
+        minLength: 4
+        type: string
+    required:
+    - newEmail
+    - password
+    type: object
+  dto.UpdatePassword:
+    properties:
+      code:
+        example: N1OSP
+        type: string
+      email:
+        example: myemail@gmail.com
+        type: string
+      newPassword:
+        example: mob126
+        maxLength: 20
+        minLength: 4
+        type: string
+    required:
+    - code
+    - email
+    - newPassword
+    type: object
+  dto.UpdateUser:
+    properties:
+      biography:
+        example: I'd like to relax
+        maxLength: 1024
+        type: string
+      city:
+        example: Москва
+        type: string
+      country:
+        example: Россия
+        type: string
+      fatherName:
+        example: Ivanovich
+        maxLength: 30
+        minLength: 2
+        type: string
+      firstName:
+        example: Ivan
+        maxLength: 30
+        minLength: 2
+        type: string
+      lastName:
+        example: Ivanov
+        maxLength: 30
+        minLength: 2
+        type: string
+      position:
+        example: Director
+        maxLength: 50
+        minLength: 2
+        type: string
+    type: object
+  errs.MyError:
+    description: All native errors must be this type
+    properties:
+      advice:
+        example: Try to send request later
+        type: string
+      message:
+        example: Exception was occurred
+        type: string
+    type: object
+info:
+  contact:
+    email: matvey-sizov@mail.ru
+    name: Contact us
+    url: https://github.com/while-act/hackathon-backend/issues/new/choose
+  description: It's an API interacting with While.act using Golang
+  title: While.act API
+  version: "1.0"
+paths:
+  /auth/session:
+    delete:
+      description: Get cookie and delete them from db
+      responses:
+        "200":
+          description: deleted
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+      summary: Delete cookie session
+      tags:
+      - Session
+    get:
+      description: Returns detail information about me
+      responses:
+        "200":
+          description: Info about session
+          schema:
+            $ref: '#/definitions/dao.Me'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "401":
+          description: User isn't logged in
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get detail data about the user by session
+      tags:
+      - Session
+  /auth/sign-in:
+    post:
+      description: Compare the user's password with an existing user's password. If
+        it matches, create session of this user
+      parameters:
+      - description: User's email, password
+        in: body
+        name: SignIn
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SignIn'
+      responses:
+        "200":
+          description: user's session
+          schema:
+            type: string
+        "400":
+          description: Data is not valid
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+      summary: Sign in by password
+      tags:
+      - Auth
+  /auth/sign-up:
+    post:
+      description: Compare the user's password with an existing user's password. If
+        it matches, create session of the user. If the user does not exist, create
+        new user
+      parameters:
+      - description: User's email, password, firstName, lastName, inn
+        in: body
+        name: SignUp
+        required: true
+        schema:
+          $ref: '#/definitions/dto.SignUp'
+      responses:
+        "200":
+          description: user's session
+          schema:
+            type: string
+        "400":
+          description: Data is not valid
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+      summary: Sign up by password
+      tags:
+      - Auth
+  /calc:
+    post:
+      description: Returns PDF file, gotten from body
+      parameters:
+      - description: Completed application form
+        in: body
+        name: from
+        required: true
+        schema:
+          $ref: '#/definitions/dto.History'
+      responses:
+        "200":
+          description: PDF file
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+      summary: Generate PDF from body
+      tags:
+      - Calc
+  /calc/{industry}:
+    get:
+      description: Returns detail information about industry
+      parameters:
+      - description: Industry Branch
+        in: path
+        name: industry
+        required: true
+        type: string
+      responses:
+        "200":
+          description: Info about industry
+          schema:
+            $ref: '#/definitions/dao.Industry'
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+      summary: Get data about industry
+      tags:
+      - Calc
+  /calc/save:
+    post:
+      description: Saves given values to user's history
+      parameters:
+      - description: Completed application form
+        in: body
+        name: from
+        required: true
+        schema:
+          $ref: '#/definitions/dto.History'
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "401":
+          description: User isn't logged in
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+      security:
+      - ApiKeyAuth: []
+      summary: Save calc data to history
+      tags:
+      - Calc
+  /company:
+    get:
+      description: Returns information about company by session
+      responses:
+        "200":
+          description: Info about company
+          schema:
+            $ref: '#/definitions/dao.Company'
+        "401":
+          description: User isn't logged in
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get data about company by session
+      tags:
+      - Company
+    patch:
+      description: Updates information about company by INN
+      parameters:
+      - description: Company
+        in: body
+        name: updCompany
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateCompany'
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "401":
+          description: User isn't logged in
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+      security:
+      - ApiKeyAuth: []
+      summary: Update data about company
+      tags:
+      - Company
+  /email/send-code:
+    post:
+      description: Generates secret code and sends it to specified email
+      parameters:
+      - description: User's email
+        in: body
+        name: SignIn
+        required: true
+        schema:
+          $ref: '#/definitions/dto.Email'
+      responses:
+        "200":
+          description: user's session
+          schema:
+            type: string
+        "400":
+          description: Data is not valid
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+      summary: Send code to specified email
+      tags:
+      - Auth
+  /user:
+    get:
+      description: Returns array of user histories
+      responses:
+        "200":
+          description: History info
+          schema:
+            items:
+              $ref: '#/definitions/dao.Histories'
+            type: array
+        "401":
+          description: User isn't logged in
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get all user's histories
+      tags:
+      - User
+    patch:
+      description: Updates user's info
+      parameters:
+      - description: Fields to update
+        in: body
+        name: updFields
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateUser'
+      responses:
+        "200":
+          description: Successfully Updated
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "401":
+          description: User isn't logged in
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+      security:
+      - ApiKeyAuth: []
+      summary: Update user's data
+      tags:
+      - User
+  /user/{history_id}:
+    get:
+      description: Returns PDF file got from user history
+      parameters:
+      - description: Unique id from history
+        in: path
+        name: history_id
+        required: true
+        type: string
+      responses:
+        "200":
+          description: PDF file
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "401":
+          description: User isn't logged in
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+      security:
+      - ApiKeyAuth: []
+      summary: Generate PDF file from user history
+      tags:
+      - User
+  /user/email:
+    patch:
+      description: Updates user's email
+      parameters:
+      - description: New email with password
+        in: body
+        name: updEmail
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateEmail'
+      responses:
+        "200":
+          description: Successfully Updated
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "401":
+          description: User isn't logged in
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+      security:
+      - ApiKeyAuth: []
+      summary: Update user's email
+      tags:
+      - User
+  /user/password:
+    patch:
+      description: Updates user's password
+      parameters:
+      - description: Email with new password
+        in: body
+        name: updPassword
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdatePassword'
+      responses:
+        "200":
+          description: Successfully Updated
+        "400":
+          description: Validation error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/errs.MyError'
+      summary: Update user's password
+      tags:
+      - User
+produces:
+- application/json
+schemes:
+- http
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: session_id
+    type: apiKey
+swagger: "2.0"
